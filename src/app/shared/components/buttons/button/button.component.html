@@ -1,0 +1,20 @@
+@if(href.length > 0) {
+<a
+	[class]="
+		'font-poppins px-7 py-3 text-sm no-underline text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors ' +
+		extraClasses
+	"
+	[href]="href"
+	>{{ label }}</a
+>
+} @else {
+<button
+	[class]="
+		'font-poppins px-7 py-3 text-sm border-none text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors cursor-pointer ' +
+		extraClasses
+	"
+	(click)="onButtonClick($event)"
+>
+	{{ label }}
+</button>
+}

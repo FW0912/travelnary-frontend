@@ -1,1 +1,84 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+@theme {
+	--color-primary: var(--color-orange-600);
+	--color-primary-hover: var(--color-orange-500);
+	--color-accent: var(--color-amber-400);
+	--color-accent-hover: var(--color-amber-500);
+	--color-dark: var(--color-zinc-900);
+	--font-poppins: "Poppins", "sans-serif";
+	--font-inter: "Inter", "sans-serif";
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+	width: 100vw;
+	font-size: 16px;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	width: 100vw;
+}
+
+@media screen and (max-width: 1024px) {
+	html {
+		font-size: 14px;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	html {
+		font-size: 12px;
+	}
+}
+
+.info-snackbar {
+	@apply bg-gray-800 text-white;
+}
+
+.dark-info-snackbar {
+	@apply bg-gray-300 text-black;
+}
+
+.error-snackbar {
+	@apply !mt-15;
+	--mat-snack-bar-container-color: var(--color-red-700);
+}
+
+.mdc-snackbar {
+	@apply rounded-lg overflow-hidden;
+}
+
+.mat-mdc-snack-bar-label {
+	@apply whitespace-pre-wrap;
+}
+
+:root {
+	--mat-checkbox-state-layer-size: 20px;
+
+	.mdc-label {
+		padding-left: 10px;
+	}
+}
+
+:root .dark {
+	--mat-checkbox-unselected-hover-state-layer-opacity: 1;
+	--mat-checkbox-unselected-hover-state-layer-color: var(--color-gray-800);
+	--mat-checkbox-unselected-hover-icon-color: white;
+	--mat-checkbox-selected-hover-state-layer-opacity: 1;
+	--mat-checkbox-selected-hover-state-layer-color: var(--color-gray-800);
+	--mat-checkbox-selected-hover-icon-color: white;
+	--mat-checkbox-unselected-focus-icon-color: white;
+}
+
+.mat-checkbox-frame:hover {
+	opacity: 1;
+}
+
+.mat-checkbox-layout:hover .mat-checkbox-inner-container {
+	background-color: transparent !important;
+}

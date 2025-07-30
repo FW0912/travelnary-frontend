@@ -1,0 +1,127 @@
+@if(!displayAsList) {
+<div class="flex w-full h-16 items-center justify-between font-poppins">
+	<div class="flex items-center gap-5">
+		<a
+			href="/"
+			class="flex items-center gap-2 hover:text-primary-hover transition-colors"
+		>
+			<img
+				src="icons/travelnary-icon.png"
+				class="w-8 h-8 object-contain"
+			/>
+			<span class="text-xl">Travelnary</span>
+		</a>
+		<div class="w-0.5 border-l-2 self-stretch border-accent"></div>
+		<app-navbar-link
+			href="/browse-plans"
+			label="Browse Plans"
+		></app-navbar-link>
+		<app-navbar-link href="/about-us" label="About Us"></app-navbar-link>
+	</div>
+	<div class="flex items-center gap-5">
+		<a
+			href="/login"
+			class="underline text-primary text-xs hover:text-primary-hover transition-colors"
+			>Have an account?</a
+		>
+		<div
+			class="relative"
+			(mouseover)="onThemeMouseOver()"
+			(mouseleave)="onThemeMouseLeave()"
+		>
+			@switch(theme) { @case(ThemeEnum.LIGHT) {
+			<i class="bi bi-brightness-high pb-2"></i>
+			} @case(ThemeEnum.DARK) {
+			<i class="bi bi-moon pb-2"></i>
+			} }
+			<div
+				class="flex flex-col rounded-lg w-28 bg-white text-black border-gray-200 shadow-md overflow-hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 z-10"
+				[ngClass]="!isThemeDropdownOpen ? 'hidden' : ''"
+			>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.LIGHT)"
+				>
+					<span class="text-sm">Light</span>
+					<i class="bi bi-brightness-high"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.DARK)"
+				>
+					<span class="text-sm">Dark</span>
+					<i class="bi bi-moon"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(null)"
+				>
+					<span class="text-sm">System</span>
+					<i class="bi bi-pc-display"></i>
+				</button>
+			</div>
+		</div>
+		<app-border-button
+			label="Sign Up"
+			href="/register"
+			extraClasses="text-sm"
+		></app-border-button>
+	</div>
+</div>
+} @else {
+<div
+	class="flex relative w-full h-12 items-center justify-between font-poppins"
+>
+	<a
+		href="/"
+		class="flex items-center gap-2 hover:text-primary-hover transition-colors"
+	>
+		<img src="icons/travelnary-icon.png" class="w-14 h-14 object-contain" />
+		<span class="text-xl">Travelnary</span>
+	</a>
+	<i class="bi bi-list text-2xl" (click)="toggleList()"></i>
+	<div
+		*ngIf="isListOpen"
+		class="flex flex-col items-center gap-5 bg-white text-black absolute top-full right-0 p-5 border-gray-200 shadow-md rounded-lg"
+	>
+		<app-navbar-link href="/login" label="Sign In"></app-navbar-link>
+		<app-navbar-link href="/register" label="Sign Up"></app-navbar-link>
+		<div
+			class="flex relative w-full justify-center items-center"
+			(click)="toggleThemeDropdown()"
+		>
+			@switch(theme) { @case(ThemeEnum.LIGHT) {
+			<i class="bi bi-brightness-high text-xl pb-2"></i>
+			} @case(ThemeEnum.DARK) {
+			<i class="bi bi-moon text-xl pb-2"></i>
+			} }
+			<div
+				class="flex flex-col rounded-lg w-32 bg-white text-black border-gray-200 shadow-md overflow-hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 z-10"
+				[ngClass]="!isThemeDropdownOpen ? 'hidden' : ''"
+			>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.LIGHT)"
+				>
+					<span>Light</span>
+					<i class="bi bi-brightness-high"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.DARK)"
+				>
+					<span>Dark</span>
+					<i class="bi bi-moon"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(null)"
+				>
+					<span>System</span>
+					<i class="bi bi-pc-display"></i>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+}

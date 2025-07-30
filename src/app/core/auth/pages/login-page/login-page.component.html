@@ -1,0 +1,99 @@
+<div
+	class="flex w-full h-screen items-center justify-center bg-[url(/images/login-image.jpg)] bg-cover bg-no-repeat"
+>
+	<div class="absolute w-full h-full z-0 backdrop-brightness-[25%]"></div>
+	<div
+		class="flex flex-col gap-7 w-4/5 lg:w-1/3 px-15 py-20 border border-gray-200 dark:border-gray-500 bg-white dark:bg-dark shadow-md rounded-lg items-center justify-center z-10"
+	>
+		<a
+			href="/"
+			class="flex items-center gap-3 hover:text-primary-hover transition-colors"
+		>
+			<img
+				src="icons/travelnary-icon.png"
+				class="w-8 h-8 object-contain"
+			/>
+
+			<span class="text-2xl font-poppins">Travelnary</span>
+		</a>
+
+		<div class="flex flex-col w-full gap-2 font-poppins">
+			<div class="flex flex-col gap-2">
+				<span class="text-xl text-primary">Sign In</span>
+				<span class="text-sm not-dark:text-gray-500"
+					>Please sign in with your username and password to
+					continue.</span
+				>
+			</div>
+
+			<div class="flex flex-col gap-5">
+				<div class="flex flex-col gap-1">
+					<label for="username" class="font-medium text-sm"
+						>Username</label
+					>
+					<app-text-input
+						[(input)]="username"
+						id="username"
+						name="username"
+						placeholder="username"
+					></app-text-input>
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label for="password" class="font-medium text-sm"
+						>Password</label
+					>
+					<div class="relative w-full">
+						<app-text-input
+							[(input)]="password"
+							[type]="isPasswordHidden ? 'password' : 'text'"
+							id="password"
+							name="password"
+							placeholder="**********"
+							extraClasses="pr-8"
+						></app-text-input>
+						@if(isPasswordHidden) {
+						<i
+							class="bi bi-eye-slash absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:text-gray-500 transition-colors"
+							(click)="togglePasswordHidden()"
+						></i>
+						} @else {
+						<i
+							class="bi bi-eye absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:text-gray-500 transition-colors"
+							(click)="togglePasswordHidden()"
+						></i>
+						}
+					</div>
+				</div>
+			</div>
+
+			<div class="flex gap-1 items-center text-xs">
+				<span class="not-dark:text-gray-500"
+					>Don't have an account?</span
+				>
+				<a
+					href="/register"
+					class="text-accent hover:text-accent-hover transition-colors underline"
+				>
+					Sign Up
+				</a>
+			</div>
+		</div>
+
+		<div class="flex w-full items-center">
+			<mat-checkbox
+				[classList]="'dark:text-white text-sm'"
+				[checked]="rememberMe"
+				(change)="changeRememberMe($event)"
+				>Stay logged in</mat-checkbox
+			>
+		</div>
+
+		<app-button
+			label="Sign In"
+			class="w-full"
+			extraClasses="w-full"
+			(onClick)="login()"
+		></app-button>
+	</div>
+</div>
