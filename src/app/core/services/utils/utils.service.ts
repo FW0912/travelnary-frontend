@@ -1,11 +1,14 @@
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { ETheme } from "../../models/utils/theme-enum";
-import { BehaviorSubject } from "rxjs";
+import { Observable } from "rxjs";
 
 @Injectable({
 	providedIn: "root",
 })
 export class UtilsService {
-	public theme: BehaviorSubject<ETheme | null> =
-		new BehaviorSubject<ETheme | null>(null);
+	constructor(private http: HttpClient) {}
+
+	public readJsonAsset(path: string): Observable<any> {
+		return this.http.get<any>(path);
+	}
 }

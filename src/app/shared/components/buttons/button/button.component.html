@@ -1,7 +1,7 @@
 @if(href.length > 0) {
 <a
 	[class]="
-		'font-poppins px-7 py-3 text-sm no-underline text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors ' +
+		'font-poppins px-4 py-2 text-sm no-underline text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors ' +
 		extraClasses
 	"
 	[href]="href"
@@ -10,7 +10,7 @@
 } @else {
 <button
 	[class]="
-		'font-poppins px-7 py-3 text-sm border-none text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors cursor-pointer ' +
+		'font-poppins px-4 py-2 text-sm border-none text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors cursor-pointer ' +
 		extraClasses
 	"
 	(click)="onButtonClick($event)"

@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { TextInputComponent } from "../../../../shared/components/inputs/text-input/text-input.component";
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
 import { SnackbarService } from "../../../services/snackbar/snackbar.service";
-import { ESnackbarType } from "../../../models/utils/snackbar-type-enum";
+import { ESnackbarType } from "../../../models/utils/others/snackbar-type-enum";
 import { FormsModule } from "@angular/forms";
 
 @Component({

@@ -1,0 +1,72 @@
+<div class="flex flex-col w-full gap-3 font-poppins">
+	<div class="flex gap-3 items-center text-xl">
+		<i class="bi bi-sliders"></i>
+		<span class="font-medium">Filter</span>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<div class="flex gap-2 items-center">
+			<i class="bi bi-geo-alt-fill"></i>
+			<span class="font-medium">Trip Destination</span>
+		</div>
+
+		<div class="w-full relative">
+			<app-text-input
+				id="destinationFilter"
+				name="destinationFilter"
+				placeholder="Search for a destination..."
+				extraClasses="text-xs pr-8"
+				[(input)]="destinationFilter"
+				(inputChange)="filterDestinationAutocomplete()"
+				[autoCompleteOptionList]="filteredDestinationOptionList"
+			></app-text-input>
+			<i
+				class="bi bi-search text-sm absolute top-1/2 -translate-y-1/2 right-2"
+			></i>
+		</div>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<div class="flex gap-2 items-center">
+			<i class="bi bi-calendar-range"></i>
+			<span class="font-medium">Date Range</span>
+		</div>
+
+		<app-date-input
+			[(startDate)]="startDateFilter"
+			[(endDate)]="endDateFilter"
+			extraClasses="!text-xs"
+		></app-date-input>
+	</div>
+
+	<div class="flex items-center justify-between">
+		<hr class="w-full" />
+		<span class="px-5">or</span>
+		<hr class="w-full" />
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<div class="flex gap-2 items-center">
+			<i class="bi bi-calendar-range"></i>
+			<span class="font-medium">Days</span>
+		</div>
+
+		<app-text-input
+			id="daysFilter"
+			name="daysFilter"
+			placeholder="Number of days"
+			type="number"
+			extraClasses="!text-xs"
+			[(input)]="daysFilter"
+		></app-text-input>
+	</div>
+
+	<div class="flex gap-2 items-center justify-end">
+		<app-button label="Filter" (onClick)="filterPlanList()"></app-button>
+
+		<app-border-button
+			label="Clear"
+			(onClick)="clearFilters()"
+		></app-border-button>
+	</div>
+</div>

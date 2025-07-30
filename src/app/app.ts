@@ -8,7 +8,7 @@ import {
 import { NavbarComponent } from "./core/layout/navbar/navbar.component";
 import { CommonModule } from "@angular/common";
 import { LocalStorageService } from "./core/services/local-storage/local-storage.service";
-import { ETheme } from "./core/models/utils/theme-enum";
+import { ETheme } from "./core/models/utils/others/theme-enum";
 import { UtilsService } from "./core/services/utils/utils.service";
 import { filter, Subscription } from "rxjs";
 import { ThemeService } from "./core/services/theme/theme.service";

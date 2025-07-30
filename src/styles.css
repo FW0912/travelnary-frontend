@@ -6,7 +6,12 @@
 	--color-primary-hover: var(--color-orange-500);
 	--color-accent: var(--color-amber-400);
 	--color-accent-hover: var(--color-amber-500);
+	--color-hover-bg: var(--color-gray-200);
 	--color-dark: var(--color-zinc-900);
+	--color-dark-bg: var(--color-zinc-700);
+	--color-dark-hover-bg: var(--color-zinc-800);
+	--color-input: var(--color-gray-800);
+	--color-placeholder: var(--color-gray-400);
 	--font-poppins: "Poppins", "sans-serif";
 	--font-inter: "Inter", "sans-serif";
 }
@@ -63,6 +68,16 @@ body {
 	.mdc-label {
 		padding-left: 10px;
 	}
+
+	--mat-form-field-filled-container-color: transparent;
+	--mat-form-field-container-vertical-padding: 0.25rem;
+	--mat-form-field-container-height: fit-content;
+	--mat-form-field-hover-state-layer-opacity: 0;
+	--mat-form-field-outlined-outline-width: 0;
+	--mat-form-field-outlined-focus-outline-color: var(--color-sky-400);
+	--mat-icon-button-state-layer-size: fit-content;
+	--mat-datepicker-range-input-separator-color: black;
+	--mat-datepicker-toggle-icon-color: black;
 }
 
 :root .dark {
@@ -73,12 +88,18 @@ body {
 	--mat-checkbox-selected-hover-state-layer-color: var(--color-gray-800);
 	--mat-checkbox-selected-hover-icon-color: white;
 	--mat-checkbox-unselected-focus-icon-color: white;
+	--mat-datepicker-range-input-separator-color: white;
+	--mat-datepicker-toggle-icon-color: white;
 }
 
-.mat-checkbox-frame:hover {
-	opacity: 1;
+div[matformfieldlineripple] {
+	display: none;
 }
 
-.mat-checkbox-layout:hover .mat-checkbox-inner-container {
-	background-color: transparent !important;
+.mdc-text-field {
+	@apply !pl-2 border-2 border-gray-300 !rounded-sm;
+}
+
+.mdc-text-field--focused {
+	@apply !border-transparent;
 }

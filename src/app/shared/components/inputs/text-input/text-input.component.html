@@ -3,9 +3,16 @@
 	[id]="id"
 	[name]="name"
 	[class]="
-		'w-full border-2 border-gray-300 not-dark:text-gray-500 placeholder:text-gray-300 rounded-sm px-2 py-1 text-sm outline-sky-400 ' +
+		'w-full border-2 border-gray-300 not-dark:text-input placeholder:text-placeholder rounded-sm px-2 py-1 text-sm outline-sky-400 ' +
 		extraClasses
 	"
 	[placeholder]="placeholder"
 	[(ngModel)]="input"
+	[matAutocomplete]="auto"
 />
+<mat-autocomplete #auto="matAutocomplete">
+	@if(autoCompleteOptionList != null) { @for (option of autoCompleteOptionList
+	| async; track option.id) {
+	<mat-option [value]="option.value">{{ option.value }}</mat-option>
+	} }
+</mat-autocomplete>

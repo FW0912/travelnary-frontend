@@ -1,0 +1,29 @@
+<mat-form-field
+	appearance="outline"
+	subscriptSizing="dynamic"
+	[classList]="'w-full ' + extraClasses"
+>
+	<mat-date-range-input
+		[rangePicker]="picker"
+		[class]="'!text-sm !text-input dark:!text-white ' + extraClasses"
+	>
+		<input
+			[(ngModel)]="startDate"
+			class="placeholder:!text-placeholder"
+			matStartDate
+			placeholder="Start Date"
+		/>
+		<input
+			[(ngModel)]="endDate"
+			class="placeholder:!text-placeholder"
+			matEndDate
+			placeholder="End Date"
+		/>
+	</mat-date-range-input>
+	<mat-datepicker-toggle
+		[disableRipple]="true"
+		matIconSuffix
+		[for]="picker"
+	></mat-datepicker-toggle>
+	<mat-date-range-picker #picker></mat-date-range-picker>
+</mat-form-field>

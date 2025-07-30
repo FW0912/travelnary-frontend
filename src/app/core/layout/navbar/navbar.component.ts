@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { NavbarLinkComponent } from "./components/navbar-link/navbar-link.component";
 import { BorderButtonComponent } from "../../../shared/components/buttons/border-button/border-button.component";
-import { ETheme } from "../../models/utils/theme-enum";
+import { ETheme } from "../../models/utils/others/theme-enum";
 import { filter } from "rxjs";
 import { UtilsService } from "../../services/utils/utils.service";
 import { ThemeService } from "../../services/theme/theme.service";
