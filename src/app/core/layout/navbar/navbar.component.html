@@ -1,42 +1,41 @@
-@if(!displayAsList) {
+@if(!displayAsList()) {
 <div class="flex w-full h-16 items-center justify-between font-poppins">
 	<div class="flex items-center gap-5">
-		<a
-			href="/"
-			class="flex items-center gap-2 hover:text-primary-hover transition-colors"
-		>
+		<app-link href="/" extraClasses="flex items-center gap-2">
 			<img
 				src="icons/travelnary-icon.png"
 				class="w-8 h-8 object-contain"
 			/>
 			<span class="text-xl">Travelnary</span>
-		</a>
+		</app-link>
+
 		<div class="w-0.5 border-l-2 self-stretch border-accent"></div>
-		<app-navbar-link
-			href="/browse-plans"
-			label="Browse Plans"
-		></app-navbar-link>
-		<app-navbar-link href="/about-us" label="About Us"></app-navbar-link>
+
+		<app-link href="/browse-plans">Browse Plans</app-link>
+
+		<app-link href="/about-us">About Us</app-link>
 	</div>
+
 	<div class="flex items-center gap-5">
-		<a
+		<app-link
 			href="/login"
-			class="underline text-primary text-xs hover:text-primary-hover transition-colors"
-			>Have an account?</a
+			extraClasses="underline text-primary text-xs hover:text-primary-hover"
+			>Have an account?</app-link
 		>
+
 		<div
 			class="relative"
 			(mouseover)="onThemeMouseOver()"
 			(mouseleave)="onThemeMouseLeave()"
 		>
-			@switch(theme) { @case(ThemeEnum.LIGHT) {
+			@switch(themeService.theme()) { @case(ThemeEnum.LIGHT) {
 			<i class="bi bi-brightness-high pb-2"></i>
 			} @case(ThemeEnum.DARK) {
 			<i class="bi bi-moon pb-2"></i>
 			} }
 			<div
 				class="flex flex-col rounded-lg w-28 bg-white text-black border-gray-200 shadow-md overflow-hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 z-10"
-				[ngClass]="!isThemeDropdownOpen ? 'hidden' : ''"
+				[ngClass]="!isThemeDropdownOpen() ? 'hidden' : ''"
 			>
 				<button
 					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
@@ -61,43 +60,41 @@
 				</button>
 			</div>
 		</div>
+
 		<app-border-button
-			label="Sign Up"
 			href="/register"
 			extraClasses="text-sm border-accent hover:bg-accent"
-		></app-border-button>
+			>Sign Up</app-border-button
+		>
 	</div>
 </div>
 } @else {
 <div
 	class="flex relative w-full h-12 items-center justify-between font-poppins"
 >
-	<a
-		href="/"
-		class="flex items-center gap-2 hover:text-primary-hover transition-colors"
-	>
-		<img src="icons/travelnary-icon.png" class="w-14 h-14 object-contain" />
+	<app-link href="/" extraClasses="flex items-center gap-2">
+		<img src="icons/travelnary-icon.png" class="w-8 h-8 object-contain" />
 		<span class="text-xl">Travelnary</span>
-	</a>
+	</app-link>
 	<i class="bi bi-list text-2xl" (click)="toggleList()"></i>
 	<div
-		*ngIf="isListOpen"
+		*ngIf="isListOpen()"
 		class="flex flex-col items-center gap-5 bg-white text-black absolute top-full right-0 p-5 border-gray-200 shadow-md rounded-lg"
 	>
-		<app-navbar-link href="/login" label="Sign In"></app-navbar-link>
-		<app-navbar-link href="/register" label="Sign Up"></app-navbar-link>
+		<app-link href="/login">Sign In</app-link>
+		<app-link href="/register">Sign Up</app-link>
 		<div
 			class="flex relative w-full justify-center items-center"
 			(click)="toggleThemeDropdown()"
 		>
-			@switch(theme) { @case(ThemeEnum.LIGHT) {
+			@switch(themeService.theme()) { @case(ThemeEnum.LIGHT) {
 			<i class="bi bi-brightness-high text-xl pb-2"></i>
 			} @case(ThemeEnum.DARK) {
 			<i class="bi bi-moon text-xl pb-2"></i>
 			} }
 			<div
 				class="flex flex-col rounded-lg w-32 bg-white text-black border-gray-200 shadow-md overflow-hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 z-10"
-				[ngClass]="!isThemeDropdownOpen ? 'hidden' : ''"
+				[ngClass]="!isThemeDropdownOpen() ? 'hidden' : ''"
 			>
 				<button
 					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"

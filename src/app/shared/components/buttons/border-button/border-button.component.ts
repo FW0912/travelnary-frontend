@@ -1,19 +1,14 @@
-import { Component, Input, output } from "@angular/core";
-import { Router } from "@angular/router";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { BaseButtonComponent } from "../base-button/base-button.component";
 
 @Component({
 	selector: "app-border-button",
 	imports: [],
-	templateUrl: "./border-button.component.html",
-	styleUrl: "./border-button.component.css",
+	templateUrl: "./../base-button/base-button.component.html",
+	styleUrl: "./../base-button/base-button.component.css",
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BorderButtonComponent {
-	@Input({ required: true }) public label: string = "";
-	@Input({ required: false }) public href: string = "";
-	@Input({ required: false }) public extraClasses: string = "";
-	public onClick = output<Event>();
-
-	protected onButtonClick(event: Event): void {
-		this.onClick.emit(event);
-	}
+export class BorderButtonComponent extends BaseButtonComponent {
+	protected override specificClasses: string =
+		"border border-black hover:bg-hover-bg dark:border-white dark:hover:bg-dark-hover-bg";
 }

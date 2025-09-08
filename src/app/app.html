@@ -1,8 +1,8 @@
 <main
 	class="w-full min-h-screen flex flex-col font-inter text-black dark:bg-dark dark:text-white"
-	[ngClass]="!isAuthPage ? 'px-10 py-5 gap-4' : ''"
-	[class.dark]="theme === ThemeEnum.DARK"
+	[ngClass]="!isAuthPage() ? 'px-10 py-5 gap-4' : ''"
+	[class.dark]="themeService.theme() === ThemeEnum.DARK"
 >
-	<app-navbar [theme]="theme" *ngIf="!isAuthPage"></app-navbar>
+	<app-navbar *ngIf="!isAuthPage()"></app-navbar>
 	<router-outlet />
 </main>

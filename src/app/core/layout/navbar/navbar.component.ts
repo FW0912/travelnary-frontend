@@ -1,7 +1,12 @@
-import { Component, Input } from "@angular/core";
-import { NavbarLinkComponent } from "./components/navbar-link/navbar-link.component";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	input,
+	Input,
+	signal,
+} from "@angular/core";
 import { BorderButtonComponent } from "../../../shared/components/buttons/border-button/border-button.component";
-import { ETheme } from "../../models/utils/others/theme-enum";
+import { ETheme } from "../../models/utils/others/theme.enum";
 import { filter } from "rxjs";
 import { UtilsService } from "../../services/utils/utils.service";
 import { ThemeService } from "../../services/theme/theme.service";
@@ -11,57 +16,53 @@ import {
 	Breakpoints,
 	LayoutModule,
 } from "@angular/cdk/layout";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { LinkComponent } from "../../../shared/components/link/link.component";
 
 @Component({
 	selector: "app-navbar",
-	imports: [
-		NavbarLinkComponent,
-		BorderButtonComponent,
-		CommonModule,
-		LayoutModule,
-	],
+	imports: [BorderButtonComponent, CommonModule, LayoutModule, LinkComponent],
 	templateUrl: "./navbar.component.html",
 	styleUrl: "./navbar.component.css",
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent {
-	@Input({ required: true }) public theme: ETheme = ETheme.LIGHT;
-	protected displayAsList: boolean = false;
-	protected isListOpen: boolean = false;
-	protected isThemeDropdownOpen: boolean = false;
+	protected displayAsList = signal<boolean>(false);
+	protected isListOpen = signal<boolean>(false);
+	protected isThemeDropdownOpen = signal<boolean>(false);
 
 	constructor(
-		private themeService: ThemeService,
+		protected themeService: ThemeService,
 		private breakpointObserver: BreakpointObserver
-	) {}
+	) {
+		this.breakpointObserver
+			.observe([Breakpoints.Small, Breakpoints.XSmall])
+			.pipe(takeUntilDestroyed())
+			.subscribe((x) => this.displayAsList.set(x.matches));
+	}
 
 	protected get ThemeEnum() {
 		return ETheme;
 	}
 
-	ngOnInit() {
-		this.breakpointObserver
-			.observe([Breakpoints.Small, Breakpoints.XSmall])
-			.subscribe((x) => (this.displayAsList = x.matches));
-	}
-
 	protected toggleList(): void {
-		this.isListOpen = !this.isListOpen;
+		this.isListOpen.update((state) => !state);
 	}
 
 	protected onThemeMouseOver(): void {
-		this.isThemeDropdownOpen = true;
+		this.isThemeDropdownOpen.set(true);
 	}
 
 	protected onThemeMouseLeave(): void {
-		this.isThemeDropdownOpen = false;
+		this.isThemeDropdownOpen.set(false);
 	}
 
 	protected toggleThemeDropdown(): void {
-		this.isThemeDropdownOpen = !this.isThemeDropdownOpen;
+		this.isThemeDropdownOpen.update((state) => !state);
 	}
 
 	protected changeTheme(theme: ETheme | null): void {
 		this.themeService.changeTheme(theme);
-		this.isThemeDropdownOpen = false;
+		this.isThemeDropdownOpen.set(false);
 	}
 }

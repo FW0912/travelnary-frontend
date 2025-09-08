@@ -1,18 +1,53 @@
-<input
-	[type]="type"
-	[id]="id"
-	[name]="name"
-	[class]="
-		'w-full border-2 border-gray-300 not-dark:text-input placeholder:text-placeholder rounded-sm px-2 py-1 text-sm outline-sky-400 ' +
-		extraClasses
-	"
-	[placeholder]="placeholder"
-	[(ngModel)]="input"
-	[matAutocomplete]="auto"
-/>
-<mat-autocomplete #auto="matAutocomplete">
-	@if(autoCompleteOptionList != null) { @for (option of autoCompleteOptionList
-	| async; track option.id) {
-	<mat-option [value]="option.value">{{ option.value }}</mat-option>
-	} }
-</mat-autocomplete>
+<div class="relative">
+	@if(autoCompleteOptionList() != null) {
+	<input
+		[type]="type()"
+		[id]="id()"
+		[name]="name()"
+		[class]="class()"
+		[placeholder]="placeholder()"
+		[disabled]="isDisabled()"
+		[(ngModel)]="input"
+		(input)="onChange(input())"
+		(blur)="onTouched()"
+		[matAutocomplete]="auto"
+		[ngClass]="{
+			'!outline-error !border-error':
+				isFormSubmitted() && ngControl && ngControl.invalid
+		}"
+	/>
+	<mat-autocomplete #auto="matAutocomplete">
+		@for (option of autoCompleteOptionList() | async; track option.id) {
+		<mat-option
+			[value]="option.value"
+			[classList]="'mat-mdc-option mdc-list-item !text-sm !min-h-10'"
+			>{{ option.value }}</mat-option
+		>
+		}
+	</mat-autocomplete>
+	} @else {
+	<input
+		[type]="type()"
+		[id]="id()"
+		[name]="name()"
+		[class]="class()"
+		[placeholder]="placeholder()"
+		[disabled]="isDisabled()"
+		[(ngModel)]="input"
+		(input)="onChange(input())"
+		(blur)="onTouched()"
+		[ngClass]="{
+			'!outline-error !border-error':
+				isFormSubmitted() && ngControl && ngControl.invalid
+		}"
+	/>
+	} @if(isFormSubmitted() && ngControl && ngControl.invalid &&
+	ngControl.errors != null) {
+	<span
+		@fadeInOut
+		class="absolute -bottom-2 right-2 text-xs text-error px-1 bg-light dark:bg-dark select-none"
+	>
+		{{ ngControl.errors | parseErrorMessage : undefined : "characters" }}
+	</span>
+	}
+</div>

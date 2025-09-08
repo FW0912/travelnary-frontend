@@ -1,18 +1,14 @@
-import { Component, Input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { BaseButtonComponent } from "../base-button/base-button.component";
 
 @Component({
 	selector: "app-button",
 	imports: [],
-	templateUrl: "./button.component.html",
-	styleUrl: "./button.component.css",
+	templateUrl: "./../base-button/base-button.component.html",
+	styleUrl: "./../base-button/base-button.component.css",
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ButtonComponent {
-	@Input({ required: true }) public label: string = "";
-	@Input({ required: false }) public href: string = "";
-	@Input({ required: false }) public extraClasses: string = "";
-	public onClick = output<Event>();
-
-	protected onButtonClick(event: Event): void {
-		this.onClick.emit(event);
-	}
+export class ButtonComponent extends BaseButtonComponent {
+	protected override specificClasses: string =
+		"text-white bg-primary hover:bg-primary-hover";
 }

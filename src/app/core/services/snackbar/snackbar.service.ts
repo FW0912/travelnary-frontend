@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ESnackbarType } from "../../models/utils/others/snackbar-type-enum";
+import { ESnackbarType } from "../../models/utils/others/snackbar-type.enum";
 import { ThemeService } from "../theme/theme.service";
-import { ETheme } from "../../models/utils/others/theme-enum";
+import { ETheme } from "../../models/utils/others/theme.enum";
 
 @Injectable({
 	providedIn: "root",
@@ -25,7 +25,7 @@ export class SnackbarService {
 				this.snackBar.open(message, action, {
 					duration: duration,
 					panelClass:
-						this.themeService.theme.getValue() === ETheme.LIGHT
+						this.themeService.theme() === ETheme.LIGHT
 							? "info-snackbar"
 							: "dark-info-snackbar",
 				});

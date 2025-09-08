@@ -1,4 +1,4 @@
-import { IEntityValue } from "../../utils/api/entity-value";
+import { IEntityValue } from "../../utils/api/entity-value.interface";
 
 export interface IPlan {
 	id: string;
@@ -10,9 +10,10 @@ export interface IPlan {
 	// photo_url: string;
 	date_start: Date;
 	date_end: Date;
+	updated_on: Date;
 	// access: boolean;
 	// share_edit: string;
 	// share_view: string;
-	// like_count: number;
-	// view_count: number;
+	like_count: number;
+	view_count: number;
 }

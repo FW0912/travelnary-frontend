@@ -1,26 +1,26 @@
-<div [class]="'relative text-sm ' + widthClass + extraClasses">
+<div [class]="'relative text-sm ' + widthClass() + ' ' + extraClasses()">
 	<button
 		class="flex w-full gap-2 items-center justify-between px-4 py-2 border rounded-lg border-black hover:bg-hover-bg dark:border-white dark:hover:bg-dark-hover-bg transition-colors cursor-pointer"
 		(click)="toggleDropdown()"
 	>
 		<span>{{
-			selectedOption
-				? selectedOption.value
-				: optionList.at(0)
-				? optionList.at(0)!.value
+			selectedOption()
+				? selectedOption()!.value
+				: optionList().at(0)
+				? optionList().at(0)!.value
 				: "No Option"
 		}}</span>
 		<i
 			class="bi bi-caret-down-fill transition-transform text-xs"
-			[ngClass]="{ 'rotate-180': isDropdownOpen }"
+			[ngClass]="{ 'rotate-180': isDropdownOpen() }"
 		></i>
 	</button>
 
-	@if(isDropdownOpen) {
+	@if(isDropdownOpen()) {
 	<div
 		class="absolute top-full mt-1 left-0 bg-white text-black w-full rounded-lg shadow-md overflow-hidden gap-1"
 	>
-		@for(option of optionList; track option.id) {
+		@for(option of optionList(); track option.id) {
 		<button
 			class="flex w-full py-2 px-4 hover:bg-hover-bg transition-colors cursor-pointer text-nowrap"
 			(click)="onOptionSelected(option)"

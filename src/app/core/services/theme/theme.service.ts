@@ -1,20 +1,19 @@
-import { Injectable } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 import { LocalStorageService } from "../local-storage/local-storage.service";
 import { BehaviorSubject } from "rxjs";
-import { ETheme } from "../../models/utils/others/theme-enum";
+import { ETheme } from "../../models/utils/others/theme.enum";
 
 @Injectable({
 	providedIn: "root",
 })
 export class ThemeService {
-	public theme: BehaviorSubject<ETheme | null> =
-		new BehaviorSubject<ETheme | null>(null);
+	public theme = signal<ETheme | null>(null);
 
 	constructor(private localStorageService: LocalStorageService) {}
 
 	public changeTheme(theme: ETheme | null) {
 		if (theme != null) {
-			this.theme.next(theme);
+			this.theme.set(theme);
 			this.localStorageService.setItem("theme", theme);
 		} else {
 			const windowPrefTheme: ETheme = window.matchMedia(
@@ -22,7 +21,7 @@ export class ThemeService {
 			).matches
 				? ETheme.DARK
 				: ETheme.LIGHT;
-			this.theme.next(windowPrefTheme);
+			this.theme.set(windowPrefTheme);
 			this.localStorageService.removeItem("theme");
 		}
 	}
