@@ -2,6 +2,8 @@ import {
 	afterNextRender,
 	ChangeDetectionStrategy,
 	Component,
+	effect,
+	HostListener,
 	signal,
 } from "@angular/core";
 import {
@@ -17,6 +19,8 @@ import { ETheme } from "./core/models/utils/others/theme.enum";
 import { UtilsService } from "./core/services/utils/utils.service";
 import { filter, Subscription } from "rxjs";
 import { ThemeService } from "./core/services/theme/theme.service";
+import { EventService } from "./core/services/event/event.service";
+import { EventName } from "./shared/enums/event-name";
 
 @Component({
 	selector: "app-root",
@@ -31,7 +35,8 @@ export class App {
 	constructor(
 		private router: Router,
 		private localStorageService: LocalStorageService,
-		protected themeService: ThemeService
+		protected themeService: ThemeService,
+		private eventService: EventService
 	) {
 		this.router.events.subscribe((x) => {
 			if (
@@ -41,6 +46,30 @@ export class App {
 				this.isAuthPage.set(true);
 			} else {
 				this.isAuthPage.set(false);
+			}
+		});
+
+		effect(() => {
+			const theme = themeService.theme();
+
+			if (typeof document === "undefined") {
+				return;
+			}
+
+			const body = document.body;
+
+			switch (theme) {
+				case ETheme.DARK:
+					if (!body.classList.contains("dark")) {
+						body.classList.add("dark");
+					}
+					break;
+				case ETheme.LIGHT:
+				default:
+					if (body.classList.contains("dark")) {
+						body.classList.remove("dark");
+					}
+					break;
 			}
 		});
 	}
@@ -64,5 +93,10 @@ export class App {
 		} else {
 			this.themeService.changeTheme(ETheme.LIGHT);
 		}
+	}
+
+	@HostListener("document:click", ["$event"])
+	public onDocumentClick(event: MouseEvent): void {
+		this.eventService.emitEvent(EventName.DOCUMENT_CLICK, event);
 	}
 }

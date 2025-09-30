@@ -1,0 +1,19 @@
+<app-error-message-wrapper
+	[errors]="ngControl.errors"
+	[isControlTouched]="ngControl.touched"
+	[isFormSubmitted]="isFormSubmitted()"
+>
+	<textarea
+		cdkTextareaAutosize
+		[cdkAutosizeMinRows]="minRows()"
+		[cdkAutosizeMaxRows]="maxRows()"
+		[id]="id()"
+		[name]="name()"
+		[class]="class()"
+		[placeholder]="placeholder()"
+		[disabled]="isDisabled()"
+		[(ngModel)]="value"
+		(input)="onChange(value())"
+		(blur)="onTouched()"
+	></textarea>
+</app-error-message-wrapper>

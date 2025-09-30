@@ -1,0 +1,88 @@
+<app-base-popup title="Location Details">
+	<mat-dialog-content>
+		@if(location) {
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-col gap-1">
+				<span class="font-medium">Category</span>
+				<div
+					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
+				>
+					{{ location.category.name }}
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<span class="font-medium">Name</span>
+				<div
+					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
+				>
+					{{ location.name }}
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-geo-alt-fill"></i>
+					<span class="font-medium">Address</span>
+				</div>
+				<div
+					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
+				>
+					{{ location.address }}
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-card-text"></i>
+					<span class="font-medium">Notes</span>
+				</div>
+				<div
+					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
+					[ngClass]="{
+						'text-placeholder': location.notes.length === 0
+					}"
+				>
+					{{
+						location.notes.length > 0
+							? location.notes
+							: "No notes given."
+					}}
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-clock"></i>
+					<span class="font-medium">Time</span>
+				</div>
+				<div
+					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
+				>
+					{{ location.time | date : "shortTime" }}
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-coin"></i>
+					<span class="font-medium">Estimated Cost</span>
+				</div>
+				<div class="flex gap-2">
+					<div
+						class="flex px-5 py-1 border-2 border-input-border rounded-sm"
+					>
+						{{ location.currencyName }}
+					</div>
+
+					<div
+						class="flex w-full px-2 py-1 border-2 border-input-border rounded-sm"
+					>
+						{{ location.cost | number }}
+					</div>
+				</div>
+			</div>
+		</div>
+		}
+	</mat-dialog-content>
+</app-base-popup>

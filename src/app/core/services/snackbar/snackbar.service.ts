@@ -33,7 +33,6 @@ export class SnackbarService {
 			case ESnackbarType.ERROR:
 				this.snackBar.open(message, action, {
 					duration: duration,
-					verticalPosition: "top",
 					panelClass: "error-snackbar",
 				});
 				break;

@@ -4,6 +4,7 @@
 	<div class="absolute w-full h-full z-0 backdrop-brightness-[25%]"></div>
 	<div
 		class="flex flex-col gap-7 w-4/5 lg:w-1/3 px-15 py-20 border border-gray-200 dark:border-gray-500 bg-light dark:bg-dark shadow-md rounded-lg items-center justify-center z-10"
+		[formGroup]="baseFormGroup"
 	>
 		<app-link href="/" extraClasses="flex items-center gap-3">
 			<img
@@ -33,7 +34,6 @@
 						name="username"
 						placeholder="username"
 						formControlName="username"
-						[formSubmittedObservable]="formSubmittedObservable"
 					></app-text-input>
 				</div>
 
@@ -49,7 +49,6 @@
 							placeholder="**********"
 							extraClasses="pr-8"
 							formControlName="password"
-							[formSubmittedObservable]="formSubmittedObservable"
 						></app-text-input>
 						@if(isPasswordHidden()) {
 						<i

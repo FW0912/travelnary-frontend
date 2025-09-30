@@ -12,7 +12,7 @@ import {
 	Validators,
 } from "@angular/forms";
 import { CommonModule } from "@angular/common";
-import { BaseFormPageComponent } from "../../../../modules/base-form-page/base-form-page.component";
+import { BaseFormComponent } from "../../../../modules/base-form-page/base-form-page.component";
 import { LinkComponent } from "../../../../shared/components/link/link.component";
 
 @Component({
@@ -30,7 +30,7 @@ import { LinkComponent } from "../../../../shared/components/link/link.component
 	styleUrl: "./login-page.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginPageComponent extends BaseFormPageComponent {
+export class LoginPageComponent extends BaseFormComponent {
 	protected isPasswordHidden = signal<boolean>(true);
 	protected rememberMe = signal<boolean>(false);
 
@@ -38,19 +38,19 @@ export class LoginPageComponent extends BaseFormPageComponent {
 		super();
 	}
 
-	protected formGroup!: FormGroup;
-
 	ngOnInit(): void {
-		this.formGroup = this.fb.group({
-			username: this.fb.control("", [
-				Validators.required,
-				Validators.minLength(5),
-			]),
-			password: this.fb.control("", [
-				Validators.required,
-				Validators.minLength(5),
-			]),
-		});
+		this.setFormGroup(
+			this.fb.group({
+				username: this.fb.control("", [
+					Validators.required,
+					Validators.minLength(5),
+				]),
+				password: this.fb.control("", [
+					Validators.required,
+					Validators.minLength(5),
+				]),
+			})
+		);
 	}
 
 	protected togglePasswordHidden(): void {

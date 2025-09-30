@@ -1,0 +1,83 @@
+<div class="flex flex-col">
+	<div class="flex gap-2">
+		<div class="flex flex-col">
+			<div class="w-10 h-10 rounded-full bg-placeholder shrink-0"></div>
+
+			@if(comment().reply_list.length > 0) {
+			<div
+				class="w-[1px] h-full border-l-2 border-gray-300 self-center"
+			></div>
+			}
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<div class="flex flex-col">
+				<span class="font-medium text-sm">{{
+					comment().user.username
+				}}</span>
+
+				<span class="text-xs text-placeholder">{{
+					comment().posted_date | timeAgo
+				}}</span>
+			</div>
+
+			<div class="text-sm">{{ comment().content }}</div>
+
+			<div class="flex gap-4 items-center">
+				<div class="flex gap-2 items-center">
+					<i
+						class="bi bi-heart text-lg text-error"
+						style="-webkit-text-stroke: 0.5px"
+					></i>
+
+					<span class="text-sm font-medium">{{
+						comment().like_count
+					}}</span>
+				</div>
+
+				<div class="flex gap-1 items-center text-error">
+					<i class="bi bi-trash3"></i>
+
+					<span class="text-sm font-medium">Delete</span>
+				</div>
+
+				<div class="flex gap-1 items-center">
+					<i class="bi bi-pencil-square"></i>
+
+					<span class="text-sm font-medium">Edit</span>
+				</div>
+
+				<div class="flex gap-1 items-center">
+					<i class="bi bi-reply"></i>
+
+					<span class="text-sm font-medium">Reply</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@for(reply of comment().reply_list; let isLast = $last; track reply.id) {
+	<div class="flex">
+		<div class="flex flex-col w-10">
+			<div
+				class="w-[1px] h-7 border-l-2 border-gray-300 self-center"
+			></div>
+
+			<div
+				class="h-[1px] w-1/2 border-t-2 border-gray-300 self-end"
+			></div>
+
+			@if(!isLast) {
+			<div
+				class="w-[1px] h-full border-l-2 border-gray-300 self-center"
+			></div>
+			}
+		</div>
+
+		<app-comment-details
+			class="py-2"
+			[comment]="reply"
+		></app-comment-details>
+	</div>
+	}
+</div>

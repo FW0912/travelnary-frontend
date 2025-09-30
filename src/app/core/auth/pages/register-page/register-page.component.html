@@ -4,6 +4,7 @@
 	<div class="absolute w-full h-full z-0 backdrop-brightness-[25%]"></div>
 	<div
 		class="flex flex-col gap-10 w-4/5 lg:w-1/3 px-15 py-10 border border-gray-200 dark:border-gray-500 bg-light dark:bg-dark shadow-md rounded-lg items-center justify-center z-10"
+		[formGroup]="baseFormGroup"
 	>
 		<app-link href="/" extraClasses="flex items-center gap-3">
 			<img
@@ -14,7 +15,10 @@
 			<span class="text-2xl font-poppins">Travelnary</span>
 		</app-link>
 
-		<div class="flex flex-col w-full gap-2 font-poppins">
+		<div
+			class="flex flex-col w-full gap-2 font-poppins"
+			[formGroup]="formGroup"
+		>
 			<div class="flex flex-col gap-2">
 				<span class="text-xl text-primary">Sign Up</span>
 				<span class="text-sm not-dark:text-gray-500"
@@ -27,15 +31,12 @@
 					<label for="username" class="font-medium text-sm"
 						>Username</label
 					>
-					<!-- <app-text-input
-						[(input)]="username"
+					<app-text-input
 						id="username"
 						name="username"
 						placeholder="username"
-						[isValid]="username().length > 5"
-						errorMessage="Username must be more than 5 characters!"
-						[formSubmittedObservable]="formSubmittedObservable"
-					></app-text-input> -->
+						formControlName="username"
+					></app-text-input>
 				</div>
 
 				<div class="flex flex-col gap-1">
@@ -43,17 +44,14 @@
 						>Password</label
 					>
 					<div class="relative w-full">
-						<!-- <app-text-input
-							[(input)]="password"
+						<app-text-input
 							[type]="isPasswordHidden() ? 'password' : 'text'"
 							id="password"
 							name="password"
 							placeholder="**********"
 							extraClasses="pr-8"
-							[isValid]="password().length > 5"
-							errorMessage="Password must be more than 5 characters!"
-							[formSubmittedObservable]="formSubmittedObservable"
-						></app-text-input> -->
+							formControlName="password"
+						></app-text-input>
 						@if(isPasswordHidden()) {
 						<i
 							class="bi bi-eye-slash absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:text-gray-500 transition-colors"
@@ -70,27 +68,27 @@
 
 				<div class="flex flex-col gap-1">
 					<label for="fullName" class="font-medium text-sm"
-						>Full Name</label
+						>Full Name (optional)</label
 					>
-					<!-- <app-text-input
-						[(input)]="fullName"
+					<app-text-input
 						id="fullName"
 						name="fullName"
 						placeholder="full name"
-					></app-text-input> -->
+						formControlName="fullName"
+					></app-text-input>
 				</div>
 
 				<div class="flex flex-col gap-1">
 					<label for="email" class="font-medium text-sm"
 						>Email Address</label
 					>
-					<!-- <app-text-input
-						[(input)]="email"
+					<app-text-input
 						type="email"
 						id="email"
 						name="email"
 						placeholder="example@gmail.com"
-					></app-text-input> -->
+						formControlName="email"
+					></app-text-input>
 				</div>
 			</div>
 

@@ -1,0 +1,26 @@
+<app-base-popup title="Share">
+	<mat-dialog-content class="!overflow-visible">
+		<div class="flex flex-col gap-2">
+			<div class="flex gap-2 items-center">
+				<i class="bi bi-person-lock text-xl"></i>
+				Access Category
+			</div>
+
+			<app-dropdown
+				[optionList]="ACCESS_CATEGORY_LIST"
+				placeholder="Select an Access Category"
+				widthClass="w-full"
+				(onSelected)="onAccessCategorySelected($event!)"
+			></app-dropdown>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<app-button (onClick)="copyLink()">
+			<div class="flex gap-2 items-center">
+				<i class="bi bi-link"></i>
+				Copy Link
+			</div>
+		</app-button>
+	</mat-dialog-actions>
+</app-base-popup>

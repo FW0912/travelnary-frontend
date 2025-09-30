@@ -1,0 +1,14 @@
+/* .dark .mat-mdc-dialog-content::-webkit-scrollbar {
+	width: 5px;
+	border-radius: 5px;
+}
+
+.dark .mat-mdc-dialog-content::-webkit-scrollbar-track {
+	background: var(--color-dark-bg);
+	border-radius: 5px;
+}
+
+.dark .mat-mdc-dialog-content::-webkit-scrollbar-thumb {
+	background: white;
+	border-radius: 5px;
+} */

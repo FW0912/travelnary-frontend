@@ -3,51 +3,58 @@ import { ButtonComponent } from "../../../../shared/components/buttons/button/bu
 import { TextInputComponent } from "../../../../shared/components/inputs/text-input/text-input.component";
 import { SnackbarService } from "../../../services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../models/utils/others/snackbar-type.enum";
-import { BaseFormPageComponent } from "../../../../modules/base-form-page/base-form-page.component";
+import { BaseFormComponent } from "../../../../modules/base-form-page/base-form-page.component";
 import { LinkComponent } from "../../../../shared/components/link/link.component";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 @Component({
 	selector: "app-register-page",
-	imports: [TextInputComponent, ButtonComponent, LinkComponent],
+	imports: [
+		TextInputComponent,
+		ButtonComponent,
+		LinkComponent,
+		ReactiveFormsModule,
+	],
 	templateUrl: "./register-page.component.html",
 	styleUrl: "./register-page.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RegisterPageComponent extends BaseFormPageComponent {
-	protected username = signal<string>("");
-	protected fullName = signal<string>("");
-	protected email = signal<string>("");
-	protected password = signal<string>("");
+export class RegisterPageComponent extends BaseFormComponent {
 	protected isPasswordHidden = signal<boolean>(true);
 
-	constructor() {
+	constructor(private fb: FormBuilder) {
 		super();
+	}
+
+	ngOnInit(): void {
+		this.setFormGroup(
+			this.fb.group({
+				username: this.fb.control("", [
+					Validators.required,
+					Validators.minLength(5),
+				]),
+				password: this.fb.control("", [
+					Validators.required,
+					Validators.minLength(5),
+				]),
+				fullName: this.fb.control(""),
+				email: this.fb.control("", [
+					Validators.required,
+					Validators.email,
+				]),
+			})
+		);
 	}
 
 	protected togglePasswordHidden(): void {
 		this.isPasswordHidden.update((state) => !state);
 	}
 
-	protected validateRegister(): boolean {
-		if (this.username().length < 5) {
-			return false;
-		}
-
-		if (this.password().length < 5) {
-			return false;
-		}
-
-		return true;
-	}
-
 	protected register(): void {
 		this.submit();
 
-		if (this.validateRegister()) {
-			console.log(this.username());
-			console.log(this.fullName());
-			console.log(this.email());
-			console.log(this.password());
+		if (this.formGroup.valid) {
+			console.log(this.formGroup);
 		}
 	}
 }

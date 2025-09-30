@@ -1,9 +1,9 @@
-import { IEntityValue } from "../../utils/api/entity-value.interface";
+import { EntityValue } from "../../utils/api/entity-value.interface";
 
-export interface IPlan {
+export interface Plan {
 	id: string;
-	user: IEntityValue;
-	currency: IEntityValue;
+	user: EntityValue;
+	currency: EntityValue;
 	name: string;
 	description: string;
 	destination: string;
@@ -11,6 +11,9 @@ export interface IPlan {
 	date_start: Date;
 	date_end: Date;
 	updated_on: Date;
+	is_owner?: boolean;
+	is_pinned?: boolean;
+	is_liked?: boolean;
 	// access: boolean;
 	// share_edit: string;
 	// share_view: string;

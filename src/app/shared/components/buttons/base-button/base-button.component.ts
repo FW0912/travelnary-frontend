@@ -18,7 +18,7 @@ export abstract class BaseButtonComponent extends BaseSharedComponent {
 	public href = input<string>("");
 	public onClick = output<Event>();
 	private readonly baseClasses: string =
-		"font-poppins px-4 py-2 text-sm no-underline rounded-lg transition-colors cursor-pointer";
+		"flex justify-center items-center font-poppins px-4 py-2 text-sm no-underline rounded-lg transition-colors cursor-pointer";
 	protected abstract specificClasses: string;
 
 	constructor(private router: Router) {

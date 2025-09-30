@@ -1,24 +1,6 @@
 import { Routes } from "@angular/router";
-import { HomePageComponent } from "./modules/home-page/home-page.component";
-import { LoginPageComponent } from "./core/auth/pages/login-page/login-page.component";
-import { RegisterPageComponent } from "./core/auth/pages/register-page/register-page.component";
-import { BrowsePlansPageComponent } from "./modules/plans/browse-plans-page/browse-plans-page.component";
+import { AuthRoutes } from "./core/auth/pages/auth.routes";
+import { HomeRoute } from "./modules/home-page/home.route";
+import { PlanRoutes } from "./modules/plans/plans.routes";
 
-export const routes: Routes = [
-	{
-		path: "",
-		component: HomePageComponent,
-	},
-	{
-		path: "login",
-		component: LoginPageComponent,
-	},
-	{
-		path: "register",
-		component: RegisterPageComponent,
-	},
-	{
-		path: "browse-plans",
-		component: BrowsePlansPageComponent,
-	},
-];
+export const routes: Routes = [HomeRoute, ...AuthRoutes, ...PlanRoutes];

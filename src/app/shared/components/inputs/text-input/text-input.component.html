@@ -1,4 +1,8 @@
-<div class="relative">
+<app-error-message-wrapper
+	[errors]="ngControl.errors"
+	[isControlTouched]="ngControl.touched"
+	[isFormSubmitted]="isFormSubmitted()"
+>
 	@if(autoCompleteOptionList() != null) {
 	<input
 		[type]="type()"
@@ -7,16 +11,15 @@
 		[class]="class()"
 		[placeholder]="placeholder()"
 		[disabled]="isDisabled()"
-		[(ngModel)]="input"
-		(input)="onChange(input())"
+		[(ngModel)]="value"
+		(input)="onChange(value())"
 		(blur)="onTouched()"
 		[matAutocomplete]="auto"
-		[ngClass]="{
-			'!outline-error !border-error':
-				isFormSubmitted() && ngControl && ngControl.invalid
-		}"
 	/>
-	<mat-autocomplete #auto="matAutocomplete">
+	<mat-autocomplete
+		#auto="matAutocomplete"
+		(optionSelected)="onChange(value())"
+	>
 		@for (option of autoCompleteOptionList() | async; track option.id) {
 		<mat-option
 			[value]="option.value"
@@ -33,21 +36,15 @@
 		[class]="class()"
 		[placeholder]="placeholder()"
 		[disabled]="isDisabled()"
-		[(ngModel)]="input"
-		(input)="onChange(input())"
+		[(ngModel)]="value"
+		(input)="onChange(value())"
 		(blur)="onTouched()"
 		[ngClass]="{
 			'!outline-error !border-error':
-				isFormSubmitted() && ngControl && ngControl.invalid
+				ngControl &&
+				ngControl.invalid &&
+				(ngControl.touched || isFormSubmitted())
 		}"
 	/>
-	} @if(isFormSubmitted() && ngControl && ngControl.invalid &&
-	ngControl.errors != null) {
-	<span
-		@fadeInOut
-		class="absolute -bottom-2 right-2 text-xs text-error px-1 bg-light dark:bg-dark select-none"
-	>
-		{{ ngControl.errors | parseErrorMessage : undefined : "characters" }}
-	</span>
 	}
-</div>
+</app-error-message-wrapper>

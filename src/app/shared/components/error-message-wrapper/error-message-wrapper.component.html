@@ -1,0 +1,17 @@
+<div
+	class="relative"
+	[ngClass]="{
+		error: errors() != null && (isControlTouched() || isFormSubmitted())
+	}"
+>
+	<ng-content></ng-content>
+
+	@if(errors() != null && (isControlTouched() || isFormSubmitted())) {
+	<span
+		@fadeInOut
+		class="absolute -bottom-2 right-2 text-xs text-error px-1 bg-light dark:bg-dark select-none"
+	>
+		{{ errors() | parseErrorMessage }}
+	</span>
+	}
+</div>
