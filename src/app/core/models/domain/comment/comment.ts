@@ -10,4 +10,6 @@ export interface Comment {
 	reply_list: Array<Comment>;
 	posted_date: Date;
 	like_count: number;
+	is_owner: boolean;
+	is_liked: boolean;
 }

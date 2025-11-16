@@ -18,6 +18,7 @@ import { IValueOption } from "../../../models/utils/value-option";
 import { BaseInputComponent } from "../base-input/base-input.component";
 import { fadeInOutAnimation } from "../../../animations/fade-in-out.animation";
 import { ErrorMessageWrapperComponent } from "../../error-message-wrapper/error-message-wrapper.component";
+import { BlurOnEnterDirective } from "../../../directives/blur-on-enter/blur-on-enter.directive";
 
 @Component({
 	selector: "app-text-input",
@@ -28,6 +29,7 @@ import { ErrorMessageWrapperComponent } from "../../error-message-wrapper/error-
 		MatAutocompleteModule,
 		AsyncPipe,
 		ErrorMessageWrapperComponent,
+		BlurOnEnterDirective,
 	],
 	templateUrl: "./text-input.component.html",
 	styleUrl: "./text-input.component.css",

@@ -7,6 +7,17 @@
 		></app-plan-details>
 
 		<div class="flex gap-2 items-center">
+			@if(plan().is_owner) {
+			<app-border-button
+				extraClasses="!rounded-xl"
+				(onClick)="openEditPlanPopup()"
+			>
+				<div class="flex gap-2 items-center">
+					<i class="bi bi-pencil-square"></i>
+					<span class="font-medium">Edit Plan Details</span>
+				</div>
+			</app-border-button>
+			} @else {
 			<app-border-button
 				extraClasses="!rounded-xl"
 				(onClick)="toggleLike()"
@@ -22,6 +33,7 @@
 					<span class="font-medium">Like</span>
 				</div>
 			</app-border-button>
+			}
 
 			<app-border-button
 				extraClasses="!rounded-xl"
@@ -32,6 +44,18 @@
 					<span class="font-medium">Share</span>
 				</div>
 			</app-border-button>
+
+			@if(plan().is_owner) {
+			<app-border-button
+				extraClasses="!rounded-xl !border-error"
+				(onClick)="openDeletePopup()"
+			>
+				<div class="flex gap-2 items-center text-error">
+					<i class="bi bi-trash3"></i>
+					<span class="font-medium">Delete</span>
+				</div>
+			</app-border-button>
+			}
 		</div>
 	</div>
 
@@ -39,14 +63,19 @@
 		<div class="flex flex-col gap-4">
 			<app-locations
 				class="w-full"
+				[planId]="plan().id"
 				[day]="1"
+				[currencyName]="plan().currency.name"
 				[locationList]="locationList()"
-				[readOnly]="false"
+				[readOnly]="!plan().is_owner"
+                (onSort)="onLocationSort($event)"
 			></app-locations>
 
 			<app-locations
 				class="w-full"
+				[planId]="plan().id"
 				[day]="2"
+				[currencyName]="plan().currency.name"
 				[locationList]="locationList()"
 				[readOnly]="true"
 			></app-locations>

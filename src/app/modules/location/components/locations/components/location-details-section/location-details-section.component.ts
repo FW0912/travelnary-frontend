@@ -14,6 +14,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { EventName } from "../../../../../../shared/enums/event-name";
 import { MatDialog } from "@angular/material/dialog";
 import { LocationDetailsPopupComponent } from "../../../../popups/location-details-popup/location-details-popup.component";
+import { EditLocationPopupComponent } from "../../../../popups/edit-location-popup/edit-location-popup.component";
+import { ConfirmationPopupComponent } from "../../../../../confirmation-popup/confirmation-popup.component";
 
 @Component({
 	selector: "app-location-details-section",
@@ -27,6 +29,7 @@ export class LocationDetailsSectionComponent {
 
 	public location = input.required<Location>();
 	public readOnly = input.required<boolean>();
+	public simple = input<boolean>(false);
 	public isLast = input<boolean>(false);
 	protected isDropdownOpen = signal<boolean>(false);
 
@@ -53,7 +56,7 @@ export class LocationDetailsSectionComponent {
 	protected openDetailsPopup(): void {
 		this.isDropdownOpen.set(false);
 		this.dialog.open(LocationDetailsPopupComponent, {
-			minWidth: "35%",
+			width: "35%",
 			maxHeight: "80%",
 			data: {
 				location: this.location(),
@@ -63,9 +66,21 @@ export class LocationDetailsSectionComponent {
 
 	protected openEditDetailsPopup(): void {
 		this.isDropdownOpen.set(false);
+		this.dialog.open(EditLocationPopupComponent, {
+			width: "35%",
+			maxHeight: "80%",
+			data: {
+				location: this.location(),
+			},
+		});
 	}
 
 	protected openRemovePopup(): void {
 		this.isDropdownOpen.set(false);
+		const ref = this.dialog.open(ConfirmationPopupComponent, {
+			minWidth: "35%",
+		});
+
+		ref.afterClosed().subscribe((x) => console.log(x));
 	}
 }

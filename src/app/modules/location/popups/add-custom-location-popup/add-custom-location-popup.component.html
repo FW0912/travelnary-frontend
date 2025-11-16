@@ -1,0 +1,92 @@
+<app-base-popup title="Add Custom Location">
+	<mat-dialog-content class="dark:!text-white" [formGroup]="baseFormGroup">
+		<div class="flex flex-col gap-4" [formGroup]="formGroup">
+			<div class="flex flex-col gap-1">
+				<span class="font-medium">Category</span>
+				<app-error-message-wrapper
+					[errors]="categoryControl.errors"
+					[isControlTouched]="categoryControl.touched"
+					[isFormSubmitted]="isFormSubmitted.value"
+				>
+					<app-dropdown
+						[optionList]="LOCATION_CATEGORY_OPTION_LIST"
+						placeholder="Select a category"
+						widthClass="w-full"
+						contentClass="max-h-20"
+						(onSelected)="onCategorySelected($event)"
+					></app-dropdown>
+				</app-error-message-wrapper>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<span class="font-medium">Name</span>
+				<app-text-input
+					id="name"
+					name="name"
+					formControlName="name"
+					placeholder="Input name here..."
+				></app-text-input>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-geo-alt-fill"></i>
+					<span class="font-medium">Address</span>
+				</div>
+				<app-text-input
+					id="address"
+					name="address"
+					formControlName="address"
+					placeholder="Input address here..."
+				></app-text-input>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-card-text"></i>
+					<span class="font-medium">Notes</span>
+				</div>
+				<app-text-area
+					id="notes"
+					name="notes"
+					formControlName="notes"
+					placeholder="Input notes here..."
+				></app-text-area>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-clock"></i>
+					<span class="font-medium">Time</span>
+				</div>
+				<app-time-picker formControlName="time"></app-time-picker>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-coin"></i>
+					<span class="font-medium">Estimated Cost</span>
+				</div>
+				<div class="flex gap-2">
+					<div
+						class="flex px-5 py-1 border-2 border-input-border rounded-sm"
+					>
+						{{ currencyName }}
+					</div>
+
+					<app-text-input
+						id="cost"
+						name="cost"
+						placeholder="Amount"
+						type="number"
+						formControlName="cost"
+					></app-text-input>
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<app-button (onClick)="addCustomLocation()">Add</app-button>
+	</mat-dialog-actions>
+</app-base-popup>

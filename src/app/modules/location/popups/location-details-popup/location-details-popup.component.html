@@ -1,23 +1,21 @@
 <app-base-popup title="Location Details">
-	<mat-dialog-content>
+	<mat-dialog-content class="dark:!text-white">
 		@if(location) {
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-1">
 				<span class="font-medium">Category</span>
 				<div
-					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
-				>
-					{{ location.category.name }}
-				</div>
+					class="px-2 py-1 border-2 border-input-border rounded-sm break-words whitespace-pre-wrap"
+					[textContent]="location.category.name"
+				></div>
 			</div>
 
 			<div class="flex flex-col gap-1">
 				<span class="font-medium">Name</span>
 				<div
-					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
-				>
-					{{ location.name }}
-				</div>
+					class="px-2 py-1 border-2 border-input-border rounded-sm break-words whitespace-pre-wrap"
+					[textContent]="location.name"
+				></div>
 			</div>
 
 			<div class="flex flex-col gap-1">
@@ -26,10 +24,9 @@
 					<span class="font-medium">Address</span>
 				</div>
 				<div
-					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
-				>
-					{{ location.address }}
-				</div>
+					class="px-2 py-1 border-2 border-input-border rounded-sm break-words whitespace-pre-wrap"
+					[textContent]="location.address"
+				></div>
 			</div>
 
 			<div class="flex flex-col gap-1">
@@ -38,17 +35,16 @@
 					<span class="font-medium">Notes</span>
 				</div>
 				<div
-					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
+					class="px-2 py-1 border-2 border-input-border rounded-sm wrap-anywhere whitespace-pre-wrap"
 					[ngClass]="{
 						'text-placeholder': location.notes.length === 0
 					}"
-				>
-					{{
+					[textContent]="
 						location.notes.length > 0
 							? location.notes
-							: "No notes given."
-					}}
-				</div>
+							: 'No notes given.'
+					"
+				></div>
 			</div>
 
 			<div class="flex flex-col gap-1">

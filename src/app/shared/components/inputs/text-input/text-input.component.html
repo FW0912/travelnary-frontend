@@ -5,6 +5,7 @@
 >
 	@if(autoCompleteOptionList() != null) {
 	<input
+		blurOnEnter
 		[type]="type()"
 		[id]="id()"
 		[name]="name()"
@@ -15,6 +16,12 @@
 		(input)="onChange(value())"
 		(blur)="onTouched()"
 		[matAutocomplete]="auto"
+		[ngClass]="{
+			'!outline-error !border-error':
+				ngControl &&
+				ngControl.invalid &&
+				(ngControl.touched || isFormSubmitted())
+		}"
 	/>
 	<mat-autocomplete
 		#auto="matAutocomplete"
@@ -30,6 +37,7 @@
 	</mat-autocomplete>
 	} @else {
 	<input
+		blurOnEnter
 		[type]="type()"
 		[id]="id()"
 		[name]="name()"

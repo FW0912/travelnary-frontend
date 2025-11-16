@@ -6,6 +6,8 @@ import { ESnackbarType } from "../../../models/utils/others/snackbar-type.enum";
 import { BaseFormComponent } from "../../../../modules/base-form-page/base-form-page.component";
 import { LinkComponent } from "../../../../shared/components/link/link.component";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { AuthService } from "../../../services/auth/auth.service";
+import { Router } from "@angular/router";
 
 @Component({
 	selector: "app-register-page",
@@ -22,7 +24,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 export class RegisterPageComponent extends BaseFormComponent {
 	protected isPasswordHidden = signal<boolean>(true);
 
-	constructor(private fb: FormBuilder) {
+	constructor(
+		private fb: FormBuilder,
+		private authService: AuthService,
+		private snackbarService: SnackbarService,
+		private router: Router
+	) {
 		super();
 	}
 
@@ -54,7 +61,22 @@ export class RegisterPageComponent extends BaseFormComponent {
 		this.submit();
 
 		if (this.formGroup.valid) {
-			console.log(this.formGroup);
+			this.authService
+				.register(
+					this.formGroup.value.username,
+					this.formGroup.value.password,
+					this.formGroup.value.fullName,
+					this.formGroup.value.email
+				)
+				.subscribe({
+					next: (x) => {
+						this.snackbarService.openSnackBar(
+							`Successfully registered as '${x.data.userProfile.username}'.`,
+							ESnackbarType.INFO
+						);
+						this.router.navigateByUrl("/");
+					},
+				});
 		}
 	}
 }

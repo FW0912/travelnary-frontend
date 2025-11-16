@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4" [formGroup]="baseFormGroup">
+<div class="flex flex-col gap-4 w-2/3" [formGroup]="baseFormGroup">
 	<span class="text-xl font-medium text-primary"
 		>Comments ({{ commentsList().length }})</span
 	>
@@ -6,20 +6,20 @@
 	<div class="flex gap-2" [formGroup]="formGroup">
 		<div class="w-10 h-10 rounded-full bg-placeholder"></div>
 
-		<div class="relative w-2/3">
+		<div class="flex w-full gap-4">
 			<app-text-area
 				id="comment"
 				name="comment"
 				[minRows]="1"
-				[maxRows]="5"
+				[maxRows]="3"
 				placeholder="What's on your mind?"
 				class="w-full"
-				extraClasses="w-full min-h-full pr-10"
+				extraClasses="!min-h-10"
 				formControlName="comment"
 			></app-text-area>
 
 			<button
-				class="text-sm font-medium text-primary absolute right-5 top-1/2 -translate-y-2/3 cursor-pointer hover:text-primary-hover transition-colors"
+				class="text-sm font-medium text-primary cursor-pointer hover:text-primary-hover transition-colors"
 				[ngClass]="{
 					'!cursor-default !text-primary opacity-50':
 						comment.value.length === 0

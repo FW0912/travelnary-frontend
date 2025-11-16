@@ -9,6 +9,7 @@ import { CommonModule } from "@angular/common";
 import { TextFieldModule } from "@angular/cdk/text-field";
 import { fadeInOutAnimation } from "../../../animations/fade-in-out.animation";
 import { ErrorMessageWrapperComponent } from "../../error-message-wrapper/error-message-wrapper.component";
+import { BlurOnEnterDirective } from "../../../directives/blur-on-enter/blur-on-enter.directive";
 
 @Component({
 	selector: "app-text-area",
@@ -18,6 +19,7 @@ import { ErrorMessageWrapperComponent } from "../../error-message-wrapper/error-
 		ReactiveFormsModule,
 		TextFieldModule,
 		ErrorMessageWrapperComponent,
+		BlurOnEnterDirective,
 	],
 	templateUrl: "./text-area.component.html",
 	styleUrl: "./text-area.component.css",
@@ -38,7 +40,7 @@ export class TextAreaComponent extends BaseInputComponent<string> {
 	public maxRows = input<number>(8);
 	protected class = computed(() => {
 		var baseClasses =
-			"w-full border-2 not-dark:text-input placeholder:text-placeholder transition-all rounded-sm px-2 py-1 text-sm outline-sky-400 border-gray-300";
+			"w-[calc(100%-1.1rem)] border-2 not-dark:text-input placeholder:text-placeholder transition-all rounded-sm px-2 py-1 text-sm outline-sky-400 border-gray-300";
 		const extraClasses = this.extraClasses();
 
 		if (extraClasses && extraClasses.length > 0) {

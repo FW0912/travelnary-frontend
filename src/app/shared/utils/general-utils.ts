@@ -6,7 +6,7 @@ export class GeneralUtils {
 	}): Array<IValueOption> {
 		return Object.values(enumerator).map((x, index) => {
 			return {
-				id: index + 1,
+				id: (index + 1).toString(),
 				value: x,
 			};
 		});

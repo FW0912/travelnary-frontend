@@ -1,4 +1,4 @@
 export interface IValueOption {
-	id: number;
+	id: string;
 	value: string;
 }

@@ -14,6 +14,7 @@ export interface Plan {
 	is_owner?: boolean;
 	is_pinned?: boolean;
 	is_liked?: boolean;
+	is_public?: boolean;
 	// access: boolean;
 	// share_edit: string;
 	// share_view: string;

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewerPlanPageComponent } from './viewer-plan-page.component';
+import { EditPlanPopupComponent } from './edit-plan-popup.component';
 
-describe('ViewerPlanPageComponent', () => {
-  let component: ViewerPlanPageComponent;
-  let fixture: ComponentFixture<ViewerPlanPageComponent>;
+describe('EditPlanPopupComponent', () => {
+  let component: EditPlanPopupComponent;
+  let fixture: ComponentFixture<EditPlanPopupComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ViewerPlanPageComponent]
+      imports: [EditPlanPopupComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ViewerPlanPageComponent);
+    fixture = TestBed.createComponent(EditPlanPopupComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

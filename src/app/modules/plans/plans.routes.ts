@@ -29,8 +29,8 @@ export const PlanRoutes: Routes = [
 		path: "view-plan/:id",
 		title: "Plan",
 		loadComponent: () =>
-			import(
-				"../plans/pages/viewer-plan-page/viewer-plan-page.component"
-			).then((c) => c.ViewerPlanPageComponent),
+			import("../plans/pages/plan-page/plan-page.component").then(
+				(c) => c.PlanPageComponent
+			),
 	},
 ];

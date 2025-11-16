@@ -1,0 +1,120 @@
+@if(this.planId && this.day) {
+<div class="flex flex-col lg:flex-row px-5 gap-10">
+	<div class="flex flex-col gap-4 w-full h-fit lg:w-1/3">
+		<div
+			class="flex items-center gap-2 cursor-pointer hover:text-hover transition-colors"
+			(click)="navigateBack()"
+		>
+			<i class="bi bi-arrow-left"></i>
+
+			<span class="font-medium">Back</span>
+		</div>
+		<app-locations
+			class="overflow-auto"
+			[planId]="planId"
+			[day]="day"
+			[locationList]="locationList()"
+			[readOnly]="true"
+			[simple]="true"
+		></app-locations>
+	</div>
+
+	<div class="flex flex-col gap-3 grow">
+		<span class="text-3xl font-medium text-primary">Recommendations</span>
+
+		<div class="flex flex-wrap gap-2 items-center">
+			<app-border-button
+				extraClasses="rounded-xl"
+				(onClick)="openFilterRecommendationsPopup()"
+			>
+				<div class="flex gap-2 items-center">
+					<i class="bi bi-sliders"></i>
+					<span>Filter</span>
+				</div>
+			</app-border-button>
+
+			@for(locationCategory of locationCategoryFilterList(); track
+			locationCategory.id) {
+			<div class="flex items-center gap-2 rounded-full border px-4 py-2">
+				<span class="text-sm">{{ locationCategory.value }}</span>
+				<i
+					class="bi bi-x cursor-pointer hover:text-hover transition-colors"
+					(click)="removeLocationCategoryFilter(locationCategory)"
+				></i>
+			</div>
+			} @if(locationFilter() !== null) {
+			<div class="flex items-center gap-2 rounded-full border px-4 py-2">
+				<i class="bi bi-geo-alt-fill"></i>
+				<span class="text-sm"
+					>Nearby {{ locationFilter()!.value }}</span
+				>
+				<i
+					class="bi bi-x cursor-pointer hover:text-hover transition-colors"
+					(click)="removeLocationFilter()"
+				></i>
+			</div>
+			}
+		</div>
+
+		<!-- <div
+			class="grid min-[35rem]:grid-cols-2 min-[45rem]:grid-cols-3 lg:grid-cols-2 min-[85rem]:grid-cols-3 min-[110rem]:grid-cols-4 gap-4"
+		>
+			@for(location of recommendedLocationList(); track location.id) {
+			<div
+				class="flex flex-col gap-2 w-60 p-4 bg-white dark:bg-dark-bg rounded-lg shadow-md"
+			>
+				<div class="w-full h-36 bg-placeholder rounded-md"></div>
+
+				<div class="flex items-center justify-between text-sm">
+					<span>{{ location.name }}</span>
+				</div>
+			</div>
+			}
+		</div> -->
+
+		<div class="flex flex-col gap-4">
+			@for(location of recommendedLocationList(); track location.id) {
+			<div class="flex gap-4">
+				<div
+					class="w-52 max-lg:h-40 lg:h-full bg-placeholder rounded-md"
+				></div>
+
+				<div class="flex flex-col gap-3 py-2">
+					<div class="flex flex-col gap-1">
+						<span class="font-medium text-lg">{{
+							location.name
+						}}</span>
+
+						<div class="flex items-center gap-1 text-sm">
+							<span>{{ location.notes }}</span>
+
+							<i class="bi bi-dot"></i>
+
+							<span>$$</span>
+						</div>
+
+						<div class="flex items-center gap-2 text-sm">
+							<i class="bi bi-geo-alt-fill"></i>
+							<span>{{ location.address }}</span>
+						</div>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<i class="bi bi-star-fill text-yellow-500"></i>
+
+						<span>4.9</span>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<app-button (onClick)="onAdd()">Add</app-button>
+						<app-border-button (onClick)="onCheckDetails()"
+							>Check Details</app-border-button
+						>
+					</div>
+				</div>
+			</div>
+			}
+		</div>
+	</div>
+</div>
+}

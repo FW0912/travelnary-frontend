@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { Plan } from "../../../../../../../core/models/domain/plan/plan";
 import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
+import { BasePlanDto } from "../../../../../models/base-plan-dto";
 
 @Component({
 	selector: "app-plan-gallery-card",
@@ -11,7 +12,7 @@ import { Router } from "@angular/router";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanGalleryCardComponent {
-	public plan = input.required<Plan>();
+	public plan = input.required<BasePlanDto>();
 
 	constructor(private router: Router) {}
 

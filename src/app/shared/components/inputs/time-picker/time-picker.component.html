@@ -1,0 +1,20 @@
+<app-error-message-wrapper
+	[errors]="ngControl.errors"
+	[isControlTouched]="ngControl.touched"
+	[isFormSubmitted]="isFormSubmitted()"
+>
+	<mat-form-field
+		appearance="outline"
+		subscriptSizing="dynamic"
+		[classList]="'w-full ' + extraClasses()"
+	>
+		<input
+			matInput
+			[formControl]="time"
+			[matTimepicker]="picker"
+			class="!text-sm !text-input dark:!text-white"
+		/>
+		<mat-timepicker-toggle matIconSuffix [for]="picker" class="pr-2" />
+		<mat-timepicker #picker />
+	</mat-form-field>
+</app-error-message-wrapper>

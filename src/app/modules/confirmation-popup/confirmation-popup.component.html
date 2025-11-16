@@ -1,0 +1,11 @@
+<app-base-popup title="Are you sure?">
+	<mat-dialog-content class="dark:!text-white">
+		Are you sure you want to commit this change?
+	</mat-dialog-content>
+
+	<mat-dialog-actions class="flex items-center gap-2" align="end">
+		<app-border-button (onClick)="close(false)"> No </app-border-button>
+
+		<app-button (onClick)="close(true)"> Yes </app-button>
+	</mat-dialog-actions>
+</app-base-popup>

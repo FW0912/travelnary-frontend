@@ -1,0 +1,51 @@
+@if(locationList) {
+<app-base-popup title="Filter Recommendations">
+	<mat-dialog-content class="dark:!text-white !overflow-visible">
+		<div class="flex flex-col gap-3">
+			<div class="flex flex-col gap-1">
+				<span class="font-medium">Category</span>
+				<app-dropdown
+					[optionList]="LOCATION_CATEGORY_OPTION_LIST"
+					placeholder="Select a category"
+					widthClass="w-full"
+					contentClass="max-h-20"
+					(onSelected)="onLocationCategorySelected($event)"
+				></app-dropdown>
+			</div>
+
+			<div class="flex items-center justify-between">
+				<hr class="w-full" />
+				<span class="px-5">or</span>
+				<hr class="w-full" />
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-geo-alt-fill"></i>
+					<span class="font-medium">Nearby</span>
+				</div>
+				<app-dropdown
+					[optionList]="locationList"
+					placeholder="Select a location"
+					widthClass="w-full"
+					contentClass="max-h-20"
+					(onSelected)="onLocationSelected($event)"
+				></app-dropdown>
+			</div>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<app-button
+			(onClick)="onFilter()"
+			[extraClasses]="
+				selectedLocation() === null &&
+				selectedLocationCategory() === null
+					? 'opacity-50'
+					: ''
+			"
+			>Filter</app-button
+		>
+	</mat-dialog-actions>
+</app-base-popup>
+}

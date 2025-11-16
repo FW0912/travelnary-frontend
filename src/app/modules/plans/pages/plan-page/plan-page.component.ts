@@ -1,21 +1,23 @@
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { PlanDetailsComponent } from "../../plan-details/plan-details.component";
-import { ActivatedRoute, Router } from "@angular/router";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
-import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
-import { Plan } from "../../../../core/models/domain/plan/plan";
 import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
-import { Location } from "../../../../core/models/domain/location/location";
-import { Comment } from "../../../../core/models/domain/comment/comment";
-import { CommonModule } from "@angular/common";
-import { MatDialog } from "@angular/material/dialog";
 import { LocationsComponent } from "../../../location/components/locations/locations.component";
 import { CommentsComponent } from "../../../comment/components/comments/comments.component";
+import { CommonModule } from "@angular/common";
 import { SharePlanPopupComponent } from "../../popups/share-plan-popup/share-plan-popup.component";
+import { Comment } from "../../../../core/models/domain/comment/comment";
+import { Location } from "../../../../core/models/domain/location/location";
+import { Plan } from "../../../../core/models/domain/plan/plan";
+import { ActivatedRoute, Router } from "@angular/router";
+import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
+import { MatDialog } from "@angular/material/dialog";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
+import { ConfirmationPopupComponent } from "../../../confirmation-popup/confirmation-popup.component";
+import { EditPlanPopupComponent } from "../../popups/edit-plan-popup/edit-plan-popup.component";
 
 @Component({
-	selector: "app-viewer-plan-page",
+	selector: "app-plan-page",
 	imports: [
 		PlanDetailsComponent,
 		BorderButtonComponent,
@@ -23,11 +25,11 @@ import { SharePlanPopupComponent } from "../../popups/share-plan-popup/share-pla
 		CommentsComponent,
 		CommonModule,
 	],
-	templateUrl: "./viewer-plan-page.component.html",
-	styleUrl: "./viewer-plan-page.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	templateUrl: "./plan-page.component.html",
+	styleUrl: "./plan-page.component.css",
 })
-export class ViewerPlanPageComponent {
+export class PlanPageComponent {
 	private planId = signal<string>("");
 
 	protected plan = signal<Plan>({
@@ -130,10 +132,14 @@ export class ViewerPlanPageComponent {
 					reply_list: [],
 					posted_date: new Date("2025-09-18"),
 					like_count: 2,
+					is_owner: false,
+					is_liked: false,
 				},
 			],
 			posted_date: new Date("2025-09-12"),
 			like_count: 7,
+			is_owner: true,
+			is_liked: false,
 		},
 		{
 			id: "92d4e775-af45-4673-a4c0-02b2d241dea5",
@@ -148,6 +154,8 @@ export class ViewerPlanPageComponent {
 			reply_list: [],
 			posted_date: new Date("2025-09-18"),
 			like_count: 5,
+			is_owner: false,
+			is_liked: true,
 		},
 	]);
 
@@ -168,6 +176,16 @@ export class ViewerPlanPageComponent {
 			} else {
 				this.planId.set(x.get("id")!);
 			}
+		});
+	}
+
+	protected openEditPlanPopup(): void {
+		this.dialog.open(EditPlanPopupComponent, {
+			minWidth: "35%",
+			maxHeight: "80%",
+			data: {
+				plan: this.plan(),
+			},
 		});
 	}
 
@@ -193,5 +211,20 @@ export class ViewerPlanPageComponent {
 				isOwner: this.plan().is_owner,
 			},
 		});
+	}
+
+	protected openDeletePopup(): void {
+		const ref = this.dialog.open(ConfirmationPopupComponent, {
+			minWidth: "35%",
+		});
+
+		ref.afterClosed().subscribe((x) => console.log(x));
+	}
+
+	protected onLocationSort(event: {
+		day: number;
+		locationList: Array<Location>;
+	}) {
+		this.locationList.set(event.locationList);
 	}
 }

@@ -32,6 +32,7 @@ body {
 	min-height: 100vh;
 	width: 100vw;
 	overflow-x: hidden;
+	cursor: default !important;
 }
 
 @media screen and (max-width: 1024px) {
@@ -55,7 +56,7 @@ body {
 }
 
 .error-snackbar {
-	@apply !mt-15;
+	/* @apply !mt-40; */
 	--mat-snack-bar-container-color: var(--color-error);
 }
 
@@ -91,6 +92,8 @@ body {
 		width: 1rem !important;
 		height: 1rem !important;
 	}
+
+	--mat-dialog-container-max-width: 90vw;
 }
 
 :root .dark {
@@ -105,6 +108,8 @@ body {
 	--mat-checkbox-unselected-focus-icon-color: white;
 	--mat-datepicker-range-input-separator-color: white;
 	--mat-datepicker-toggle-icon-color: white;
+	--mat-sys-surface-container: var(--color-dark-bg);
+	--mat-sys-on-surface: white;
 }
 
 input[type="radio"] {
@@ -139,4 +144,8 @@ div[matformfieldlineripple] {
 
 .mdc-text-field--focused {
 	@apply !border-transparent;
+}
+
+textarea.cdk-textarea-autosize {
+	box-sizing: content-box;
 }

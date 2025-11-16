@@ -37,7 +37,7 @@ export abstract class BaseDropdownComponent extends BaseSharedComponent {
 		effect(() => {
 			const initialOption = this.initialOption();
 
-			if (initialOption !== null) {
+			if (initialOption !== null && this.selectedOption() === null) {
 				this.selectedOption.set(initialOption);
 			}
 		});

@@ -51,7 +51,7 @@ export class DestinationSearchComponent extends BaseInputComponent<string> {
 			.pipe(takeUntilDestroyed())
 			.subscribe((data) => {
 				const concatCountryAndCity: Array<{
-					id: number;
+					id: string;
 					value: string;
 				}> = Array.from(
 					new Set<string>(
@@ -69,7 +69,7 @@ export class DestinationSearchComponent extends BaseInputComponent<string> {
 					)
 				).map((x, i) => {
 					return {
-						id: i + 1,
+						id: (i + 1).toString(),
 						value: x,
 					};
 				});

@@ -49,7 +49,7 @@ export class SharePlanPopupComponent {
 				GeneralUtils.getOptionList(AccessCategory);
 		} else {
 			this.ACCESS_CATEGORY_LIST = new Array({
-				id: 1,
+				id: "1",
 				value: AccessCategory.VIEWER,
 			});
 		}

@@ -14,6 +14,8 @@ import {
 import { CommonModule } from "@angular/common";
 import { BaseFormComponent } from "../../../../modules/base-form-page/base-form-page.component";
 import { LinkComponent } from "../../../../shared/components/link/link.component";
+import { AuthService } from "../../../services/auth/auth.service";
+import { Router } from "@angular/router";
 
 @Component({
 	selector: "app-login-page",
@@ -34,7 +36,12 @@ export class LoginPageComponent extends BaseFormComponent {
 	protected isPasswordHidden = signal<boolean>(true);
 	protected rememberMe = signal<boolean>(false);
 
-	constructor(private fb: FormBuilder) {
+	constructor(
+		private fb: FormBuilder,
+		private authService: AuthService,
+		private snackbarService: SnackbarService,
+		private router: Router
+	) {
 		super();
 	}
 
@@ -65,8 +72,21 @@ export class LoginPageComponent extends BaseFormComponent {
 		this.submit();
 
 		if (this.formGroup.valid) {
-			console.log(this.formGroup);
-			console.log(this.rememberMe());
+			this.authService
+				.login(
+					this.formGroup.value.username,
+					this.formGroup.value.password,
+					this.rememberMe()
+				)
+				.subscribe({
+					next: (x) => {
+						this.snackbarService.openSnackBar(
+							`Successfully logged in as '${x.data.userProfile.username}'.`,
+							ESnackbarType.INFO
+						);
+						this.router.navigateByUrl("/");
+					},
+				});
 		}
 	}
 }
