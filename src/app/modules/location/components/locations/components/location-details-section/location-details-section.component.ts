@@ -3,6 +3,7 @@ import {
 	Component,
 	ElementRef,
 	input,
+	output,
 	signal,
 	ViewChild,
 } from "@angular/core";
@@ -17,6 +18,9 @@ import { LocationDetailsPopupComponent } from "../../../../popups/location-detai
 import { EditLocationPopupComponent } from "../../../../popups/edit-location-popup/edit-location-popup.component";
 import { ConfirmationPopupComponent } from "../../../../../confirmation-popup/confirmation-popup.component";
 import { GetLocationDto } from "../../../../models/get-location-dto";
+import { LocationService } from "../../../../services/location.service";
+import { SnackbarService } from "../../../../../../core/services/snackbar/snackbar.service";
+import { ESnackbarType } from "../../../../../../core/models/utils/others/snackbar-type.enum";
 
 @Component({
 	selector: "app-location-details-section",
@@ -28,13 +32,24 @@ import { GetLocationDto } from "../../../../models/get-location-dto";
 export class LocationDetailsSectionComponent {
 	@ViewChild("options") private options!: ElementRef;
 
+	public day = input.required<number>();
 	public location = input.required<GetLocationDto>();
 	public readOnly = input.required<boolean>();
 	public simple = input<boolean>(false);
 	public isLast = input<boolean>(false);
 	protected isDropdownOpen = signal<boolean>(false);
 
-	constructor(private eventService: EventService, private dialog: MatDialog) {
+	public onDelete = output<{
+		day: number;
+		id: string;
+	}>();
+
+	constructor(
+		private eventService: EventService,
+		private dialog: MatDialog,
+		private locationService: LocationService,
+		private snackbarService: SnackbarService
+	) {
 		eventService
 			.listen<MouseEvent>(EventName.DOCUMENT_CLICK)
 			.pipe(takeUntilDestroyed())
@@ -82,6 +97,23 @@ export class LocationDetailsSectionComponent {
 			minWidth: "35%",
 		});
 
-		ref.afterClosed().subscribe((x) => console.log(x));
+		ref.afterClosed().subscribe((x) => {
+			if (x) {
+				this.locationService
+					.deleteLocation(this.location().id)
+					.subscribe({
+						next: () => {
+							this.snackbarService.openSnackBar(
+								"Plan deleted successfully.",
+								ESnackbarType.INFO
+							);
+							this.onDelete.emit({
+								day: this.day(),
+								id: this.location().id,
+							});
+						},
+					});
+			}
+		});
 	}
 }

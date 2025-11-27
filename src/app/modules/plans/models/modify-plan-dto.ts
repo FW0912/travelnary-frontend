@@ -1,4 +1,4 @@
-export interface CreatePlanDto {
+export interface ModifyPlanDto {
 	name: string;
 	description: string;
 	destination: string;

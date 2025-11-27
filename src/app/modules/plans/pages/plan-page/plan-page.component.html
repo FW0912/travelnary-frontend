@@ -73,6 +73,7 @@
 				[locationList]="location.locations"
 				[readOnly]="!plan()!.isOwner"
 				(onSort)="onLocationSort($event)"
+				(onDelete)="onDeleteLocation($event)"
 			></app-locations>
 			}
 		</div>

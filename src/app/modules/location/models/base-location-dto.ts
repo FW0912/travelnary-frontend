@@ -1,4 +1,4 @@
-import { Location } from "../../../shared/models/common/location";
+import { Location } from "./location";
 
 export interface BaseLocationDto {
 	id: string;

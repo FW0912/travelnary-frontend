@@ -4,7 +4,7 @@ import {
 	HttpParams,
 } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, catchError, throwError } from "rxjs";
+import { Observable, catchError, switchMap, throwError } from "rxjs";
 import { environment } from "../../../../environments/environment";
 import { ApiResponse } from "../../../core/models/api/api-response";
 import { ESnackbarType } from "../../../core/models/utils/others/snackbar-type.enum";
@@ -15,7 +15,7 @@ import { PlanQuery } from "../models/plan-query";
 import { AuthService } from "../../../core/services/auth/auth.service";
 import { GetPlanByIdDto } from "../models/get-plan-by-id-dto";
 import { UtilsService } from "../../../core/services/utils/utils.service";
-import { CreatePlanDto } from "../models/create-plan-dto";
+import { ModifyPlanDto } from "../models/modify-plan-dto";
 
 @Injectable({
 	providedIn: "root",
@@ -141,10 +141,28 @@ export class PlanService {
 	}
 
 	public createPlan(
-		dto: CreatePlanDto
+		dto: ModifyPlanDto
 	): Observable<ApiResponse<{ id: string }>> {
 		return this.http
 			.post<ApiResponse<{ id: string }>>(`${this.baseApiUrl}/create`, dto)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public updatePlan(
+		id: string,
+		dto: ModifyPlanDto
+	): Observable<ApiResponse<GetPlanByIdDto>> {
+		return this.http
+			.put<ApiResponse<GetPlanByIdDto>>(
+				`${this.baseApiUrl}/${id}/update`,
+				dto
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public deletePlan(id: string): Observable<ApiResponse<boolean>> {
+		return this.http
+			.delete<ApiResponse<boolean>>(`${this.baseApiUrl}/${id}`)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 }

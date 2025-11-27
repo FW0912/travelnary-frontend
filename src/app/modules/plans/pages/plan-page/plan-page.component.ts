@@ -185,13 +185,25 @@ export class PlanPageComponent {
 			minWidth: "35%",
 		});
 
-		ref.afterClosed().subscribe((x) => console.log(x));
+		ref.afterClosed().subscribe((x) => {
+			if (x) {
+				this.planService.deletePlan(this.planId()).subscribe({
+					next: () => {
+						this.snackbarService.openSnackBar(
+							"Plan deleted successfully.",
+							ESnackbarType.INFO
+						);
+						this.router.navigateByUrl("/your-plans");
+					},
+				});
+			}
+		});
 	}
 
 	protected onLocationSort(event: {
 		day: number;
 		locationList: Array<GetLocationDto>;
-	}) {
+	}): void {
 		this.locationList.update((x) =>
 			x.map((y) => {
 				if (y.day === event.day) {
@@ -199,6 +211,18 @@ export class PlanPageComponent {
 						...y,
 						locations: event.locationList,
 					};
+				}
+
+				return y;
+			})
+		);
+	}
+
+	protected onDeleteLocation(event: { day: number; id: string }): void {
+		this.locationList.update((x) =>
+			x.map((y) => {
+				if (y.day === event.day) {
+					y.locations = y.locations.filter((z) => z.id !== event.id);
 				}
 
 				return y;

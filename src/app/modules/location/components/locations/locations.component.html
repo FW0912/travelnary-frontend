@@ -19,10 +19,12 @@
 		@for(location of locationList(); let isLast = $last; track location.id)
 		{
 		<app-location-details-section
+			[day]="day()"
 			[location]="location"
 			[readOnly]="readOnly()"
 			[simple]="simple()"
 			[isLast]="isLast"
+			(onDelete)="onDeleteLocation($event)"
 		></app-location-details-section>
 		} @if(!readOnly()) {
 		<div

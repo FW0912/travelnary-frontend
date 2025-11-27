@@ -52,6 +52,10 @@ export class LocationsComponent {
 		day: number;
 		locationList: Array<GetLocationDto>;
 	}>();
+	public onDelete = output<{
+		day: number;
+		id: string;
+	}>();
 
 	constructor(private dialog: MatDialog) {}
 
@@ -86,5 +90,9 @@ export class LocationsComponent {
 				currencyName: this.currencyName(),
 			},
 		});
+	}
+
+	protected onDeleteLocation(event: { day: number; id: string }): void {
+		this.onDelete.emit(event);
 	}
 }
