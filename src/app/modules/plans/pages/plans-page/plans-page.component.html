@@ -1,7 +1,10 @@
 <div
-	class="flex flex-col md:flex-row w-full min-h-[calc(100vh-8.5rem)] justify-center gap-10"
+	class="flex flex-col md:flex-row w-full min-h-[calc(100vh-8.5rem)] md:justify-center gap-10"
 >
-	<app-plan-filter (onFilter)="onFilter($event)"></app-plan-filter>
+	<app-plan-filter
+		class="max-md:self-center"
+		(onFilter)="onFilter($event)"
+	></app-plan-filter>
 
 	<div class="flex flex-col w-full md:w-3/4 gap-2">
 		<span class="text-primary text-3xl">
@@ -40,6 +43,7 @@
 					class="w-full"
 					extraClasses="py-2 !rounded-lg pl-3 pr-10"
 					[formControl]="nameFilter"
+					(keyup.enter)="filterPlans()"
 				></app-text-input>
 
 				<i

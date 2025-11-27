@@ -18,6 +18,7 @@ import {
 } from "@angular/cdk/layout";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { LinkComponent } from "../../../shared/components/link/link.component";
+import { AuthService } from "../../services/auth/auth.service";
 
 @Component({
 	selector: "app-navbar",
@@ -30,9 +31,11 @@ export class NavbarComponent {
 	protected displayAsList = signal<boolean>(false);
 	protected isListOpen = signal<boolean>(false);
 	protected isThemeDropdownOpen = signal<boolean>(false);
+	protected isUserDropdownOpen = signal<boolean>(false);
 
 	constructor(
 		protected themeService: ThemeService,
+		protected authService: AuthService,
 		private breakpointObserver: BreakpointObserver
 	) {
 		this.breakpointObserver
@@ -61,8 +64,16 @@ export class NavbarComponent {
 		this.isThemeDropdownOpen.update((state) => !state);
 	}
 
+	protected toggleUserDropdown(): void {
+		this.isUserDropdownOpen.update((state) => !state);
+	}
+
 	protected changeTheme(theme: ETheme | null): void {
 		this.themeService.changeTheme(theme);
 		this.isThemeDropdownOpen.set(false);
+	}
+
+	protected logout(): void {
+		this.authService.logout().subscribe();
 	}
 }

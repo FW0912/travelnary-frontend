@@ -21,6 +21,7 @@ import { filter, Subscription } from "rxjs";
 import { ThemeService } from "./core/services/theme/theme.service";
 import { EventService } from "./core/services/event/event.service";
 import { EventName } from "./shared/enums/event-name";
+import { AuthService } from "./core/services/auth/auth.service";
 
 @Component({
 	selector: "app-root",
@@ -36,7 +37,8 @@ export class App {
 		private router: Router,
 		private localStorageService: LocalStorageService,
 		protected themeService: ThemeService,
-		private eventService: EventService
+		private eventService: EventService,
+		private authService: AuthService
 	) {
 		this.router.events.subscribe((x) => {
 			if (
@@ -92,6 +94,10 @@ export class App {
 			);
 		} else {
 			this.themeService.changeTheme(ETheme.LIGHT);
+		}
+
+		if (this.authService.getAccessToken()) {
+			this.authService.updateIsLoggedIn(true);
 		}
 	}
 

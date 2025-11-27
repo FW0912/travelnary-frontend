@@ -100,5 +100,14 @@ export class PlanFilterComponent extends BaseFormComponent {
 			dateFilter: { start: null, end: null },
 			daysFilter: "",
 		});
+
+		this.formGroup.markAsUntouched();
+
+		this.onFilter.emit({
+			destinationFilter: "",
+			startDateFilter: null,
+			endDateFilter: null,
+			daysFilter: null,
+		});
 	}
 }

@@ -109,6 +109,8 @@ body {
 	--mat-datepicker-range-input-separator-color: white;
 	--mat-datepicker-toggle-icon-color: white;
 	--mat-sys-surface-container: var(--color-dark-bg);
+	--mat-datepicker-calendar-body-label-text-color: black;
+	--mat-datepicker-calendar-date-text-color: black;
 	--mat-sys-on-surface: white;
 }
 

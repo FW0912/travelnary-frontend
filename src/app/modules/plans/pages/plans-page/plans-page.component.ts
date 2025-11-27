@@ -6,10 +6,10 @@ import { PlanGalleryComponent } from "./components/plan-gallery/plan-gallery.com
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IPlanFilterData } from "../../../../core/models/utils/plan/plan-filter-data.interface";
 import { IValueOption } from "../../../../shared/models/utils/value-option";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import { Plan } from "../../../../core/models/domain/plan/plan";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { PlanPageType } from "../../../../shared/enums/plan-page-type";
 import { GeneralUtils } from "../../../../shared/utils/general-utils";
 import { EPlanFilterType } from "../../../../shared/enums/plan-filter-type-enum";
@@ -18,6 +18,10 @@ import { MatDialog } from "@angular/material/dialog";
 import { CreateAPlanPopupComponent } from "../../popups/create-a-plan-popup/create-a-plan-popup.component";
 import { PlanService } from "../../services/plan.service";
 import { BasePlanDto } from "../../models/base-plan-dto";
+import { PlanQuery } from "../../models/plan-query";
+import { PaginatedApiResponse } from "../../../../core/models/api/paginated-api-response";
+import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
+import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 
 @Component({
 	selector: "app-plans-page",
@@ -41,12 +45,16 @@ export class PlansPageComponent {
 	protected observablePlanList: BehaviorSubject<Array<BasePlanDto>> =
 		new BehaviorSubject(new Array());
 	protected planList = toSignal(this.observablePlanList);
+	private planFilterData: IPlanFilterData | null = null;
+	private planFilterType: IValueOption | null = null;
 	protected nameFilter: FormControl = new FormControl<string>("");
 
 	constructor(
 		private route: ActivatedRoute,
 		private dialog: MatDialog,
-		private planService: PlanService
+		private planService: PlanService,
+		private snackbarService: SnackbarService,
+		private router: Router
 	) {
 		this.route.url
 			.pipe(takeUntilDestroyed())
@@ -58,18 +66,27 @@ export class PlansPageComponent {
 	}
 
 	ngOnInit(): void {
+		var serviceCall: Observable<PaginatedApiResponse<Array<BasePlanDto>>>;
+
 		switch (this.planPageType) {
-			case PlanPageType.YOUR_PLANS:
-				break;
 			case PlanPageType.BROWSE_PLANS:
-				this.planService.browsePlans({}, 1).subscribe({
+				this.planService.browsePlans(null, 1).subscribe({
 					next: (response) => {
 						this.observablePlanList.next(response.data.data);
 					},
 				});
 				break;
+			case PlanPageType.YOUR_PLANS:
+				break;
 			case PlanPageType.PINNED_PLANS:
 				break;
+			default:
+				this.snackbarService.openSnackBar(
+					"Failed to get plans! Please try again later.",
+					ESnackbarType.ERROR
+				);
+				this.router.navigateByUrl("/home");
+				return;
 		}
 	}
 
@@ -82,14 +99,41 @@ export class PlansPageComponent {
 		return PlanPageType;
 	}
 
+	protected filterPlans() {
+		const query: PlanQuery = {
+			Search: this.nameFilter.value,
+			Destination: this.planFilterData?.destinationFilter ?? null,
+			DateStart:
+				this.planFilterData?.startDateFilter?.toISOString() ?? null,
+			DateEnd: this.planFilterData?.endDateFilter?.toISOString() ?? null,
+			Days: this.planFilterData?.daysFilter ?? null,
+		};
+
+		switch (this.planPageType) {
+			case PlanPageType.BROWSE_PLANS:
+				this.planService.browsePlans(query, 1).subscribe({
+					next: (response) => {
+						this.observablePlanList.next(response.data.data);
+					},
+				});
+				break;
+			case PlanPageType.YOUR_PLANS:
+				break;
+			case PlanPageType.PINNED_PLANS:
+				break;
+		}
+	}
+
 	protected onFilter(planFilterData: IPlanFilterData): void {
-		console.log(planFilterData);
+		this.planFilterData = planFilterData;
+		this.filterPlans();
 	}
 
 	protected onPlanFilterTypeSelected(
 		planFilterType: IValueOption | null
 	): void {
-		console.log(planFilterType);
+		this.planFilterType = planFilterType;
+		this.filterPlans();
 	}
 
 	protected openCreatePlanPopup() {

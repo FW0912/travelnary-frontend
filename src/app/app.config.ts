@@ -10,9 +10,15 @@ import {
 	provideClientHydration,
 	withEventReplay,
 } from "@angular/platform-browser";
-import { provideHttpClient, withFetch } from "@angular/common/http";
+import {
+	provideHttpClient,
+	withFetch,
+	withInterceptors,
+} from "@angular/common/http";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { SelectivePreloadingStrategyService } from "./core/services/selective-preloading-strategy/selective-preloading-strategy.service";
+import { accessTokenInterceptorInterceptor } from "./core/interceptors/access-token-interceptor/access-token-interceptor.interceptor";
+import { refreshTokenInterceptorInterceptor } from "./core/interceptors/refresh-token-interceptor/refresh-token-interceptor.interceptor";
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -23,7 +29,13 @@ export const appConfig: ApplicationConfig = {
 			withPreloading(SelectivePreloadingStrategyService)
 		),
 		provideClientHydration(withEventReplay()),
-		provideHttpClient(withFetch()),
+		provideHttpClient(
+			withFetch(),
+			withInterceptors([
+				accessTokenInterceptorInterceptor,
+				refreshTokenInterceptorInterceptor,
+			])
+		),
 		provideAnimationsAsync(),
 	],
 };
