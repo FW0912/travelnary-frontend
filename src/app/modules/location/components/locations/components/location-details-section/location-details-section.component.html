@@ -22,7 +22,6 @@
 			}
 		</div>
 
-		@if(!readOnly()) {
 		<div class="relative w-fit" #options>
 			<app-border-button
 				extraClasses="!rounded-2xl"
@@ -45,6 +44,8 @@
 				>
 					View Details
 				</button>
+
+				@if(!readOnly()) {
 				<button
 					class="flex w-full py-1 px-4 hover:bg-hover-bg dark:hover:bg-dark-hover-bg transition-colors cursor-pointer text-nowrap"
 					(click)="openEditDetailsPopup()"
@@ -57,9 +58,9 @@
 				>
 					Remove
 				</button>
+				}
 			</div>
 			}
 		</div>
-		}
 	</div>
 </div>

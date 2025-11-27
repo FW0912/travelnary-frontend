@@ -4,5 +4,5 @@ export interface PlanQuery {
 	DateStart: string | null;
 	DateEnd: string | null;
 	Days: number | null;
-	// OrderBy: string | null;
+	OrderBy: number | null;
 }

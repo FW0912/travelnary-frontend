@@ -16,6 +16,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { LocationDetailsPopupComponent } from "../../../../popups/location-details-popup/location-details-popup.component";
 import { EditLocationPopupComponent } from "../../../../popups/edit-location-popup/edit-location-popup.component";
 import { ConfirmationPopupComponent } from "../../../../../confirmation-popup/confirmation-popup.component";
+import { GetLocationDto } from "../../../../models/get-location-dto";
 
 @Component({
 	selector: "app-location-details-section",
@@ -27,7 +28,7 @@ import { ConfirmationPopupComponent } from "../../../../../confirmation-popup/co
 export class LocationDetailsSectionComponent {
 	@ViewChild("options") private options!: ElementRef;
 
-	public location = input.required<Location>();
+	public location = input.required<GetLocationDto>();
 	public readOnly = input.required<boolean>();
 	public simple = input<boolean>(false);
 	public isLast = input<boolean>(false);

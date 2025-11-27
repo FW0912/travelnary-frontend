@@ -12,6 +12,10 @@ import { SnackbarService } from "../../../core/services/snackbar/snackbar.servic
 import { BasePlanDto } from "../models/base-plan-dto";
 import { PaginatedApiResponse } from "../../../core/models/api/paginated-api-response";
 import { PlanQuery } from "../models/plan-query";
+import { AuthService } from "../../../core/services/auth/auth.service";
+import { GetPlanByIdDto } from "../models/get-plan-by-id-dto";
+import { UtilsService } from "../../../core/services/utils/utils.service";
+import { CreatePlanDto } from "../models/create-plan-dto";
 
 @Injectable({
 	providedIn: "root",
@@ -21,7 +25,9 @@ export class PlanService {
 
 	constructor(
 		private http: HttpClient,
-		private snackbarService: SnackbarService
+		private snackbarService: SnackbarService,
+		private authService: AuthService,
+		private utilsService: UtilsService
 	) {}
 
 	public browsePlans(
@@ -42,8 +48,6 @@ export class PlanService {
 			});
 		}
 
-		console.log(params);
-
 		return this.http
 			.get<PaginatedApiResponse<Array<BasePlanDto>>>(
 				`${this.baseApiUrl}/browse`,
@@ -51,25 +55,7 @@ export class PlanService {
 					params: params,
 				}
 			)
-			.pipe(
-				catchError((err: HttpErrorResponse) => {
-					const error = err.error;
-
-					if (error.errors && error.errors.length > 0) {
-						this.snackbarService.openSnackBar(
-							`${error.errors[0]}!`,
-							ESnackbarType.ERROR
-						);
-					} else {
-						this.snackbarService.openSnackBar(
-							`${error.message}!`,
-							ESnackbarType.ERROR
-						);
-					}
-
-					return throwError(() => err);
-				})
-			);
+			.pipe(this.utilsService.generalErrorCatch());
 	}
 
 	public getOwnerPlans(
@@ -90,8 +76,6 @@ export class PlanService {
 			});
 		}
 
-		console.log(params);
-
 		return this.http
 			.get<PaginatedApiResponse<Array<BasePlanDto>>>(
 				`${this.baseApiUrl}/owner`,
@@ -99,25 +83,7 @@ export class PlanService {
 					params: params,
 				}
 			)
-			.pipe(
-				catchError((err: HttpErrorResponse) => {
-					const error = err.error;
-
-					if (error.errors && error.errors.length > 0) {
-						this.snackbarService.openSnackBar(
-							`${error.errors[0]}!`,
-							ESnackbarType.ERROR
-						);
-					} else {
-						this.snackbarService.openSnackBar(
-							`${error.message}!`,
-							ESnackbarType.ERROR
-						);
-					}
-
-					return throwError(() => err);
-				})
-			);
+			.pipe(this.utilsService.generalErrorCatch());
 	}
 
 	public getPinnedPlans(
@@ -138,8 +104,6 @@ export class PlanService {
 			});
 		}
 
-		console.log(params);
-
 		return this.http
 			.get<PaginatedApiResponse<Array<BasePlanDto>>>(
 				`${this.baseApiUrl}/pinned`,
@@ -147,24 +111,40 @@ export class PlanService {
 					params: params,
 				}
 			)
-			.pipe(
-				catchError((err: HttpErrorResponse) => {
-					const error = err.error;
+			.pipe(this.utilsService.generalErrorCatch());
+	}
 
-					if (error.errors && error.errors.length > 0) {
-						this.snackbarService.openSnackBar(
-							`${error.errors[0]}!`,
-							ESnackbarType.ERROR
-						);
-					} else {
-						this.snackbarService.openSnackBar(
-							`${error.message}!`,
-							ESnackbarType.ERROR
-						);
-					}
+	public getPlanById(id: string): Observable<ApiResponse<GetPlanByIdDto>> {
+		if (this.authService.getAccessToken()) {
+			return this.http
+				.get<ApiResponse<GetPlanByIdDto>>(
+					`${this.baseApiUrl}/${id}/authorized`
+				)
+				.pipe(this.utilsService.generalErrorCatch());
+		} else {
+			return this.http
+				.get<ApiResponse<GetPlanByIdDto>>(`${this.baseApiUrl}/${id}`)
+				.pipe(this.utilsService.generalErrorCatch());
+		}
+	}
 
-					return throwError(() => err);
-				})
-			);
+	public pinPlan(id: string): Observable<ApiResponse<any>> {
+		return this.http
+			.post<ApiResponse<any>>(`${this.baseApiUrl}/pin/${id}`, null)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public likePlan(id: string): Observable<ApiResponse<any>> {
+		return this.http
+			.post<ApiResponse<any>>(`${this.baseApiUrl}/like/${id}`, null)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public createPlan(
+		dto: CreatePlanDto
+	): Observable<ApiResponse<{ id: string }>> {
+		return this.http
+			.post<ApiResponse<{ id: string }>>(`${this.baseApiUrl}/create`, dto)
+			.pipe(this.utilsService.generalErrorCatch());
 	}
 }

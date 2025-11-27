@@ -8,6 +8,7 @@ import {
 } from "@angular/core";
 import { Plan } from "../../../core/models/domain/plan/plan";
 import { CommonModule, DatePipe } from "@angular/common";
+import { GetPlanByIdDto } from "../models/get-plan-by-id-dto";
 
 @Component({
 	selector: "app-plan-details",
@@ -17,7 +18,7 @@ import { CommonModule, DatePipe } from "@angular/common";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanDetailsComponent {
-	public plan = input.required<Plan>();
+	public plan = input.required<GetPlanByIdDto>();
 	public pinToggled = output<void>();
 
 	protected togglePin(): void {

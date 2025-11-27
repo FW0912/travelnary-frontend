@@ -23,7 +23,7 @@ export const refreshTokenInterceptorInterceptor: HttpInterceptorFn = (
 					next: (x) => {
 						const reqClone = req.clone({
 							setHeaders: {
-								Authorization: x,
+								Authorization: `Bearer ${authService.getRefreshToken()}`,
 							},
 						});
 

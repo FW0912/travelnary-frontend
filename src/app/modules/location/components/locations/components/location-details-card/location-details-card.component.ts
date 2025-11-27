@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { Location } from "../../../../../../core/models/domain/location/location";
 import { LocationDetailsComponent } from "../location-details/location-details.component";
+import { GetLocationDto } from "../../../../models/get-location-dto";
 
 @Component({
 	selector: "app-location-details-card",
@@ -10,5 +11,5 @@ import { LocationDetailsComponent } from "../location-details/location-details.c
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocationDetailsCardComponent {
-	public location = input.required<Location>();
+	public location = input.required<GetLocationDto>();
 }

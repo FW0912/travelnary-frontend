@@ -7,9 +7,9 @@ export interface BasePlanDto {
 	name: string;
 	description: string;
 	destination: string;
-	dateStart: Date;
-	dateEnd: Date;
-	updatedOn: Date;
+	dateStart: string;
+	dateEnd: string;
+	updatedOn: string;
 	likeCount: number;
 	viewCount: number;
 }

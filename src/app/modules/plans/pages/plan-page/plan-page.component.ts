@@ -15,6 +15,13 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 import { ConfirmationPopupComponent } from "../../../confirmation-popup/confirmation-popup.component";
 import { EditPlanPopupComponent } from "../../popups/edit-plan-popup/edit-plan-popup.component";
+import { AuthService } from "../../../../core/services/auth/auth.service";
+import { PlanService } from "../../services/plan.service";
+import { GetPlanByIdDto } from "../../models/get-plan-by-id-dto";
+import { LocationService } from "../../../location/services/location.service";
+import { GetLocationByPlanDto } from "../../../location/models/get-location-by-plan-dto";
+import { GetLocationByIdDto } from "../../../location/models/get-location-by-id-dto";
+import { GetLocationDto } from "../../../location/models/get-location-dto";
 
 @Component({
 	selector: "app-plan-page",
@@ -32,80 +39,11 @@ import { EditPlanPopupComponent } from "../../popups/edit-plan-popup/edit-plan-p
 export class PlanPageComponent {
 	private planId = signal<string>("");
 
-	protected plan = signal<Plan>({
-		id: "6b17e11f-133d-4dae-9720-44e96d8d105e",
-		user: {
-			id: "7c39e6f8-abaf-412a-bf32-07d686500d0a",
-			name: "Cheryl",
-		},
-		currency: {
-			id: "c250b6c8-2eaa-419c-8a91-4bd38c760581",
-			name: "IDR",
-		},
-		name: "Bahamas Trip",
-		description:
-			"Trip to the Bahamas, remember to bring sunscreen and sunglasses",
-		destination: "Bahamas",
-		date_start: new Date("2025-05-21"),
-		date_end: new Date("2025-05-24"),
-		updated_on: new Date("2025-05-17"),
-		is_owner: true,
-		is_pinned: false,
-		is_liked: false,
-		like_count: 15,
-		view_count: 112,
-	});
+	protected plan = signal<GetPlanByIdDto | null>(null);
 
-	protected locationList = signal<Array<Location>>([
-		{
-			id: "d27d8e22-631e-4a45-9eb1-8a0588a212c3",
-			planId: "6b17e11f-133d-4dae-9720-44e96d8d105e",
-			category: {
-				id: "f28dff01-df6d-47e1-8b08-3a3e2171dc88",
-				name: "Lodging",
-			},
-			order: 1,
-			name: "Sunset Point Houseboat",
-			address: "Fresh Creek, Andros Town, Bahamas",
-			day: new Date("2025-05-21"),
-			notes: "Booked under Jason's name",
-			time: new Date("2025-05-21T09:30:00"),
-			currencyName: "IDR",
-			cost: 4300000,
-		},
-		{
-			id: "826f8887-31b2-4976-9f4b-e15e65194ed3",
-			planId: "c713a7a5-bae4-472e-bda4-fa8cf04768f3",
-			category: {
-				id: "555b9a5a-d337-4e1f-bebb-45e129027827",
-				name: "Food",
-			},
-			order: 2,
-			name: "Brigadier's Restaurant",
-			address: "Hard Bargain, Bahamas",
-			day: new Date("2025-05-21"),
-			notes: "",
-			time: new Date("2025-05-21T11:00:00"),
-			currencyName: "IDR",
-			cost: 600000,
-		},
-		{
-			id: "45ae069e-5b5e-4b56-bc69-7c6aa6091949",
-			planId: "92284eae-9b0a-4c9a-9bf2-2f4bd7bdcf5b",
-			category: {
-				id: "824defac-71ac-4253-b90e-f98787470402",
-				name: "Entertainment",
-			},
-			order: 3,
-			name: "Captain Bill's Blue Hole",
-			address: "P4RQ+R6J, Hard Bargain, Bahamas",
-			day: new Date("2025-05-21"),
-			notes: "Do cycling and take a hike here, make sure to bring power banks and sunscreen, and take precautions if necessary. asdadasdasdasdasdsdaffadfhadfhadfdafhadfhdafhadfhafhdafh",
-			time: new Date("2025-05-21T12:30:00"),
-			currencyName: "IDR",
-			cost: 1400000,
-		},
-	]);
+	protected locationList = signal<Array<GetLocationByPlanDto>>(new Array());
+
+	protected numberOfDays = signal<number>(0);
 
 	protected commentsList = signal<Array<Comment>>([
 		{
@@ -163,7 +101,10 @@ export class PlanPageComponent {
 		private route: ActivatedRoute,
 		private router: Router,
 		private snackbarService: SnackbarService,
-		private dialog: MatDialog
+		private dialog: MatDialog,
+		private planService: PlanService,
+		private locationService: LocationService,
+		protected authService: AuthService
 	) {
 		route.paramMap.pipe(takeUntilDestroyed()).subscribe((x) => {
 			if (x.get("id") === null || x.get("id")!.length === 0) {
@@ -179,6 +120,23 @@ export class PlanPageComponent {
 		});
 	}
 
+	ngOnInit(): void {
+		this.planService.getPlanById(this.planId()).subscribe({
+			next: (x) => {
+				this.plan.set(x.data);
+			},
+		});
+
+		this.locationService.getLocationByPlan(this.planId()).subscribe({
+			next: (x) => {
+				this.numberOfDays.set(
+					x.data.reduce((x, y) => (x.day > y.day ? x : y)).day
+				);
+				this.locationList.set(x.data);
+			},
+		});
+	}
+
 	protected openEditPlanPopup(): void {
 		this.dialog.open(EditPlanPopupComponent, {
 			minWidth: "35%",
@@ -190,16 +148,25 @@ export class PlanPageComponent {
 	}
 
 	protected togglePin(): void {
-		this.plan.update((x) => {
-			x.is_pinned = !x.is_pinned;
-			return x;
+		this.planService.pinPlan(this.planId()).subscribe({
+			next: (x) => {
+				this.plan.update((y) => ({
+					...y!,
+					isPinned: x.data.isPinned,
+				}));
+			},
 		});
 	}
 
 	protected toggleLike(): void {
-		this.plan.update((x) => {
-			x.is_liked = !x.is_liked;
-			return x;
+		this.planService.likePlan(this.planId()).subscribe({
+			next: (x) => {
+				this.plan.update((y) => ({
+					...y!,
+					isLiked: x.data.isLiked,
+					likeCount: x.data.isLiked ? ++y!.likeCount : --y!.likeCount,
+				}));
+			},
 		});
 	}
 
@@ -208,7 +175,7 @@ export class PlanPageComponent {
 			minWidth: "35%",
 			maxHeight: "80%",
 			data: {
-				isOwner: this.plan().is_owner,
+				isOwner: this.plan()!.isOwner,
 			},
 		});
 	}
@@ -223,8 +190,19 @@ export class PlanPageComponent {
 
 	protected onLocationSort(event: {
 		day: number;
-		locationList: Array<Location>;
+		locationList: Array<GetLocationDto>;
 	}) {
-		this.locationList.set(event.locationList);
+		this.locationList.update((x) =>
+			x.map((y) => {
+				if (y.day === event.day) {
+					return {
+						...y,
+						locations: event.locationList,
+					};
+				}
+
+				return y;
+			})
+		);
 	}
 }

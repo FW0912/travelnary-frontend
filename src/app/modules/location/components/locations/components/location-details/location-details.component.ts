@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { Location } from "../../../../../../core/models/domain/location/location";
 import { DatePipe, DecimalPipe } from "@angular/common";
 import { MatDialog } from "@angular/material/dialog";
+import { GetLocationDto } from "../../../../models/get-location-dto";
 
 @Component({
 	selector: "app-location-details",
@@ -11,5 +12,5 @@ import { MatDialog } from "@angular/material/dialog";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocationDetailsComponent {
-	public location = input.required<Location>();
+	public location = input.required<GetLocationDto>();
 }

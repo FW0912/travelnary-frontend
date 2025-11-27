@@ -46,7 +46,7 @@ export class PlansPageComponent {
 		new BehaviorSubject(new Array());
 	protected planList = toSignal(this.observablePlanList);
 	private planFilterData: IPlanFilterData | null = null;
-	private planFilterType: IValueOption | null = null;
+	private planFilterType: IValueOption | null = this.PLAN_FILTER_TYPE_LIST[0];
 	protected nameFilter: FormControl = new FormControl<string>("");
 
 	constructor(
@@ -70,15 +70,13 @@ export class PlansPageComponent {
 
 		switch (this.planPageType) {
 			case PlanPageType.BROWSE_PLANS:
-				this.planService.browsePlans(null, 1).subscribe({
-					next: (response) => {
-						this.observablePlanList.next(response.data.data);
-					},
-				});
+				serviceCall = this.planService.browsePlans(null, 1);
 				break;
 			case PlanPageType.YOUR_PLANS:
+				serviceCall = this.planService.getOwnerPlans(null, 1);
 				break;
 			case PlanPageType.PINNED_PLANS:
+				serviceCall = this.planService.getPinnedPlans(null, 1);
 				break;
 			default:
 				this.snackbarService.openSnackBar(
@@ -88,6 +86,12 @@ export class PlansPageComponent {
 				this.router.navigateByUrl("/home");
 				return;
 		}
+
+		serviceCall.subscribe({
+			next: (response) => {
+				this.observablePlanList.next(response.data.data);
+			},
+		});
 	}
 
 	ngOnDestroy(): void {
@@ -107,21 +111,37 @@ export class PlansPageComponent {
 				this.planFilterData?.startDateFilter?.toISOString() ?? null,
 			DateEnd: this.planFilterData?.endDateFilter?.toISOString() ?? null,
 			Days: this.planFilterData?.daysFilter ?? null,
+			OrderBy: this.planFilterType
+				? this.PLAN_FILTER_TYPE_LIST.indexOf(this.planFilterType!)
+				: 1,
 		};
+
+		var serviceCall: Observable<PaginatedApiResponse<Array<BasePlanDto>>>;
 
 		switch (this.planPageType) {
 			case PlanPageType.BROWSE_PLANS:
-				this.planService.browsePlans(query, 1).subscribe({
-					next: (response) => {
-						this.observablePlanList.next(response.data.data);
-					},
-				});
+				serviceCall = this.planService.browsePlans(query, 1);
 				break;
 			case PlanPageType.YOUR_PLANS:
+				serviceCall = this.planService.getOwnerPlans(query, 1);
 				break;
 			case PlanPageType.PINNED_PLANS:
+				serviceCall = this.planService.getPinnedPlans(query, 1);
 				break;
+			default:
+				this.snackbarService.openSnackBar(
+					"Failed to get plans! Please try again later.",
+					ESnackbarType.ERROR
+				);
+				this.router.navigateByUrl("/home");
+				return;
 		}
+
+		serviceCall.subscribe({
+			next: (response) => {
+				this.observablePlanList.next(response.data.data);
+			},
+		});
 	}
 
 	protected onFilter(planFilterData: IPlanFilterData): void {

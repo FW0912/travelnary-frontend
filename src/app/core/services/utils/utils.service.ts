@@ -31,6 +31,8 @@ export class UtilsService {
 		return catchError((err: HttpErrorResponse) => {
 			const error = err.error;
 
+			console.log(err);
+
 			if (error.errors && error.errors.length > 0) {
 				this.snackbarService.openSnackBar(
 					`${error.errors[0]}!`,

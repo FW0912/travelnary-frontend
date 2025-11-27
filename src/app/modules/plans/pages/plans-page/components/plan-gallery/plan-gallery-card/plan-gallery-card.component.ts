@@ -3,6 +3,8 @@ import { Plan } from "../../../../../../../core/models/domain/plan/plan";
 import { DatePipe } from "@angular/common";
 import { Router } from "@angular/router";
 import { BasePlanDto } from "../../../../../models/base-plan-dto";
+import { LocalStorageService } from "../../../../../../../core/services/local-storage/local-storage.service";
+import { AuthService } from "../../../../../../../core/services/auth/auth.service";
 
 @Component({
 	selector: "app-plan-gallery-card",
