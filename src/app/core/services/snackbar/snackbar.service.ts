@@ -24,6 +24,8 @@ export class SnackbarService {
 			case ESnackbarType.INFO:
 				this.snackBar.open(message, action, {
 					duration: duration,
+					horizontalPosition: "center",
+					verticalPosition: "bottom",
 					panelClass:
 						this.themeService.theme() === ETheme.LIGHT
 							? "info-snackbar"
@@ -33,6 +35,8 @@ export class SnackbarService {
 			case ESnackbarType.ERROR:
 				this.snackBar.open(message, action, {
 					duration: duration,
+					horizontalPosition: "center",
+					verticalPosition: "bottom",
 					panelClass: "error-snackbar",
 				});
 				break;

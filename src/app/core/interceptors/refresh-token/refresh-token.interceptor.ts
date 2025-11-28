@@ -1,4 +1,5 @@
 import {
+	HttpContextToken,
 	HttpErrorResponse,
 	HttpInterceptorFn,
 	HttpStatusCode,
@@ -7,23 +8,26 @@ import { AuthService } from "../../services/auth/auth.service";
 import { inject } from "@angular/core";
 import { catchError, throwError } from "rxjs";
 
-export const refreshTokenInterceptorInterceptor: HttpInterceptorFn = (
-	req,
-	next
-) => {
+export const SKIP_REFRESH_TOKEN = new HttpContextToken<boolean>(() => false);
+
+export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
+	if (req.context.get(SKIP_REFRESH_TOKEN)) {
+		return next(req);
+	}
+
 	const authService: AuthService = inject(AuthService);
 
 	return next(req).pipe(
 		catchError((err: HttpErrorResponse) => {
 			if (
-				err.status === HttpStatusCode.Forbidden &&
+				err.status === HttpStatusCode.Unauthorized &&
 				authService.getRefreshToken() !== null
 			) {
 				authService.refreshToken().subscribe({
 					next: (x) => {
 						const reqClone = req.clone({
 							setHeaders: {
-								Authorization: `Bearer ${authService.getRefreshToken()}`,
+								Authorization: `Bearer ${x}`,
 							},
 						});
 

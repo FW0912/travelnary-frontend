@@ -1,4 +1,8 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import {
+	HttpClient,
+	HttpErrorResponse,
+	HttpStatusCode,
+} from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import {
 	catchError,
@@ -29,20 +33,20 @@ export class UtilsService {
 		ApiResponse<T>
 	> {
 		return catchError((err: HttpErrorResponse) => {
-			const error = err.error;
+			if (err.status !== HttpStatusCode.Unauthorized) {
+				const error = err.error;
 
-			console.log(err);
-
-			if (error.errors && error.errors.length > 0) {
-				this.snackbarService.openSnackBar(
-					`${error.errors[0]}!`,
-					ESnackbarType.ERROR
-				);
-			} else {
-				this.snackbarService.openSnackBar(
-					`${error.message}!`,
-					ESnackbarType.ERROR
-				);
+				if (error.errors && error.errors.length > 0) {
+					this.snackbarService.openSnackBar(
+						`${error.errors[0]}!`,
+						ESnackbarType.ERROR
+					);
+				} else {
+					this.snackbarService.openSnackBar(
+						`${error.message}!`,
+						ESnackbarType.ERROR
+					);
+				}
 			}
 
 			return throwError(() => err);

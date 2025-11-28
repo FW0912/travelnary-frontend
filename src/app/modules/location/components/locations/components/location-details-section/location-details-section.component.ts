@@ -56,6 +56,7 @@ export class LocationDetailsSectionComponent {
 			.subscribe((x) => {
 				if (
 					this.options &&
+					this.isDropdownOpen() &&
 					!(this.options.nativeElement as HTMLElement).contains(
 						x.target! as HTMLElement
 					)

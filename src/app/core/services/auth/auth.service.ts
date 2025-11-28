@@ -1,4 +1,8 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import {
+	HttpClient,
+	HttpContext,
+	HttpErrorResponse,
+} from "@angular/common/http";
 import { Injectable, signal } from "@angular/core";
 import { LocalStorageService } from "../local-storage/local-storage.service";
 import {
@@ -19,6 +23,7 @@ import { ESnackbarType } from "../../models/utils/others/snackbar-type.enum";
 import { UtilsService } from "../utils/utils.service";
 import { UserProfile } from "../../models/domain/user/user-profile";
 import { Router } from "@angular/router";
+import { SKIP_REFRESH_TOKEN } from "../../interceptors/refresh-token/refresh-token.interceptor";
 
 @Injectable({
 	providedIn: "root",
@@ -205,10 +210,29 @@ export class AuthService {
 	}
 
 	public refreshToken(): Observable<string> {
+		const body = {
+			refreshToken: this.getRefreshToken(),
+		};
+
 		return this.http
-			.get<ApiResponse<AuthResponse>>(`${this.baseApiUrl}/refresh-token`)
+			.post<ApiResponse<AuthResponse>>(
+				`${this.baseApiUrl}/refresh-token`,
+				body,
+				{
+					context: new HttpContext().set(SKIP_REFRESH_TOKEN, true),
+				}
+			)
 			.pipe(
-				this.utilsService.generalErrorCatch(),
+				catchError((err) => {
+					this.snackbarService.openSnackBar(
+						"Session expired, please login again.",
+						ESnackbarType.ERROR
+					);
+					this.resetSession();
+					this.router.navigateByUrl("/login");
+
+					return throwError(() => err);
+				}),
 				switchMap((x) => {
 					this.storeAccessToken(x.data);
 					this.storeRefreshToken(x.data);

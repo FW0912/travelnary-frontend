@@ -22,10 +22,16 @@ import { ThemeService } from "./core/services/theme/theme.service";
 import { EventService } from "./core/services/event/event.service";
 import { EventName } from "./shared/enums/event-name";
 import { AuthService } from "./core/services/auth/auth.service";
+import { LoadingScreenComponent } from "./core/layout/loading-screen/loading-screen.component";
 
 @Component({
 	selector: "app-root",
-	imports: [RouterOutlet, NavbarComponent, CommonModule],
+	imports: [
+		RouterOutlet,
+		NavbarComponent,
+		CommonModule,
+		LoadingScreenComponent,
+	],
 	templateUrl: "./app.html",
 	styleUrl: "./app.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,

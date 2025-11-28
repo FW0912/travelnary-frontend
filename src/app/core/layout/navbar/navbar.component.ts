@@ -1,16 +1,22 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
+	ElementRef,
+	Inject,
 	input,
 	Input,
+	PLATFORM_ID,
+	QueryList,
 	signal,
+	ViewChild,
+	ViewChildren,
 } from "@angular/core";
 import { BorderButtonComponent } from "../../../shared/components/buttons/border-button/border-button.component";
 import { ETheme } from "../../models/utils/others/theme.enum";
 import { filter } from "rxjs";
 import { UtilsService } from "../../services/utils/utils.service";
 import { ThemeService } from "../../services/theme/theme.service";
-import { CommonModule } from "@angular/common";
+import { CommonModule, isPlatformBrowser } from "@angular/common";
 import {
 	BreakpointObserver,
 	Breakpoints,
@@ -19,6 +25,8 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { LinkComponent } from "../../../shared/components/link/link.component";
 import { AuthService } from "../../services/auth/auth.service";
+import { EventService } from "../../services/event/event.service";
+import { EventName } from "../../../shared/enums/event-name";
 
 @Component({
 	selector: "app-navbar",
@@ -28,6 +36,11 @@ import { AuthService } from "../../services/auth/auth.service";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent {
+	// @ViewChildren("themeDropdown")
+	// private themeDropdown!: QueryList<ElementRef>;
+	@ViewChild("userDropdown") private userDropdown?: ElementRef;
+	@ViewChild("list") private list?: ElementRef;
+
 	protected displayAsList = signal<boolean>(false);
 	protected isListOpen = signal<boolean>(false);
 	protected isThemeDropdownOpen = signal<boolean>(false);
@@ -36,12 +49,54 @@ export class NavbarComponent {
 	constructor(
 		protected themeService: ThemeService,
 		protected authService: AuthService,
-		private breakpointObserver: BreakpointObserver
+		private eventService: EventService,
+		private breakpointObserver: BreakpointObserver,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {
-		this.breakpointObserver
-			.observe([Breakpoints.Small, Breakpoints.XSmall])
+		if (isPlatformBrowser(this.platformId)) {
+			this.breakpointObserver
+				.observe([Breakpoints.Small, Breakpoints.XSmall])
+				.pipe(takeUntilDestroyed())
+				.subscribe((x) => this.displayAsList.set(x.matches));
+		}
+
+		this.eventService
+			.listen<MouseEvent>(EventName.DOCUMENT_CLICK)
 			.pipe(takeUntilDestroyed())
-			.subscribe((x) => this.displayAsList.set(x.matches));
+			.subscribe((x) => {
+				// if (
+				// 	this.themeDropdown &&
+				// 	this.isThemeDropdownOpen() &&
+				// 	this.themeDropdown.some(
+				// 		(y) =>
+				// 			!(y.nativeElement as HTMLElement).contains(
+				// 				x.target! as HTMLElement
+				// 			)
+				// 	)
+				// ) {
+				// 	this.isThemeDropdownOpen.set(false);
+				// }
+
+				if (
+					this.userDropdown &&
+					this.isUserDropdownOpen() &&
+					!(this.userDropdown.nativeElement as HTMLElement).contains(
+						x.target! as HTMLElement
+					)
+				) {
+					this.isUserDropdownOpen.set(false);
+				}
+
+				if (
+					this.list &&
+					this.isListOpen() &&
+					!(this.list.nativeElement as HTMLElement).contains(
+						x.target! as HTMLElement
+					)
+				) {
+					this.isListOpen.set(false);
+				}
+			});
 	}
 
 	protected get ThemeEnum() {
@@ -50,14 +105,6 @@ export class NavbarComponent {
 
 	protected toggleList(): void {
 		this.isListOpen.update((state) => !state);
-	}
-
-	protected onThemeMouseOver(): void {
-		this.isThemeDropdownOpen.set(true);
-	}
-
-	protected onThemeMouseLeave(): void {
-		this.isThemeDropdownOpen.set(false);
 	}
 
 	protected toggleThemeDropdown(): void {

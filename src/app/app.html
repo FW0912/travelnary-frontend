@@ -1,7 +1,10 @@
+<app-loading-screen></app-loading-screen>
 <main
 	class="w-full min-h-screen flex flex-col font-inter text-black dark:bg-dark dark:text-white"
 	[ngClass]="!isAuthPage() ? 'px-10 py-5 gap-4' : ''"
 >
-	<app-navbar *ngIf="!isAuthPage()"></app-navbar>
+	@if(!isAuthPage()) {
+	<app-navbar></app-navbar>
+	}
 	<router-outlet />
 </main>
