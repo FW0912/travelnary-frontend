@@ -19,6 +19,7 @@ import { provideAnimationsAsync } from "@angular/platform-browser/animations/asy
 import { SelectivePreloadingStrategyService } from "./core/services/selective-preloading-strategy/selective-preloading-strategy.service";
 import { accessTokenInterceptor } from "./core/interceptors/access-token/access-token.interceptor";
 import { refreshTokenInterceptor } from "./core/interceptors/refresh-token/refresh-token.interceptor";
+import { loadingInterceptor } from "./core/interceptors/loading/loading.interceptor";
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -31,7 +32,11 @@ export const appConfig: ApplicationConfig = {
 		provideClientHydration(withEventReplay()),
 		provideHttpClient(
 			withFetch(),
-			withInterceptors([accessTokenInterceptor, refreshTokenInterceptor])
+			withInterceptors([
+				loadingInterceptor,
+				accessTokenInterceptor,
+				refreshTokenInterceptor,
+			])
 		),
 		provideAnimationsAsync(),
 	],
