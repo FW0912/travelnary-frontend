@@ -25,5 +25,5 @@ jobs:
         
       - name: Create environment files
         run: |
-          echo "export const environment = {{ secrets.ENV }}" > ./src/environments/environment.ts
-          echo "export const environment = {{ secrets.DEV_ENV }}" > ./src/environments/environment.dev.ts
+          echo "export const environment = {{ secrets.ENV }}" > src/environments/environment.ts
+          echo "export const environment = {{ secrets.DEV_ENV }}" > src/environments/environment.dev.ts
