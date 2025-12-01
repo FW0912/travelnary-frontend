@@ -22,6 +22,7 @@ import { LocationService } from "../../../location/services/location.service";
 import { GetLocationByPlanDto } from "../../../location/models/get-location-by-plan-dto";
 import { GetLocationByIdDto } from "../../../location/models/get-location-by-id-dto";
 import { GetLocationDto } from "../../../location/models/get-location-dto";
+import { switchMap } from "rxjs";
 
 @Component({
 	selector: "app-plan-page",
@@ -42,8 +43,6 @@ export class PlanPageComponent {
 	protected plan = signal<GetPlanByIdDto | null>(null);
 
 	protected locationList = signal<Array<GetLocationByPlanDto>>(new Array());
-
-	protected numberOfDays = signal<number>(0);
 
 	protected commentsList = signal<Array<Comment>>([
 		{
@@ -121,20 +120,44 @@ export class PlanPageComponent {
 	}
 
 	ngOnInit(): void {
-		this.planService.getPlanById(this.planId()).subscribe({
-			next: (x) => {
-				this.plan.set(x.data);
-			},
-		});
+		this.planService
+			.getPlanById(this.planId())
+			.pipe(
+				switchMap((x) => {
+					this.plan.set(x.data);
 
-		this.locationService.getLocationByPlan(this.planId()).subscribe({
-			next: (x) => {
-				this.numberOfDays.set(
-					x.data.reduce((x, y) => (x.day > y.day ? x : y)).day
-				);
-				this.locationList.set(x.data);
-			},
-		});
+					return this.locationService.getLocationByPlan(
+						this.planId()
+					);
+				})
+			)
+			.subscribe({
+				next: (x) => {
+					const amountOfDays: number =
+						Math.ceil(
+							Math.abs(
+								new Date(this.plan()!.dateStart).getTime() -
+									new Date(this.plan()!.dateEnd).getTime()
+							) /
+								(1000 * 3600 * 24)
+						) + 1;
+					const locationList: Array<GetLocationByPlanDto> =
+						new Array();
+
+					for (let i = 1; i <= amountOfDays; i++) {
+						if (x.data.at(i)) {
+							locationList.push(x.data.at(i)!);
+						} else {
+							locationList.push({
+								day: i,
+								locations: new Array(),
+							});
+						}
+					}
+
+					this.locationList.set(locationList);
+				},
+			});
 	}
 
 	protected openEditPlanPopup(): void {

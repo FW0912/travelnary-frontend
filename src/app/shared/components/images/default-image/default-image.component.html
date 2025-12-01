@@ -1,6 +1,6 @@
 @if(src() && !isError()) {
 <img
-	[class]="'object-contain rounded-lg ' + extraClasses()"
+	[class]="'object-cover rounded-lg ' + extraClasses()"
 	[alt]="alt()"
 	[src]="imageSrc()"
 	[ngClass]="{ 'animate-pulse': !isLoaded() }"

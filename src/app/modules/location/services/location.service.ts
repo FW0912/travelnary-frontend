@@ -50,7 +50,7 @@ export class LocationService {
 
 	public searchLocation(
 		query: SearchLocationQuery
-	): Observable<ApiResponse<SearchLocationDto>> {
+	): Observable<ApiResponse<Array<SearchLocationDto>>> {
 		var params: HttpParams = new HttpParams();
 
 		Object.entries(query).forEach(([k, v]) => {
@@ -60,9 +60,12 @@ export class LocationService {
 		});
 
 		return this.http
-			.get<ApiResponse<SearchLocationDto>>(`${this.baseApiUrl}/search`, {
-				params: params,
-			})
+			.get<ApiResponse<Array<SearchLocationDto>>>(
+				`${this.baseApiUrl}/search`,
+				{
+					params: params,
+				}
+			)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 

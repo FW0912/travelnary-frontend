@@ -33,6 +33,13 @@ import { ButtonComponent } from "../../../../shared/components/buttons/button/bu
 import { SearchableDropdownComponent } from "../../../../shared/components/dropdowns/searchable-dropdown/searchable-dropdown.component";
 import { ErrorMessageWrapperComponent } from "../../../../shared/components/error-message-wrapper/error-message-wrapper.component";
 import { CurrencyService } from "../../../currency/services/currency.service";
+import { PlanService } from "../../services/plan.service";
+import { ImageService } from "../../../image/services/image.service";
+import { switchMap } from "rxjs";
+import { ModifyPlanDto } from "../../models/modify-plan-dto";
+import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
+import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
+import { Router } from "@angular/router";
 
 @Component({
 	selector: "app-create-a-plan-popup",
@@ -76,7 +83,11 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 
 	constructor(
 		private fb: FormBuilder,
+		private router: Router,
 		private utilsService: UtilsService,
+		private snackbarService: SnackbarService,
+		private planService: PlanService,
+		private imageService: ImageService,
 		private currencyService: CurrencyService
 	) {
 		super();
@@ -105,12 +116,35 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 		);
 	}
 
-	protected get photoControl(): FormControl {
+	protected get planNameControl(): FormControl {
+		return this.formGroup.get("planName")! as FormControl;
+	}
+
+	protected get planDescriptionControl(): FormControl {
+		return this.formGroup.get("planDescription")! as FormControl;
+	}
+
+	protected get destinationControl(): FormControl {
+		return this.formGroup.get("destination")! as FormControl;
+	}
+
+	protected get photoControl(): FormControl<File | null> {
 		return this.formGroup.get("photo")! as FormControl;
 	}
 
-	protected get currencyTypeControl(): FormControl {
+	protected get dateRangeControl(): FormControl<{
+		start: Date | null;
+		end: Date | null;
+	} | null> {
+		return this.formGroup.get("dateRange")! as FormControl;
+	}
+
+	protected get currencyTypeControl(): FormControl<IValueOption | null> {
 		return this.formGroup.get("currencyType")! as FormControl;
+	}
+
+	protected get isPublicControl(): FormControl<boolean> {
+		return this.formGroup.get("isPublic")! as FormControl;
 	}
 
 	ngOnInit(): void {
@@ -157,7 +191,33 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 		this.submit();
 
 		if (this.formGroup.valid) {
-			console.log(this.formGroup);
+			this.imageService
+				.upload(this.photoControl.value!)
+				.pipe(
+					switchMap((x) => {
+						const body: ModifyPlanDto = {
+							name: this.planNameControl.value,
+							description: this.planDescriptionControl.value,
+							destination: this.destinationControl.value,
+							photoUrl: x.data.fileUrl,
+							dateStart:
+								this.dateRangeControl.value!.start!.toISOString(),
+							dateEnd:
+								this.dateRangeControl.value!.end!.toISOString(),
+							currencyId: this.currencyTypeControl.value!.id,
+							isPrivate: !this.isPublicControl.value,
+						};
+
+						return this.planService.createPlan(body);
+					})
+				)
+				.subscribe((x) => {
+					this.snackbarService.openSnackBar(
+						"Plan created successfully.",
+						ESnackbarType.INFO
+					);
+					this.router.navigateByUrl(`/view-plan/${x.data.id}`);
+				});
 		}
 	}
 }

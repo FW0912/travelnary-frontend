@@ -17,6 +17,7 @@ import { Router } from "@angular/router";
 import { AddCustomLocationPopupComponent } from "../add-custom-location-popup/add-custom-location-popup.component";
 import { LocationService } from "../../services/location.service";
 import { SearchLocationQuery } from "../../models/search-location-query";
+import { SearchLocationDto } from "../../models/search-location-dto";
 
 @Component({
 	selector: "app-add-location-popup",
@@ -34,7 +35,7 @@ import { SearchLocationQuery } from "../../models/search-location-query";
 export class AddLocationPopupComponent {
 	protected planId: string | null = null;
 	private destination: string | null = null;
-	protected locationList = signal<Array<Location>>(new Array());
+	protected locationList = signal<Array<SearchLocationDto>>(new Array());
 	private day: number | null = null;
 	private currencyName: string | null = null;
 	protected nameFilter = new FormControl<string>("");
@@ -132,6 +133,8 @@ export class AddLocationPopupComponent {
 			searchQuery: searchQuery,
 		};
 
-		this.locationService.searchLocation(query);
+		// this.locationService.searchLocation(query).subscribe((x) => {
+		// 	this.locationList.set(x.data);
+		// });
 	}
 }

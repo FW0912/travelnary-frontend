@@ -3,7 +3,7 @@ import {
 	HttpErrorResponse,
 	HttpStatusCode,
 } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { Inject, Injectable, PLATFORM_ID } from "@angular/core";
 import {
 	catchError,
 	Observable,
@@ -14,6 +14,7 @@ import {
 import { ApiResponse } from "../../models/api/api-response";
 import { ESnackbarType } from "../../models/utils/others/snackbar-type.enum";
 import { SnackbarService } from "../snackbar/snackbar.service";
+import { isPlatformBrowser } from "@angular/common";
 
 @Injectable({
 	providedIn: "root",
@@ -21,7 +22,8 @@ import { SnackbarService } from "../snackbar/snackbar.service";
 export class UtilsService {
 	constructor(
 		private http: HttpClient,
-		private snackbarService: SnackbarService
+		private snackbarService: SnackbarService,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {}
 
 	public readJsonAsset(path: string): Observable<any> {
@@ -33,7 +35,10 @@ export class UtilsService {
 		ApiResponse<T>
 	> {
 		return catchError((err: HttpErrorResponse) => {
-			if (err.status !== HttpStatusCode.Unauthorized) {
+			if (
+				isPlatformBrowser(this.platformId) &&
+				err.status !== HttpStatusCode.Unauthorized
+			) {
 				const error = err.error;
 
 				if (error.errors && error.errors.length > 0) {

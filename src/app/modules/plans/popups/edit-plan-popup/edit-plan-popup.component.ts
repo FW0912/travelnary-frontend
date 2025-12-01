@@ -36,6 +36,7 @@ import { Plan } from "../../../../core/models/domain/plan/plan";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 import { CurrencyService } from "../../../currency/services/currency.service";
+import { GetPlanByIdDto } from "../../models/get-plan-by-id-dto";
 
 @Component({
 	selector: "app-edit-plan-popup",
@@ -58,7 +59,7 @@ import { CurrencyService } from "../../../currency/services/currency.service";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditPlanPopupComponent extends BaseFormComponent {
-	protected plan: Plan | null = null;
+	protected plan: GetPlanByIdDto | null = null;
 	protected uploadError = signal<boolean>(false);
 	protected uploadButtonClasses = computed(() => {
 		const base: string = "w-full";
@@ -82,7 +83,7 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		private fb: FormBuilder,
 		@Inject(MAT_DIALOG_DATA)
 		private data: {
-			plan: Plan;
+			plan: GetPlanByIdDto;
 		},
 		private currencyService: CurrencyService,
 		private snackbarService: SnackbarService,
@@ -119,8 +120,8 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 					end: Date | null;
 				} | null>(
 					{
-						start: this.plan.date_start,
-						end: this.plan.date_end,
+						start: new Date(this.plan.dateStart),
+						end: new Date(this.plan.dateEnd),
 					},
 					[Validators.required, DateValidators.validateDateRange]
 				),
@@ -131,7 +132,7 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 					},
 					[Validators.required]
 				),
-				isPublic: fb.control<boolean>(this.plan.is_public ?? false),
+				isPublic: fb.control<boolean>(false),
 			})
 		);
 	}
