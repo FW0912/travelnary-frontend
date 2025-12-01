@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, ViewChild } from "@angular/core";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	signal,
+	ViewChild,
+} from "@angular/core";
 import { TextInputComponent } from "../../../../shared/components/inputs/text-input/text-input.component";
 import { PlanFilterComponent } from "./components/plan-filter/plan-filter.component";
 import { DropdownComponent } from "../../../../shared/components/dropdowns/dropdown/dropdown.component";
@@ -22,6 +27,7 @@ import { PlanQuery } from "../../models/plan-query";
 import { PaginatedApiResponse } from "../../../../core/models/api/paginated-api-response";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
+import { PageEvent, MatPaginatorModule } from "@angular/material/paginator";
 
 @Component({
 	selector: "app-plans-page",
@@ -33,6 +39,7 @@ import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-typ
 		FormsModule,
 		ReactiveFormsModule,
 		BorderButtonComponent,
+		MatPaginatorModule,
 	],
 	templateUrl: "./plans-page.component.html",
 	styleUrl: "./plans-page.component.css",
@@ -42,9 +49,7 @@ export class PlansPageComponent {
 	protected planPageType: PlanPageType | null = null;
 	protected readonly PLAN_FILTER_TYPE_LIST: Array<IValueOption> =
 		GeneralUtils.getOptionList(EPlanFilterType);
-	protected observablePlanList: BehaviorSubject<Array<BasePlanDto>> =
-		new BehaviorSubject(new Array());
-	protected planList = toSignal(this.observablePlanList);
+	protected planList = signal<Array<BasePlanDto>>(new Array());
 	private planFilterData: IPlanFilterData | null = null;
 	private planFilterType: IValueOption | null = this.PLAN_FILTER_TYPE_LIST[0];
 	protected nameFilter: FormControl = new FormControl<string>("");
@@ -89,21 +94,20 @@ export class PlansPageComponent {
 
 		serviceCall.subscribe({
 			next: (response) => {
-				this.observablePlanList.next(response.data.data);
+				this.planList.set(response.data.data);
 			},
 		});
 	}
 
 	ngOnDestroy(): void {
 		this.planPageType = null;
-		this.observablePlanList.complete();
 	}
 
 	protected get PlanPageType() {
 		return PlanPageType;
 	}
 
-	protected filterPlans() {
+	protected filterPlans(page: number = 1) {
 		const query: PlanQuery = {
 			Search: this.nameFilter.value,
 			Destination: this.planFilterData?.destinationFilter ?? null,
@@ -120,13 +124,13 @@ export class PlansPageComponent {
 
 		switch (this.planPageType) {
 			case PlanPageType.BROWSE_PLANS:
-				serviceCall = this.planService.browsePlans(query, 1);
+				serviceCall = this.planService.browsePlans(query, page);
 				break;
 			case PlanPageType.YOUR_PLANS:
-				serviceCall = this.planService.getOwnerPlans(query, 1);
+				serviceCall = this.planService.getOwnerPlans(query, page);
 				break;
 			case PlanPageType.PINNED_PLANS:
-				serviceCall = this.planService.getPinnedPlans(query, 1);
+				serviceCall = this.planService.getPinnedPlans(query, page);
 				break;
 			default:
 				this.snackbarService.openSnackBar(
@@ -139,7 +143,7 @@ export class PlansPageComponent {
 
 		serviceCall.subscribe({
 			next: (response) => {
-				this.observablePlanList.next(response.data.data);
+				this.planList.set(response.data.data);
 			},
 		});
 	}
@@ -161,5 +165,9 @@ export class PlansPageComponent {
 			minWidth: "35%",
 			maxHeight: "80%",
 		});
+	}
+
+	protected handlePageEvent(event: PageEvent): void {
+		this.filterPlans(event.pageIndex + 1);
 	}
 }

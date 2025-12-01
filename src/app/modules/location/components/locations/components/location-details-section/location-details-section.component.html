@@ -18,7 +18,11 @@
 			></app-location-details>
 
 			@if(!simple()) {
-			<div class="w-48 h-28 bg-placeholder rounded-md shrink-0"></div>
+			<app-default-image
+				[src]="location().photoUrl"
+				class="w-48 h-28"
+				extraClasses="w-full h-full"
+			></app-default-image>
 			}
 		</div>
 

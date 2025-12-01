@@ -7,8 +7,7 @@ import { debounceTime, Observable, Subscription, timer } from "rxjs";
 })
 export class LoadingService {
 	private requestCount: number = 0;
-	private isLoading = signal<boolean>(false);
-	public isLoading$ = toObservable(this.isLoading).pipe(debounceTime(300));
+	public isLoading = signal<boolean>(false);
 	private isMinRequestTimerDone$: Subscription | null = null;
 	private minLoadingTimer$: Observable<0> | null = null;
 	private isMinLoadingTimerDone$: Subscription | null = null;

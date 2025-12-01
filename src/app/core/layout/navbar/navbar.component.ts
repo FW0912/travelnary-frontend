@@ -27,10 +27,17 @@ import { LinkComponent } from "../../../shared/components/link/link.component";
 import { AuthService } from "../../services/auth/auth.service";
 import { EventService } from "../../services/event/event.service";
 import { EventName } from "../../../shared/enums/event-name";
+import { UserImageComponent } from "../../../shared/components/images/user-image/user-image.component";
 
 @Component({
 	selector: "app-navbar",
-	imports: [BorderButtonComponent, CommonModule, LayoutModule, LinkComponent],
+	imports: [
+		BorderButtonComponent,
+		CommonModule,
+		LayoutModule,
+		LinkComponent,
+		UserImageComponent,
+	],
 	templateUrl: "./navbar.component.html",
 	styleUrl: "./navbar.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,

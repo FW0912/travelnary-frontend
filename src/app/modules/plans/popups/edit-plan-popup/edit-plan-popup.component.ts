@@ -35,6 +35,7 @@ import { DateValidators } from "../../../../shared/validators/date/date-validato
 import { Plan } from "../../../../core/models/domain/plan/plan";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
+import { CurrencyService } from "../../../currency/services/currency.service";
 
 @Component({
 	selector: "app-edit-plan-popup",
@@ -57,9 +58,6 @@ import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-typ
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditPlanPopupComponent extends BaseFormComponent {
-	protected readonly CURRENCY_TYPE_LIST: Array<IValueOption> =
-		GeneralUtils.getOptionList(CurrencyType);
-
 	protected plan: Plan | null = null;
 	protected uploadError = signal<boolean>(false);
 	protected uploadButtonClasses = computed(() => {
@@ -78,6 +76,7 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		return base;
 	});
 	protected photoUrl = signal<string | null>(null);
+	protected currencyTypeList = signal<Array<IValueOption>>(new Array());
 
 	constructor(
 		private fb: FormBuilder,
@@ -85,6 +84,7 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		private data: {
 			plan: Plan;
 		},
+		private currencyService: CurrencyService,
 		private snackbarService: SnackbarService,
 		private ref: MatDialogRef<EditPlanPopupComponent>
 	) {
@@ -142,6 +142,21 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 
 	protected get currencyTypeControl(): FormControl {
 		return this.formGroup.get("currencyType")! as FormControl;
+	}
+
+	ngOnInit(): void {
+		this.currencyService.getAllCurrency().subscribe({
+			next: (x) => {
+				this.currencyTypeList.set(
+					x.data.map((y) => {
+						return {
+							id: y.id,
+							value: y.id,
+						};
+					})
+				);
+			},
+		});
 	}
 
 	protected onCurrencyTypeSelected(currencyType: IValueOption | null) {

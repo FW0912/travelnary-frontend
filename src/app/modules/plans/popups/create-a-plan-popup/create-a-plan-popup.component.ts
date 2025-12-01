@@ -32,6 +32,7 @@ import { CurrencyType } from "../../../../shared/enums/currency-type";
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
 import { SearchableDropdownComponent } from "../../../../shared/components/dropdowns/searchable-dropdown/searchable-dropdown.component";
 import { ErrorMessageWrapperComponent } from "../../../../shared/components/error-message-wrapper/error-message-wrapper.component";
+import { CurrencyService } from "../../../currency/services/currency.service";
 
 @Component({
 	selector: "app-create-a-plan-popup",
@@ -54,9 +55,6 @@ import { ErrorMessageWrapperComponent } from "../../../../shared/components/erro
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateAPlanPopupComponent extends BaseFormComponent {
-	protected readonly CURRENCY_TYPE_LIST: Array<IValueOption> =
-		GeneralUtils.getOptionList(CurrencyType);
-
 	protected uploadError = signal<boolean>(false);
 	protected uploadButtonClasses = computed(() => {
 		const base: string = "w-full";
@@ -74,8 +72,13 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 		return base;
 	});
 	protected photoUrl = signal<string | null>(null);
+	protected currencyTypeList = signal<Array<IValueOption>>(new Array());
 
-	constructor(private fb: FormBuilder, private utilsService: UtilsService) {
+	constructor(
+		private fb: FormBuilder,
+		private utilsService: UtilsService,
+		private currencyService: CurrencyService
+	) {
 		super();
 
 		this.setFormGroup(
@@ -108,6 +111,21 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 
 	protected get currencyTypeControl(): FormControl {
 		return this.formGroup.get("currencyType")! as FormControl;
+	}
+
+	ngOnInit(): void {
+		this.currencyService.getAllCurrency().subscribe({
+			next: (x) => {
+				this.currencyTypeList.set(
+					x.data.map((y) => {
+						return {
+							id: y.id,
+							value: y.id,
+						};
+					})
+				);
+			},
+		});
 	}
 
 	protected onCurrencyTypeSelected(currencyType: IValueOption | null) {

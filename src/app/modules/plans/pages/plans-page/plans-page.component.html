@@ -53,5 +53,12 @@
 		</div>
 
 		<app-plan-gallery [planList]="planList()!"></app-plan-gallery>
+
+		<mat-paginator
+			[length]="planList().length"
+			[pageSize]="12"
+			[hidePageSize]="true"
+			(page)="handlePageEvent($event)"
+		></mat-paginator>
 	</div>
 </div>

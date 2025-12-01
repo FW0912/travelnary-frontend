@@ -1,0 +1,19 @@
+@if(src() && !isError()) {
+<img
+	[class]="'object-contain rounded-lg ' + extraClasses()"
+	[alt]="alt()"
+	[src]="imageSrc()"
+	[ngClass]="{ 'animate-pulse': !isLoaded() }"
+	(error)="handleErrorEvent()"
+	(load)="handleLoadEvent()"
+/>
+} @else {
+<div
+	[class]="
+		'flex bg-gray-400 rounded-lg justify-center items-center ' +
+		extraClasses()
+	"
+>
+	<i class="bi bi-image text-white text-2xl"></i>
+</div>
+}

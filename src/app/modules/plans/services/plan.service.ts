@@ -33,7 +33,7 @@ export class PlanService {
 	public browsePlans(
 		query: PlanQuery | null,
 		page: number = 1,
-		pageSize: number = 10
+		pageSize: number = 12
 	): Observable<PaginatedApiResponse<Array<BasePlanDto>>> {
 		var params: HttpParams = new HttpParams();
 
@@ -61,7 +61,7 @@ export class PlanService {
 	public getOwnerPlans(
 		query: PlanQuery | null,
 		page: number = 1,
-		pageSize: number = 10
+		pageSize: number = 12
 	): Observable<PaginatedApiResponse<Array<BasePlanDto>>> {
 		var params: HttpParams = new HttpParams();
 
@@ -89,7 +89,7 @@ export class PlanService {
 	public getPinnedPlans(
 		query: PlanQuery | null,
 		page: number = 1,
-		pageSize: number = 10
+		pageSize: number = 12
 	): Observable<PaginatedApiResponse<Array<BasePlanDto>>> {
 		var params: HttpParams = new HttpParams();
 

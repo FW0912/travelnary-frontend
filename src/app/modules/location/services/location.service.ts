@@ -10,6 +10,7 @@ import { ModifyLocationDto } from "../models/modify-location-dto";
 import { UtilsService } from "../../../core/services/utils/utils.service";
 import { SearchLocationQuery } from "../models/search-location-query";
 import { SearchLocationDto } from "../models/search-location-dto";
+import { LocationCategory } from "../models/location-category";
 
 @Injectable({
 	providedIn: "root",
@@ -18,6 +19,16 @@ export class LocationService {
 	private readonly baseApiUrl: string = `${environment.baseApiUrl}/Location`;
 
 	constructor(private http: HttpClient, private utilsService: UtilsService) {}
+
+	public getAllLocationCategories(): Observable<
+		ApiResponse<Array<LocationCategory>>
+	> {
+		return this.http
+			.get<ApiResponse<Array<LocationCategory>>>(
+				`${this.baseApiUrl}/category`
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
 
 	public getLocationByPlan(
 		planId: string

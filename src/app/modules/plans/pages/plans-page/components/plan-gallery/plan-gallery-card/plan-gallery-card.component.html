@@ -4,7 +4,12 @@
 >
 	<div class="flex flex-col gap-2 min-h-3/4">
 		<!-- <img [src]="plan()." /> -->
-		<div class="w-full h-1/2 shrink-0 bg-gray-500 rounded-lg"></div>
+		<!-- <div class="w-full h-1/2 shrink-0 bg-gray-500 rounded-lg"></div> -->
+		<app-default-image
+			[src]="plan().photoUrl"
+			class="w-full h-1/2 shrink-0"
+			extraClasses="w-full h-full"
+		></app-default-image>
 		<div class="flex flex-col">
 			<span class="text-lg font-medium text-primary truncate">{{
 				plan().name
@@ -36,7 +41,10 @@
 
 		<div class="flex flex-col gap-2 justify-between">
 			<div class="flex items-center gap-2">
-				<i class="bi bi-person-circle"></i>
+				<app-user-image
+					[src]="plan().owner.photoUrl"
+					extraClasses="w-3 h-3"
+				></app-user-image>
 				{{ plan().owner.username }}
 			</div>
 

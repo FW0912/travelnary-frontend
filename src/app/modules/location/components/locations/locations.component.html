@@ -16,8 +16,12 @@
 
 	@if(!isSorting()) {
 	<div class="flex flex-col">
-		@for(location of locationList(); let isLast = $last; track location.id)
-		{
+		@if(locationList().length === 0) {
+		<div class="flex w-full h-40 justify-center items-center">
+			<span>No locations found.</span>
+		</div>
+		} @else { @for(location of locationList(); let isLast = $last; track
+		location.id) {
 		<app-location-details-section
 			[day]="day()"
 			[location]="location"
@@ -26,7 +30,7 @@
 			[isLast]="isLast"
 			(onDelete)="onDeleteLocation($event)"
 		></app-location-details-section>
-		} @if(!readOnly()) {
+		} } @if(!readOnly()) {
 		<div
 			class="flex gap-3 items-center hover:text-hover transition-colors cursor-pointer"
 			(click)="onAddLocation()"

@@ -1,0 +1,10 @@
+@if(src() && !isError()) {
+<img
+	[class]="'object-contain rounded-full ' + extraClasses()"
+	[alt]="alt()"
+	[src]="imageSrc()"
+	[ngClass]="{ 'animate-pulse': !isLoaded() }"
+/>
+} @else {
+<i [class]="'bi bi-person-circle ' + extraClasses()"></i>
+}

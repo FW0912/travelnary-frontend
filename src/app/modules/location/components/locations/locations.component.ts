@@ -39,6 +39,7 @@ import { GetLocationDto } from "../../models/get-location-dto";
 })
 export class LocationsComponent {
 	public planId = input.required<string>();
+	public destination = input.required<string | null>();
 	public day = input.required<number>();
 	public currencyName = input<string>("");
 	public locationList = input.required<Array<GetLocationDto>>();
@@ -86,6 +87,7 @@ export class LocationsComponent {
 			height: "90vh",
 			data: {
 				planId: this.planId(),
+				destination: this.destination(),
 				day: this.day(),
 				currencyName: this.currencyName(),
 			},

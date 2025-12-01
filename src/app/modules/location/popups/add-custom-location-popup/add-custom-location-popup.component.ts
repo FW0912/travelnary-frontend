@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, signal } from "@angular/core";
 import {
 	FormBuilder,
 	FormControl,
@@ -24,6 +24,7 @@ import { GeneralUtils } from "../../../../shared/utils/general-utils";
 import { BaseFormComponent } from "../../../base-form-page/base-form-page.component";
 import { TimePickerComponent } from "../../../../shared/components/inputs/time-picker/time-picker.component";
 import { ErrorMessageWrapperComponent } from "../../../../shared/components/error-message-wrapper/error-message-wrapper.component";
+import { LocationService } from "../../services/location.service";
 
 @Component({
 	selector: "app-add-custom-location-popup",
@@ -43,9 +44,10 @@ import { ErrorMessageWrapperComponent } from "../../../../shared/components/erro
 	styleUrl: "./add-custom-location-popup.component.css",
 })
 export class AddCustomLocationPopupComponent extends BaseFormComponent {
-	protected readonly LOCATION_CATEGORY_OPTION_LIST: Array<IValueOption> =
-		GeneralUtils.getOptionList(LocationCategory);
 	protected currencyName: string | null = null;
+	protected locationCategoryOptionList = signal<Array<IValueOption>>(
+		new Array()
+	);
 
 	constructor(
 		private ref: MatDialogRef<AddCustomLocationPopupComponent>,
@@ -54,6 +56,7 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 			currencyName: string;
 		},
 		private snackbarService: SnackbarService,
+		private locationService: LocationService,
 		private fb: FormBuilder
 	) {
 		super();
@@ -97,6 +100,21 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 
 	protected get categoryControl(): FormControl {
 		return this.formGroup.get("category")! as FormControl;
+	}
+
+	ngOnInit(): void {
+		this.locationService.getAllLocationCategories().subscribe({
+			next: (x) => {
+				this.locationCategoryOptionList.set(
+					x.data.map((y) => {
+						return {
+							id: y.id,
+							value: y.name,
+						};
+					})
+				);
+			},
+		});
 	}
 
 	protected onCategorySelected(category: IValueOption | null) {

@@ -1,4 +1,4 @@
-import { Currency } from "../../../shared/models/common/currency";
+import { Currency } from "../../currency/models/currency";
 import { BasePlanDto } from "./base-plan-dto";
 
 export interface GetPlanByIdDto extends BasePlanDto {

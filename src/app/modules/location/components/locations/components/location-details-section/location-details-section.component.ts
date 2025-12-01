@@ -21,10 +21,15 @@ import { GetLocationDto } from "../../../../models/get-location-dto";
 import { LocationService } from "../../../../services/location.service";
 import { SnackbarService } from "../../../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../../../core/models/utils/others/snackbar-type.enum";
+import { DefaultImageComponent } from "../../../../../../shared/components/images/default-image/default-image.component";
 
 @Component({
 	selector: "app-location-details-section",
-	imports: [LocationDetailsComponent, BorderButtonComponent],
+	imports: [
+		LocationDetailsComponent,
+		BorderButtonComponent,
+		DefaultImageComponent,
+	],
 	templateUrl: "./location-details-section.component.html",
 	styleUrl: "./location-details-section.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,

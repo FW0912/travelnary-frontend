@@ -21,7 +21,10 @@
 
 			<div class="flex gap-4 items-center">
 				<div class="flex gap-2 items-center">
-					<div class="bg-placeholder rounded-full w-10 h-10"></div>
+					<app-user-image
+						[src]="plan().owner.photoUrl"
+						extraClasses="w-8 h-8"
+					></app-user-image>
 
 					<span class="font-medium">{{ plan().owner.username }}</span>
 				</div>
@@ -61,5 +64,10 @@
 		</div>
 	</div>
 
-	<div class="w-1/4 h-44 rounded-md bg-placeholder"></div>
+	<!-- <div class="w-1/4 h-44 rounded-md bg-placeholder"></div> -->
+	<app-default-image
+		[src]="plan().photoUrl"
+		class="w-1/4 h-44"
+		extraClasses="w-full h-full"
+	></app-default-image>
 </div>

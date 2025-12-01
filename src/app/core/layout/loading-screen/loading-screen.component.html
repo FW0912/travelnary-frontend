@@ -1,11 +1,11 @@
-@if(loadingService.isLoading$ | async) {
+@if(loadingService.isLoading()) {
 <div
 	class="flex fixed w-screen h-screen justify-center items-center z-50 select-none pointer-events-none"
 	@fadeInOut
 >
 	<div class="flex relative flex-col gap-4 justify-center items-center p-7">
 		<div
-			class="flex absolute w-full h-full bg-primary opacity-70 rounded-lg"
+			class="flex absolute w-full h-full bg-primary opacity-80 rounded-lg"
 		></div>
 		<div class="flex gap-2 items-center z-10">
 			<img

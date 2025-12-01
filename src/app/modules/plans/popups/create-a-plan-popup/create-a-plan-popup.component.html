@@ -115,7 +115,7 @@
 						contentClass="max-h-20"
 						id="currencyType"
 						placeholder="Currency"
-						[optionList]="CURRENCY_TYPE_LIST"
+						[optionList]="currencyTypeList()"
 						(onSelected)="onCurrencyTypeSelected($event)"
 					></app-searchable-dropdown>
 				</app-error-message-wrapper>

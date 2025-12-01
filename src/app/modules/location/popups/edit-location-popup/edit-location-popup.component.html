@@ -5,7 +5,7 @@
 			<div class="flex flex-col gap-1">
 				<span class="font-medium">Category</span>
 				<app-dropdown
-					[optionList]="LOCATION_CATEGORY_OPTION_LIST"
+					[optionList]="locationCategoryOptionList()"
 					[initialOption]="categoryControl.value"
 					placeholder="Select a category"
 					widthClass="w-full"

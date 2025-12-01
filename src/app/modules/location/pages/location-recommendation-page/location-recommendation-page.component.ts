@@ -12,6 +12,8 @@ import { MatDialog } from "@angular/material/dialog";
 import { FilterLocationRecommendationsPopupComponent } from "../../popups/filter-location-recommendations-popup/filter-location-recommendations-popup.component";
 import { IValueOption } from "../../../../shared/models/utils/value-option";
 import { GetLocationDto } from "../../models/get-location-dto";
+import { PlanService } from "../../../plans/services/plan.service";
+import { LocationService } from "../../services/location.service";
 
 @Component({
 	selector: "app-location-recommendation-page",
@@ -27,6 +29,7 @@ import { GetLocationDto } from "../../models/get-location-dto";
 })
 export class LocationRecommendationPageComponent {
 	protected planId: string | null = null;
+	protected destination: string | null = null;
 	protected day: number | null = null;
 	protected locationList = signal<Array<GetLocationDto>>(new Array());
 	protected recommendedLocationList = signal<Array<Location>>([
@@ -72,6 +75,8 @@ export class LocationRecommendationPageComponent {
 		private route: ActivatedRoute,
 		private router: Router,
 		private snackbarService: SnackbarService,
+		private planService: PlanService,
+		private locationService: LocationService,
 		private dialog: MatDialog
 	) {
 		route.paramMap.pipe(takeUntilDestroyed()).subscribe((x) => {
@@ -96,6 +101,22 @@ export class LocationRecommendationPageComponent {
 			} else {
 				this.day = Number.parseInt(x.get("day")!);
 			}
+		});
+	}
+
+	ngOnInit(): void {
+		this.planService.getPlanById(this.planId!).subscribe({
+			next: (x) => {
+				this.destination = x.data.destination;
+			},
+		});
+
+		this.locationService.getLocationByPlan(this.planId!).subscribe({
+			next: (x) => {
+				this.locationList.set(
+					x.data.find((x) => x.day === this.day)!.locations
+				);
+			},
 		});
 	}
 

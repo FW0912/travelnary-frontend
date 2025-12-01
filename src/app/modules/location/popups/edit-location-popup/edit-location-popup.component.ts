@@ -31,6 +31,7 @@ import { TextInputComponent } from "../../../../shared/components/inputs/text-in
 import { TextAreaComponent } from "../../../../shared/components/inputs/text-area/text-area.component";
 import { TimePickerComponent } from "../../../../shared/components/inputs/time-picker/time-picker.component";
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
+import { LocationService } from "../../services/location.service";
 
 @Component({
 	selector: "app-edit-location-popup",
@@ -51,9 +52,10 @@ import { ButtonComponent } from "../../../../shared/components/buttons/button/bu
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditLocationPopupComponent extends BaseFormComponent {
-	protected readonly LOCATION_CATEGORY_OPTION_LIST: Array<IValueOption> =
-		GeneralUtils.getOptionList(LocationCategory);
 	protected location: Location | null = null;
+	protected locationCategoryOptionList = signal<Array<IValueOption>>(
+		new Array()
+	);
 
 	constructor(
 		private ref: MatDialogRef<EditLocationPopupComponent>,
@@ -62,6 +64,7 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 			location: Location;
 		},
 		private snackbarService: SnackbarService,
+		private locationService: LocationService,
 		private fb: FormBuilder
 	) {
 		super();
@@ -104,6 +107,21 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 
 	protected get categoryControl(): FormControl {
 		return this.formGroup.get("category")! as FormControl;
+	}
+
+	ngOnInit(): void {
+		this.locationService.getAllLocationCategories().subscribe({
+			next: (x) => {
+				this.locationCategoryOptionList.set(
+					x.data.map((y) => {
+						return {
+							id: y.id,
+							value: y.name,
+						};
+					})
+				);
+			},
+		});
 	}
 
 	protected onCategorySelected(category: IValueOption | null) {

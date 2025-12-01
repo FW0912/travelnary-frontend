@@ -189,9 +189,10 @@
 			<div
 				class="flex gap-3 items-center hover:text-primary transition-colors cursor-pointer"
 			>
-				@if(userData.profileUrl) { } @else {
-				<i class="bi bi-person-circle text-3xl !text-black"></i>
-				}
+				<app-user-image
+					[src]="userData.profileUrl"
+					extraClasses="w-16 h-16"
+				></app-user-image>
 
 				<span class="truncate">{{ userData.username }}</span>
 			</div>

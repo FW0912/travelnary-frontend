@@ -15,6 +15,8 @@ import { SnackbarService } from "../../../../core/services/snackbar/snackbar.ser
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 import { Router } from "@angular/router";
 import { AddCustomLocationPopupComponent } from "../add-custom-location-popup/add-custom-location-popup.component";
+import { LocationService } from "../../services/location.service";
+import { SearchLocationQuery } from "../../models/search-location-query";
 
 @Component({
 	selector: "app-add-location-popup",
@@ -31,44 +33,10 @@ import { AddCustomLocationPopupComponent } from "../add-custom-location-popup/ad
 })
 export class AddLocationPopupComponent {
 	protected planId: string | null = null;
-	protected locationList = signal<Array<Location>>(
-		new Array(
-			{
-				id: "1",
-				planId: "1",
-				category: {
-					id: "1",
-					name: "Food",
-				},
-				order: 0,
-				name: "The New Duff",
-				address: "139 W Bay St, Nassau, Bahamas",
-				day: new Date(),
-				notes: "Restaurant",
-				time: new Date(),
-				currencyName: "",
-				cost: 0,
-			},
-			{
-				id: "2",
-				planId: "1",
-				category: {
-					id: "2",
-					name: "Lodging",
-				},
-				order: 0,
-				name: "Warwick Paradise Island",
-				address: "Harbour Dr, Nassau, Bahamas",
-				day: new Date(),
-				notes: "4-star hotel",
-				time: new Date(),
-				currencyName: "",
-				cost: 0,
-			}
-		)
-	);
-	protected day: number | null = null;
-	protected currencyName: string | null = null;
+	private destination: string | null = null;
+	protected locationList = signal<Array<Location>>(new Array());
+	private day: number | null = null;
+	private currencyName: string | null = null;
 	protected nameFilter = new FormControl<string>("");
 
 	constructor(
@@ -76,11 +44,13 @@ export class AddLocationPopupComponent {
 		@Inject(MAT_DIALOG_DATA)
 		private data: {
 			planId: string;
+			destination: string;
 			day: number;
 			currencyName: string;
 		},
 		private dialog: MatDialog,
 		private snackbarService: SnackbarService,
+		private locationService: LocationService,
 		private router: Router
 	) {
 		if (!data) {
@@ -92,7 +62,7 @@ export class AddLocationPopupComponent {
 			return;
 		}
 
-		if (!data.planId) {
+		if (!data.planId || !data.destination) {
 			snackbarService.openSnackBar(
 				"Can't get Plan!",
 				ESnackbarType.ERROR
@@ -120,6 +90,7 @@ export class AddLocationPopupComponent {
 		}
 
 		this.planId = data.planId;
+		this.destination = data.destination;
 		this.day = data.day;
 		this.currencyName = data.currencyName;
 	}
@@ -148,5 +119,19 @@ export class AddLocationPopupComponent {
 
 	protected onCheckDetails(): void {
 		this.ref.close();
+	}
+
+	protected search(): void {
+		var searchQuery: string = this.nameFilter.value ?? "";
+
+		if (this.destination) {
+			searchQuery.concat(" ", this.destination);
+		}
+
+		const query: SearchLocationQuery = {
+			searchQuery: searchQuery,
+		};
+
+		this.locationService.searchLocation(query);
 	}
 }
