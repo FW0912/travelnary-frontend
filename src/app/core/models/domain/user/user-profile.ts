@@ -4,8 +4,8 @@ export interface UserProfile {
 	email: string;
 	fullName: string;
 	bioDescription: string;
-	dob: Date;
+	dob: string;
 	gender: string;
 	profileUrl: string;
-	createdAt: Date;
+	createdAt: string;
 }

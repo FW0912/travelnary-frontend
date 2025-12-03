@@ -56,7 +56,7 @@
 
 		<mat-paginator
 			class="mt-5"
-			[length]="planList().length"
+			[length]="totalPlans()"
 			[pageSize]="12"
 			[hidePageSize]="true"
 			(page)="handlePageEvent($event)"

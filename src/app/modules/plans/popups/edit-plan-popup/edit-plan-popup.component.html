@@ -117,7 +117,7 @@
 						id="currencyType"
 						placeholder="Currency"
 						[optionList]="currencyTypeList()"
-						[initialOption]="currencyTypeControl.value"
+						[initialOption]="initialCurrencyType()"
 						(onSelected)="onCurrencyTypeSelected($event)"
 					></app-searchable-dropdown>
 				</app-error-message-wrapper>
@@ -163,7 +163,7 @@
 	</mat-dialog-content>
 
 	<mat-dialog-actions align="end">
-		<app-button (onClick)="createPlan()">Create</app-button>
+		<app-button (onClick)="updatePlan()">Save</app-button>
 	</mat-dialog-actions>
 </app-base-popup>
 

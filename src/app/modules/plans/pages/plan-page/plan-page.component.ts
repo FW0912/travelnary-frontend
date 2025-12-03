@@ -1,5 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
-import { PlanDetailsComponent } from "../../plan-details/plan-details.component";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	DestroyRef,
+	signal,
+} from "@angular/core";
 import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
 import { LocationsComponent } from "../../../location/components/locations/locations.component";
 import { CommentsComponent } from "../../../comment/components/comments/comments.component";
@@ -23,6 +27,7 @@ import { GetLocationByPlanDto } from "../../../location/models/get-location-by-p
 import { GetLocationByIdDto } from "../../../location/models/get-location-by-id-dto";
 import { GetLocationDto } from "../../../location/models/get-location-dto";
 import { switchMap } from "rxjs";
+import { PlanDetailsComponent } from "./components/plan-details/plan-details.component";
 
 @Component({
 	selector: "app-plan-page",
@@ -98,6 +103,7 @@ export class PlanPageComponent {
 
 	constructor(
 		private route: ActivatedRoute,
+		private destroyRef: DestroyRef,
 		private router: Router,
 		private snackbarService: SnackbarService,
 		private dialog: MatDialog,
@@ -120,6 +126,10 @@ export class PlanPageComponent {
 	}
 
 	ngOnInit(): void {
+		this.fetchData();
+	}
+
+	private fetchData(): void {
 		this.planService
 			.getPlanById(this.planId())
 			.pipe(
@@ -133,6 +143,10 @@ export class PlanPageComponent {
 			)
 			.subscribe({
 				next: (x) => {
+					const map: Map<number, GetLocationByPlanDto> = new Map();
+
+					x.data.forEach((y) => map.set(y.day, y));
+
 					const amountOfDays: number =
 						Math.ceil(
 							Math.abs(
@@ -145,8 +159,8 @@ export class PlanPageComponent {
 						new Array();
 
 					for (let i = 1; i <= amountOfDays; i++) {
-						if (x.data.at(i)) {
-							locationList.push(x.data.at(i)!);
+						if (map.has(i)) {
+							locationList.push(map.get(i)!);
 						} else {
 							locationList.push({
 								day: i,
@@ -161,13 +175,22 @@ export class PlanPageComponent {
 	}
 
 	protected openEditPlanPopup(): void {
-		this.dialog.open(EditPlanPopupComponent, {
+		const ref = this.dialog.open(EditPlanPopupComponent, {
 			minWidth: "35%",
+			maxWidth: "50vw",
 			maxHeight: "80%",
 			data: {
 				plan: this.plan(),
 			},
 		});
+
+		ref.afterClosed()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe((x) => {
+				if (x) {
+					this.fetchData();
+				}
+			});
 	}
 
 	protected togglePin(): void {

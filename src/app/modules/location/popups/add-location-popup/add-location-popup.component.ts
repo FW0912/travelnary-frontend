@@ -18,6 +18,7 @@ import { AddCustomLocationPopupComponent } from "../add-custom-location-popup/ad
 import { LocationService } from "../../services/location.service";
 import { SearchLocationQuery } from "../../models/search-location-query";
 import { SearchLocationDto } from "../../models/search-location-dto";
+import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
 
 @Component({
 	selector: "app-add-location-popup",
@@ -28,6 +29,7 @@ import { SearchLocationDto } from "../../models/search-location-dto";
 		ReactiveFormsModule,
 		ButtonComponent,
 		BorderButtonComponent,
+		DefaultImageComponent,
 	],
 	templateUrl: "./add-location-popup.component.html",
 	styleUrl: "./add-location-popup.component.css",
@@ -125,16 +127,16 @@ export class AddLocationPopupComponent {
 	protected search(): void {
 		var searchQuery: string = this.nameFilter.value ?? "";
 
-		if (this.destination) {
-			searchQuery.concat(" ", this.destination);
-		}
+		// if (this.destination) {
+		// 	searchQuery.concat(" ", this.destination);
+		// }
 
 		const query: SearchLocationQuery = {
 			searchQuery: searchQuery,
 		};
 
-		// this.locationService.searchLocation(query).subscribe((x) => {
-		// 	this.locationList.set(x.data);
-		// });
+		this.locationService.searchLocation(query).subscribe((x) => {
+			this.locationList.set(x.data);
+		});
 	}
 }

@@ -101,9 +101,15 @@
 			>
 				<button
 					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
-					(click)="changeTheme(ThemeEnum.LIGHT)"
+					(click)="profile()"
 				>
 					<span class="text-sm">Profile</span>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="settings()"
+				>
+					<span class="text-sm">Settings</span>
 				</button>
 				<button
 					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer text-error"
@@ -186,8 +192,9 @@
 		>
 			@if(authService.isLoggedIn()) { @let userData =
 			authService.getRequiredUserData();
-			<div
+			<button
 				class="flex gap-3 items-center hover:text-primary transition-colors cursor-pointer"
+				(click)="profile()"
 			>
 				<app-user-image
 					[src]="userData.profileUrl"
@@ -195,10 +202,14 @@
 				></app-user-image>
 
 				<span class="truncate">{{ userData.username }}</span>
-			</div>
+			</button>
 			}
 
-			<app-link href="/browse-plans">Browse Plans</app-link>
+			<app-link
+				href="/browse-plans"
+				extraClasses="block text-center w-full"
+				>Browse Plans</app-link
+			>
 
 			@if(authService.isLoggedIn()) {
 			<app-link href="/pinned-plans">Pinned Plans</app-link>

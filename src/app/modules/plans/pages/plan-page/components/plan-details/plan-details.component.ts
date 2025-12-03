@@ -6,11 +6,10 @@ import {
 	output,
 	signal,
 } from "@angular/core";
-import { Plan } from "../../../core/models/domain/plan/plan";
 import { CommonModule, DatePipe } from "@angular/common";
-import { GetPlanByIdDto } from "../models/get-plan-by-id-dto";
-import { UserImageComponent } from "../../../shared/components/images/user-image/user-image.component";
-import { DefaultImageComponent } from "../../../shared/components/images/default-image/default-image.component";
+import { UserImageComponent } from "../../../../../../shared/components/images/user-image/user-image.component";
+import { DefaultImageComponent } from "../../../../../../shared/components/images/default-image/default-image.component";
+import { GetPlanByIdDto } from "../../../../models/get-plan-by-id-dto";
 
 @Component({
 	selector: "app-plan-details",

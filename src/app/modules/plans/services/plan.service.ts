@@ -114,6 +114,35 @@ export class PlanService {
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
+	public getPlansByUser(
+		userId: string,
+		query: PlanQuery | null,
+		page: number = 1,
+		pageSize: number = 4
+	): Observable<PaginatedApiResponse<Array<BasePlanDto>>> {
+		var params: HttpParams = new HttpParams();
+
+		params = params.set("Page", page);
+		params = params.set("PageSize", pageSize);
+
+		if (query) {
+			Object.entries(query).forEach(([k, v]) => {
+				if (v) {
+					params = params.set(k, v);
+				}
+			});
+		}
+
+		return this.http
+			.get<PaginatedApiResponse<Array<BasePlanDto>>>(
+				`${this.baseApiUrl}/user/${userId}`,
+				{
+					params: params,
+				}
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
 	public getPlanById(id: string): Observable<ApiResponse<GetPlanByIdDto>> {
 		if (this.authService.getAccessToken()) {
 			return this.http

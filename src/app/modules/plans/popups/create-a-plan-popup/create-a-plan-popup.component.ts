@@ -6,7 +6,7 @@ import {
 	ViewChild,
 } from "@angular/core";
 import { BasePopupComponent } from "../../../base-popup/base-popup.component";
-import { MatDialogContent } from "@angular/material/dialog";
+import { MatDialogContent, MatDialogRef } from "@angular/material/dialog";
 import { MatDialogActions } from "@angular/material/dialog";
 import { TextInputComponent } from "../../../../shared/components/inputs/text-input/text-input.component";
 import { BaseFormComponent } from "../../../base-form-page/base-form-page.component";
@@ -88,7 +88,8 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 		private snackbarService: SnackbarService,
 		private planService: PlanService,
 		private imageService: ImageService,
-		private currencyService: CurrencyService
+		private currencyService: CurrencyService,
+		private ref: MatDialogRef<CreateAPlanPopupComponent>
 	) {
 		super();
 
@@ -211,12 +212,15 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 						return this.planService.createPlan(body);
 					})
 				)
-				.subscribe((x) => {
-					this.snackbarService.openSnackBar(
-						"Plan created successfully.",
-						ESnackbarType.INFO
-					);
-					this.router.navigateByUrl(`/view-plan/${x.data.id}`);
+				.subscribe({
+					next: (x) => {
+						this.ref.close();
+						this.snackbarService.openSnackBar(
+							"Plan created successfully.",
+							ESnackbarType.INFO
+						);
+						this.router.navigateByUrl(`/view-plan/${x.data.id}`);
+					},
 				});
 		}
 	}

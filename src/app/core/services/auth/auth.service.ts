@@ -243,4 +243,10 @@ export class AuthService {
 				})
 			);
 	}
+
+	public getUserProfile(id: string): Observable<ApiResponse<UserProfile>> {
+		return this.http
+			.get<ApiResponse<UserProfile>>(`${this.baseApiUrl}/profile/${id}`)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
 }

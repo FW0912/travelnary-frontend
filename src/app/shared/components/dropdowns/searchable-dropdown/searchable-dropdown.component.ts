@@ -6,6 +6,8 @@ import {
 	ElementRef,
 	input,
 	signal,
+	untracked,
+	WritableSignal,
 } from "@angular/core";
 import { BaseDropdownComponent } from "../base-dropdown/base-dropdown.component";
 import { CommonModule } from "@angular/common";
@@ -40,6 +42,9 @@ export class SearchableDropdownComponent extends BaseDropdownComponent {
 
 		return optionList;
 	});
+	// protected override selectedOption: WritableSignal<IValueOption | null> = computed(() => {
+	//     const input = this.input();
+	// })
 
 	constructor(private x: EventService, private y: ElementRef) {
 		super(x, y);
@@ -57,7 +62,9 @@ export class SearchableDropdownComponent extends BaseDropdownComponent {
 			const selectedOption = this.selectedOption();
 
 			if (selectedOption && input !== selectedOption.value) {
-				this.selectedOption.set(null);
+				untracked(() => {
+					this.selectedOption.set(null);
+				});
 				this.onSelected.emit(null);
 			}
 		});

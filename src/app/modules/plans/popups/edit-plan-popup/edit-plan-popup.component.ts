@@ -37,6 +37,11 @@ import { SnackbarService } from "../../../../core/services/snackbar/snackbar.ser
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 import { CurrencyService } from "../../../currency/services/currency.service";
 import { GetPlanByIdDto } from "../../models/get-plan-by-id-dto";
+import { ImageService } from "../../../image/services/image.service";
+import { PlanService } from "../../services/plan.service";
+import { switchMap } from "rxjs";
+import { ModifyPlanDto } from "../../models/modify-plan-dto";
+import { Router } from "@angular/router";
 
 @Component({
 	selector: "app-edit-plan-popup",
@@ -77,6 +82,7 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		return base;
 	});
 	protected photoUrl = signal<string | null>(null);
+	protected initialCurrencyType = signal<IValueOption | null>(null);
 	protected currencyTypeList = signal<Array<IValueOption>>(new Array());
 
 	constructor(
@@ -86,7 +92,10 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 			plan: GetPlanByIdDto;
 		},
 		private currencyService: CurrencyService,
+		private imageService: ImageService,
+		private planService: PlanService,
 		private snackbarService: SnackbarService,
+		private router: Router,
 		private ref: MatDialogRef<EditPlanPopupComponent>
 	) {
 		super();
@@ -101,6 +110,12 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		}
 
 		this.plan = data.plan;
+		const initialCurrencyType: IValueOption = {
+			id: this.plan.currency.id,
+			value: this.plan.currency.id,
+		};
+		this.initialCurrencyType.set(initialCurrencyType);
+		this.photoUrl.set(this.plan.photoUrl);
 
 		this.setFormGroup(
 			fb.group({
@@ -112,9 +127,7 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 				destination: fb.control<string>(this.plan.destination, [
 					Validators.required,
 				]),
-				photo: fb.control<File | null>(new File([], ""), [
-					Validators.required,
-				]),
+				photo: fb.control<File | null>(null),
 				dateRange: this.fb.control<{
 					start: Date | null;
 					end: Date | null;
@@ -126,23 +139,43 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 					[Validators.required, DateValidators.validateDateRange]
 				),
 				currencyType: fb.control<IValueOption | null>(
-					{
-						id: this.plan.currency.id,
-						value: this.plan.currency.name,
-					},
+					initialCurrencyType,
 					[Validators.required]
 				),
-				isPublic: fb.control<boolean>(false),
+				isPublic: fb.control<boolean>(!this.plan.isPrivate),
 			})
 		);
 	}
 
-	protected get photoControl(): FormControl {
+	protected get planNameControl(): FormControl {
+		return this.formGroup.get("planName")! as FormControl;
+	}
+
+	protected get planDescriptionControl(): FormControl {
+		return this.formGroup.get("planDescription")! as FormControl;
+	}
+
+	protected get destinationControl(): FormControl {
+		return this.formGroup.get("destination")! as FormControl;
+	}
+
+	protected get photoControl(): FormControl<File | null> {
 		return this.formGroup.get("photo")! as FormControl;
 	}
 
-	protected get currencyTypeControl(): FormControl {
+	protected get dateRangeControl(): FormControl<{
+		start: Date | null;
+		end: Date | null;
+	} | null> {
+		return this.formGroup.get("dateRange")! as FormControl;
+	}
+
+	protected get currencyTypeControl(): FormControl<IValueOption | null> {
 		return this.formGroup.get("currencyType")! as FormControl;
+	}
+
+	protected get isPublicControl(): FormControl<boolean> {
+		return this.formGroup.get("isPublic")! as FormControl;
 	}
 
 	ngOnInit(): void {
@@ -185,11 +218,66 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		}
 	}
 
-	protected createPlan(): void {
+	protected updatePlan(): void {
 		this.submit();
 
 		if (this.formGroup.valid) {
-			console.log(this.formGroup);
+			if (this.photoControl.value !== null) {
+				this.imageService
+					.upload(this.photoControl.value)
+					.pipe(
+						switchMap((x) => {
+							const body: ModifyPlanDto = {
+								name: this.planNameControl.value,
+								description: this.planDescriptionControl.value,
+								destination: this.destinationControl.value,
+								photoUrl: x.data.fileUrl,
+								dateStart:
+									this.dateRangeControl.value!.start!.toISOString(),
+								dateEnd:
+									this.dateRangeControl.value!.end!.toISOString(),
+								currencyId: this.currencyTypeControl.value!.id,
+								isPrivate: !this.isPublicControl.value,
+							};
+
+							return this.planService.updatePlan(
+								this.plan!.id,
+								body
+							);
+						})
+					)
+					.subscribe({
+						next: (x) => {
+							this.ref.close(true);
+							this.snackbarService.openSnackBar(
+								"Plan updated successfully.",
+								ESnackbarType.INFO
+							);
+						},
+					});
+			} else {
+				const body: ModifyPlanDto = {
+					name: this.planNameControl.value,
+					description: this.planDescriptionControl.value,
+					destination: this.destinationControl.value,
+					photoUrl: this.plan!.photoUrl,
+					dateStart:
+						this.dateRangeControl.value!.start!.toISOString(),
+					dateEnd: this.dateRangeControl.value!.end!.toISOString(),
+					currencyId: this.currencyTypeControl.value!.id,
+					isPrivate: !this.isPublicControl.value,
+				};
+
+				this.planService.updatePlan(this.plan!.id, body).subscribe({
+					next: (x) => {
+						this.ref.close(true);
+						this.snackbarService.openSnackBar(
+							"Plan updated successfully.",
+							ESnackbarType.INFO
+						);
+					},
+				});
+			}
 		}
 	}
 }

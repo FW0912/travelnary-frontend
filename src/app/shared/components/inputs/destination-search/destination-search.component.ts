@@ -59,7 +59,7 @@ export class DestinationSearchComponent extends BaseInputComponent<string> {
 							.map((x) =>
 								new Array(x).concat(
 									data[x].map((y: string) =>
-										x.concat(", ", y)
+										y.concat(", ", x)
 									)
 								)
 							)

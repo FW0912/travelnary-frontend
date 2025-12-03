@@ -1,0 +1,79 @@
+<app-base-popup title="Settings" [formGroup]="baseFormGroup">
+	<mat-dialog-content [formGroup]="formGroup" class="dark:!text-white">
+		@if(isDataFetched()) {
+		<div class="flex flex-col gap-4">
+			<div class="flex gap-2 items-center">
+				<span class="font-medium">Username</span>
+				<span>{{ username() }}</span>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label class="font-medium" for="email">Email Address</label>
+				<app-text-input
+					id="email"
+					name="email"
+					placeholder="Email Address"
+					formControlName="email"
+				></app-text-input>
+			</div>
+
+			<div class="flex justify-between items-center">
+				<div class="flex gap-2 items-center">
+					<span class="font-medium">Password</span>
+					<span>******</span>
+				</div>
+
+				<app-border-button>
+					<div class="flex gap-2 items-center">
+						<i class="bi bi-lock-fill"></i>
+						<span>Change Password</span>
+					</div>
+				</app-border-button>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label class="font-medium" for="fullName">Full Name</label>
+				<app-text-input
+					id="fullName"
+					name="fullName"
+					placeholder="Full Name"
+					formControlName="fullName"
+				></app-text-input>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label class="font-medium" for="bioDescription"
+					>Description</label
+				>
+				<app-text-area
+					id="bioDescription"
+					name="bioDescription"
+					placeholder="Description"
+					formControlName="bioDescription"
+				></app-text-area>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<div class="flex gap-2 items-center">
+					<i class="bi bi-image"></i>
+					<span class="font-medium">Profile Picture</span>
+				</div>
+
+				<input
+					#profilePictureInput
+					type="file"
+					class="hidden"
+					accept="image/png, image/jpeg, image/jpg"
+					(change)="onUploadFile($event)"
+				/>
+				<app-border-button (onClick)="profilePictureInput.click()">
+					<div class="flex gap-2 justify-center items-center">
+						<i class="bi bi-upload"></i>
+						Upload Photo
+					</div>
+				</app-border-button>
+			</div>
+		</div>
+		}
+	</mat-dialog-content>
+</app-base-popup>

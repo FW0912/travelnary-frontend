@@ -11,13 +11,16 @@
 		</app-border-button>
 		} @else {
 		<app-button (onClick)="saveSortedList()">Save</app-button>
+		<app-border-button (onClick)="cancelSorting()"
+			>Cancel</app-border-button
+		>
 		} }
 	</div>
 
 	@if(!isSorting()) {
 	<div class="flex flex-col">
 		@if(locationList().length === 0 && readOnly()) {
-		<div class="flex w-full h-40 justify-center items-center">
+		<div class="flex pb-4">
 			<span>No locations found.</span>
 		</div>
 		} @else { @for(location of locationList(); let isLast = $last; track
@@ -32,7 +35,7 @@
 		></app-location-details-section>
 		} } @if(!readOnly()) {
 		<div
-			class="flex gap-3 items-center hover:text-hover transition-colors cursor-pointer"
+			class="flex gap-3 pb-4 items-center hover:text-hover transition-colors cursor-pointer"
 			(click)="onAddLocation()"
 		>
 			<div

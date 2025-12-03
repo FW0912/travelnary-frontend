@@ -6,4 +6,5 @@ export interface GetPlanByIdDto extends BasePlanDto {
 	isOwner: boolean;
 	isLiked: boolean;
 	isPinned: boolean;
+	isPrivate: boolean;
 }

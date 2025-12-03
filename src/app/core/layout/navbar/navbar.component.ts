@@ -28,6 +28,10 @@ import { AuthService } from "../../services/auth/auth.service";
 import { EventService } from "../../services/event/event.service";
 import { EventName } from "../../../shared/enums/event-name";
 import { UserImageComponent } from "../../../shared/components/images/user-image/user-image.component";
+import { Router } from "@angular/router";
+import { SnackbarService } from "../../services/snackbar/snackbar.service";
+import { ESnackbarType } from "../../models/utils/others/snackbar-type.enum";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
 	selector: "app-navbar",
@@ -43,8 +47,8 @@ import { UserImageComponent } from "../../../shared/components/images/user-image
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent {
-	// @ViewChildren("themeDropdown")
-	// private themeDropdown!: QueryList<ElementRef>;
+	@ViewChildren("themeDropdown")
+	private themeDropdown!: QueryList<ElementRef>;
 	@ViewChild("userDropdown") private userDropdown?: ElementRef;
 	@ViewChild("list") private list?: ElementRef;
 
@@ -57,6 +61,9 @@ export class NavbarComponent {
 		protected themeService: ThemeService,
 		protected authService: AuthService,
 		private eventService: EventService,
+		private snackbarService: SnackbarService,
+		private dialog: MatDialog,
+		private router: Router,
 		private breakpointObserver: BreakpointObserver,
 		@Inject(PLATFORM_ID) private platformId: Object
 	) {
@@ -71,18 +78,18 @@ export class NavbarComponent {
 			.listen<MouseEvent>(EventName.DOCUMENT_CLICK)
 			.pipe(takeUntilDestroyed())
 			.subscribe((x) => {
-				// if (
-				// 	this.themeDropdown &&
-				// 	this.isThemeDropdownOpen() &&
-				// 	this.themeDropdown.some(
-				// 		(y) =>
-				// 			!(y.nativeElement as HTMLElement).contains(
-				// 				x.target! as HTMLElement
-				// 			)
-				// 	)
-				// ) {
-				// 	this.isThemeDropdownOpen.set(false);
-				// }
+				if (
+					this.themeDropdown &&
+					this.isThemeDropdownOpen() &&
+					this.themeDropdown.some(
+						(y) =>
+							!(y.nativeElement as HTMLElement).contains(
+								x.target! as HTMLElement
+							)
+					)
+				) {
+					this.isThemeDropdownOpen.set(false);
+				}
 
 				if (
 					this.userDropdown &&
@@ -126,6 +133,23 @@ export class NavbarComponent {
 		this.themeService.changeTheme(theme);
 		this.isThemeDropdownOpen.set(false);
 	}
+
+	protected profile(): void {
+		const userId: string | null =
+			this.authService.getRequiredUserData().userId;
+
+		if (!userId) {
+			this.snackbarService.openSnackBar(
+				"User not found!",
+				ESnackbarType.ERROR
+			);
+			return;
+		}
+
+		this.router.navigateByUrl(`/profile/${userId}`);
+	}
+
+	protected settings(): void {}
 
 	protected logout(): void {
 		this.authService.logout().subscribe();

@@ -3,6 +3,7 @@ import { AuthRoutes } from "./core/auth/pages/auth.routes";
 import { HomeRoute } from "./modules/home-page/home.route";
 import { PlanRoutes } from "./modules/plans/plans.routes";
 import { LocationRoutes } from "./modules/location/locations.routes";
+import { UserRoutes } from "./modules/user/user.routes";
 
 export const routes: Routes = [
 	{ path: "", redirectTo: HomeRoute.path, pathMatch: "full" },
@@ -10,4 +11,5 @@ export const routes: Routes = [
 	...AuthRoutes,
 	...PlanRoutes,
 	...LocationRoutes,
+	...UserRoutes,
 ];

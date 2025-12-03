@@ -73,6 +73,10 @@ export class LocationsComponent {
 		this.isSorting.set(false);
 	}
 
+	protected cancelSorting(): void {
+		this.isSorting.set(false);
+	}
+
 	protected onCardDrop(event: CdkDragDrop<Array<Location>>): void {
 		const clone = [...this.sortedLocationList()];
 		moveItemInArray(clone, event.previousIndex, event.currentIndex);

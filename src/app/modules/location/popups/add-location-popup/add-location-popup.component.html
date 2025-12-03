@@ -72,11 +72,18 @@
 								</div>
 
 								<div class="flex items-center gap-1">
-									<span>{{ location.notes }}</span>
+									<span
+										>@if(location.notes &&
+										location.notes.length > 0) {
+										{{ location.notes }}
+										} @else { No description. }
+									</span>
 
+									@if(location.cost) {
 									<i class="bi bi-dot"></i>
 
 									<span>$$</span>
+									}
 								</div>
 
 								<span class="line-clamp-2">{{
@@ -93,7 +100,11 @@
 						</div>
 					</div>
 
-					<div class="bg-placeholder w-48 rounded-md"></div>
+					<app-default-image
+						[src]="location.photoUrl"
+						class="w-48 h-auto max-h-32"
+						extraClasses="w-full h-full"
+					></app-default-image>
 				</div>
 				} }
 			</div>

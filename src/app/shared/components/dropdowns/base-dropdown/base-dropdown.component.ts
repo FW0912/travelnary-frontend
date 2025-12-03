@@ -34,11 +34,12 @@ export abstract class BaseDropdownComponent extends BaseSharedComponent {
 	constructor(private eventService: EventService, private elRef: ElementRef) {
 		super();
 
-		effect(() => {
+		const effectRef = effect(() => {
 			const initialOption = this.initialOption();
 
 			if (initialOption !== null && this.selectedOption() === null) {
 				this.selectedOption.set(initialOption);
+				effectRef.destroy();
 			}
 		});
 

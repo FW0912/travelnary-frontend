@@ -50,6 +50,7 @@ export class PlansPageComponent {
 	protected readonly PLAN_FILTER_TYPE_LIST: Array<IValueOption> =
 		GeneralUtils.getOptionList(EPlanFilterType);
 	protected planList = signal<Array<BasePlanDto>>(new Array());
+	protected totalPlans = signal<number>(0);
 	private planFilterData: IPlanFilterData | null = null;
 	private planFilterType: IValueOption | null = this.PLAN_FILTER_TYPE_LIST[0];
 	protected nameFilter: FormControl = new FormControl<string>("");
@@ -144,6 +145,7 @@ export class PlansPageComponent {
 		serviceCall.subscribe({
 			next: (response) => {
 				this.planList.set(response.data.data);
+				this.totalPlans.set(response.data.totalItems);
 			},
 		});
 	}
