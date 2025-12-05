@@ -8,29 +8,19 @@
 		subscriptSizing="dynamic"
 		[classList]="'w-full ' + extraClasses()"
 	>
-		<mat-date-range-input
-			[rangePicker]="picker"
-			[class]="'!text-sm !text-input dark:!text-white ' + extraClasses()"
-			[formGroup]="dateRange"
-			[disabled]="isDisabled()"
-		>
-			<input
-				class="placeholder:!text-placeholder"
-				matStartDate
-				placeholder="Start Date"
-				formControlName="start"
-				(blur)="onTouched()"
-				(dateChange)="onTouched()"
-			/>
-			<input
-				class="placeholder:!text-placeholder"
-				matEndDate
-				placeholder="End Date"
-				formControlName="end"
-				(blur)="onTouched()"
-				(dateChange)="onTouched()"
-			/>
-		</mat-date-range-input>
+		<input
+			matInput
+			placeholder="dd/MM/yyyy"
+			[matDatepicker]="picker"
+			[formControl]="date"
+			[class]="
+				'!text-sm !text-input placeholder:!text-placeholder dark:!text-white ' +
+				extraClasses()
+			"
+			(blur)="onTouched()"
+			(dateChange)="onTouched()"
+		/>
+		<mat-datepicker #picker> </mat-datepicker>
 		<mat-datepicker-toggle
 			[disableRipple]="true"
 			matIconSuffix

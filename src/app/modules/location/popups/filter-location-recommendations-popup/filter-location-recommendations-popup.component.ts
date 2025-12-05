@@ -14,6 +14,9 @@ import { Location } from "../../../../core/models/domain/location/location";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
+import { LocationService } from "../../services/location.service";
+import { GetLocationByPlanDto } from "../../models/get-location-by-plan-dto";
+import { GetLocationDto } from "../../models/get-location-dto";
 
 @Component({
 	selector: "app-filter-location-recommendations-popup",
@@ -28,9 +31,10 @@ import { ButtonComponent } from "../../../../shared/components/buttons/button/bu
 	styleUrl: "./filter-location-recommendations-popup.component.css",
 })
 export class FilterLocationRecommendationsPopupComponent {
-	protected readonly LOCATION_CATEGORY_OPTION_LIST: Array<IValueOption> =
-		GeneralUtils.getOptionList(LocationCategory);
-	protected locationList: Array<IValueOption> | null = null;
+	protected locationCategoryOptionList = signal<Array<IValueOption>>(
+		new Array()
+	);
+	protected locationList = signal<Array<IValueOption>>(new Array());
 	protected selectedLocationCategory = signal<IValueOption | null>(null);
 	protected selectedLocation = signal<IValueOption | null>(null);
 
@@ -38,25 +42,38 @@ export class FilterLocationRecommendationsPopupComponent {
 		private ref: MatDialogRef<FilterLocationRecommendationsPopupComponent>,
 		@Inject(MAT_DIALOG_DATA)
 		private data: {
-			locationList: Array<Location>;
+			locationCategories: Array<IValueOption>;
+			locationList: Array<GetLocationDto>;
 		},
-		private snackbarService: SnackbarService
+		private snackbarService: SnackbarService,
+		private locationService: LocationService
 	) {
-		if (!data || !data.locationList) {
+		if (!data || !data.locationCategories || !data.locationList) {
 			snackbarService.openSnackBar(
-				"Can't get Locations!",
+				"Can't get data!",
 				ESnackbarType.ERROR
 			);
 			ref.close();
 			return;
 		}
 
-		this.locationList = data.locationList.map((x) => {
-			return {
-				id: x.id,
-				value: x.name,
-			};
-		});
+		this.locationCategoryOptionList.set(data.locationCategories);
+
+		this.locationList.set(
+			data.locationList
+				.filter(
+					(x) =>
+						x.location &&
+						x.location.latitude &&
+						x.location.longitude
+				)
+				.map((x) => {
+					return {
+						id: x.id,
+						value: x.name,
+					};
+				})
+		);
 	}
 
 	protected onLocationCategorySelected(

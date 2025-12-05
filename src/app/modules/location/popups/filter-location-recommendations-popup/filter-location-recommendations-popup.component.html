@@ -1,11 +1,10 @@
-@if(locationList) {
 <app-base-popup title="Filter Recommendations">
 	<mat-dialog-content class="dark:!text-white !overflow-visible">
 		<div class="flex flex-col gap-3">
 			<div class="flex flex-col gap-1">
 				<span class="font-medium">Category</span>
 				<app-dropdown
-					[optionList]="LOCATION_CATEGORY_OPTION_LIST"
+					[optionList]="locationCategoryOptionList()"
 					placeholder="Select a category"
 					widthClass="w-full"
 					contentClass="max-h-20"
@@ -25,7 +24,7 @@
 					<span class="font-medium">Nearby</span>
 				</div>
 				<app-dropdown
-					[optionList]="locationList"
+					[optionList]="locationList()"
 					placeholder="Select a location"
 					widthClass="w-full"
 					contentClass="max-h-20"
@@ -48,4 +47,3 @@
 		>
 	</mat-dialog-actions>
 </app-base-popup>
-}

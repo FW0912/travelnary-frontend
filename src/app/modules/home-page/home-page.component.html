@@ -1,3 +1,48 @@
+@if(authService.isLoggedIn()) {
+<div
+	class="flex flex-col lg:flex-row w-full min-h-[calc(100vh-8.5rem)] py-5 items-center justify-center"
+>
+	<div class="flex flex-col gap-20 w-3/4">
+		<div class="flex flex-col gap-5">
+			<div class="flex items-center gap-4">
+				<span class="text-3xl font-medium text-primary"
+					>Your Pinned Plans</span
+				>
+
+				<app-link href="/pinned-plans"
+					><div
+						class="flex items-center gap-1 hover:text-hover transition-colors cursor-pointer"
+					>
+						<i class="bi bi-arrow-left-short"></i>
+						<span class="font-medium">See More</span>
+					</div></app-link
+				>
+			</div>
+
+			<app-plan-gallery [planList]="pinnedPlanList()"></app-plan-gallery>
+		</div>
+
+		<div class="flex flex-col gap-10">
+			<div class="flex items-center gap-4">
+				<span class="text-3xl font-medium text-primary"
+					>Your Plans</span
+				>
+
+				<app-link href="/your-plans"
+					><div
+						class="flex items-center gap-1 hover:text-hover transition-colors cursor-pointer"
+					>
+						<i class="bi bi-arrow-left-short"></i>
+						<span class="font-medium">See More</span>
+					</div></app-link
+				>
+			</div>
+
+			<app-plan-gallery [planList]="ownerPlanList()"></app-plan-gallery>
+		</div>
+	</div>
+</div>
+} @else {
 <div
 	class="flex flex-col lg:flex-row w-full min-h-[calc(100vh-8.5rem)] items-center justify-center gap-10 lg:gap-20"
 >
@@ -19,3 +64,4 @@
 		<app-button href="/register">Create an Account</app-button>
 	</div>
 </div>
+}

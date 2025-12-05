@@ -1,0 +1,42 @@
+<app-error-message-wrapper
+	[errors]="ngControl.errors"
+	[isControlTouched]="ngControl.touched"
+	[isFormSubmitted]="isFormSubmitted()"
+>
+	<mat-form-field
+		appearance="outline"
+		subscriptSizing="dynamic"
+		[classList]="'w-full ' + extraClasses()"
+	>
+		<mat-date-range-input
+			[rangePicker]="picker"
+			[class]="'!text-sm !text-input dark:!text-white ' + extraClasses()"
+			[formGroup]="dateRange"
+			[disabled]="isDisabled()"
+		>
+			<input
+				class="placeholder:!text-placeholder"
+				matStartDate
+				placeholder="Start Date"
+				formControlName="start"
+				(blur)="onTouched()"
+				(dateChange)="onTouched()"
+			/>
+			<input
+				class="placeholder:!text-placeholder"
+				matEndDate
+				placeholder="End Date"
+				formControlName="end"
+				(blur)="onTouched()"
+				(dateChange)="onTouched()"
+			/>
+		</mat-date-range-input>
+		<mat-datepicker-toggle
+			[disableRipple]="true"
+			matIconSuffix
+			[for]="picker"
+			[classList]="'!pr-1'"
+		></mat-datepicker-toggle>
+		<mat-date-range-picker #picker></mat-date-range-picker>
+	</mat-form-field>
+</app-error-message-wrapper>

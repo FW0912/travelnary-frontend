@@ -70,7 +70,7 @@
 				[planId]="plan()!.id"
 				[destination]="plan()!.destination"
 				[day]="location.day"
-				[currencyName]="plan()!.currency.name"
+				[currencyName]="plan()!.currency.id"
 				[locationList]="location.locations"
 				[readOnly]="!plan()!.isOwner"
 				(onSort)="onLocationSort($event)"

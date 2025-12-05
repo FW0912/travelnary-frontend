@@ -57,28 +57,19 @@
 			}
 		</div>
 
-		<!-- <div
-			class="grid min-[35rem]:grid-cols-2 min-[45rem]:grid-cols-3 lg:grid-cols-2 min-[85rem]:grid-cols-3 min-[110rem]:grid-cols-4 gap-4"
-		>
-			@for(location of recommendedLocationList(); track location.id) {
-			<div
-				class="flex flex-col gap-2 w-60 p-4 bg-white dark:bg-dark-bg rounded-lg shadow-md"
-			>
-				<div class="w-full h-36 bg-placeholder rounded-md"></div>
-
-				<div class="flex items-center justify-between text-sm">
-					<span>{{ location.name }}</span>
-				</div>
-			</div>
-			}
-		</div> -->
-
 		<div class="flex flex-col gap-4">
-			@for(location of recommendedLocationList(); track location.id) {
+			@if(recommendedLocationList().length === 0) {
+			<div class="flex justify-center items-center">
+				<span>No locations found.</span>
+			</div>
+			} @else { @for(location of recommendedLocationList(); track
+			location.id) {
 			<div class="flex gap-4">
-				<div
-					class="w-52 max-lg:h-40 lg:h-full bg-placeholder rounded-md"
-				></div>
+				<app-default-image
+					[src]="location.photoUrl"
+					class="w-52 h-auto max-h-40 shrink-0"
+					extraClasses="w-full h-full"
+				></app-default-image>
 
 				<div class="flex flex-col gap-3 py-2">
 					<div class="flex flex-col gap-1">
@@ -86,35 +77,61 @@
 							location.name
 						}}</span>
 
-						<div class="flex items-center gap-1 text-sm">
-							<span>{{ location.notes }}</span>
-
-							<i class="bi bi-dot"></i>
-
-							<span>$$</span>
-						</div>
-
 						<div class="flex items-center gap-2 text-sm">
-							<i class="bi bi-geo-alt-fill"></i>
-							<span>{{ location.address }}</span>
+							<i class="bi bi-star-fill text-yellow-500"></i>
+							<span>
+								@if(location.rating && location.rating.length >
+								0) {
+								{{ location.rating }} stars } @else {Unrated}
+							</span>
 						</div>
-					</div>
 
-					<div class="flex items-center gap-2">
-						<i class="bi bi-star-fill text-yellow-500"></i>
+						<div class="flex items-center gap-1 text-sm">
+							@if(location.category && location.category.name &&
+							location.category.name.length > 0) {
+							<span>{{
+								location.category.name | titlecase
+							}}</span>
+							} @if(location.category && location.category.name &&
+							location.category.name.length > 0 &&
+							location.priceLevel && location.priceLevel.length >
+							0) {
+							<i class="bi bi-dot"></i>
+							} @if(location.priceLevel &&
+							location.priceLevel.length > 0) {
+							<span>{{ location.priceLevel }}</span>
+							}
+						</div>
 
-						<span>4.9</span>
+						@if(location.address && location.address.address_string
+						&& location.address.address_string.length > 0) {
+						<div class="flex gap-1">
+							<i class="bi bi-geo-alt-fill"></i>
+							<div class="line-clamp-2">
+								{{ location.address.address_string }}
+							</div>
+						</div>
+						}
+
+						<div class="flex items-center gap-1">
+							<div class="line-clamp-2">
+								@if(location.notes && location.notes.length > 0)
+								{
+								{{ location.notes }}
+								} @else {No description.}
+							</div>
+						</div>
 					</div>
 
 					<div class="flex items-center gap-2">
 						<app-button (onClick)="onAdd()">Add</app-button>
-						<app-border-button (onClick)="onCheckDetails()"
-							>Check Details</app-border-button
+						<app-border-button (onClick)="onCheckReviews()"
+							>Check Reviews</app-border-button
 						>
 					</div>
 				</div>
 			</div>
-			}
+			} }
 		</div>
 	</div>
 </div>

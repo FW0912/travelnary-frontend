@@ -85,10 +85,7 @@ export class LocationsComponent {
 
 	protected onAddLocation(): void {
 		this.dialog.open(AddLocationPopupComponent, {
-			minWidth: "fit-content",
-			width: "40vw",
-			maxWidth: "70vw",
-			height: "90vh",
+			maxWidth: "50vw",
 			data: {
 				planId: this.planId(),
 				destination: this.destination(),

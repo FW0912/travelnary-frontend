@@ -19,6 +19,7 @@ import { LocationService } from "../../services/location.service";
 import { SearchLocationQuery } from "../../models/search-location-query";
 import { SearchLocationDto } from "../../models/search-location-dto";
 import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
+import { TitleCasePipe } from "@angular/common";
 
 @Component({
 	selector: "app-add-location-popup",
@@ -30,6 +31,7 @@ import { DefaultImageComponent } from "../../../../shared/components/images/defa
 		ButtonComponent,
 		BorderButtonComponent,
 		DefaultImageComponent,
+		TitleCasePipe,
 	],
 	templateUrl: "./add-location-popup.component.html",
 	styleUrl: "./add-location-popup.component.css",
@@ -116,20 +118,28 @@ export class AddLocationPopupComponent {
 		this.ref.close();
 	}
 
-	protected onAdd(): void {
+	protected onAdd(location: SearchLocationDto): void {
 		this.ref.close();
 	}
 
-	protected onCheckDetails(): void {
-		this.ref.close();
+	protected onCheckReviews(location: SearchLocationDto): void {
+		if (!location.webUrl || location.webUrl.length === 0) {
+			this.snackbarService.openSnackBar(
+				"No reviews available.",
+				ESnackbarType.INFO
+			);
+			return;
+		}
+
+		window.open(location.webUrl, "_blank");
 	}
 
 	protected search(): void {
 		var searchQuery: string = this.nameFilter.value ?? "";
 
-		// if (this.destination) {
-		// 	searchQuery.concat(" ", this.destination);
-		// }
+		if (this.destination) {
+			searchQuery.concat(" ", this.destination);
+		}
 
 		const query: SearchLocationQuery = {
 			searchQuery: searchQuery,

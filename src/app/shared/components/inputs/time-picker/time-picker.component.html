@@ -10,9 +10,15 @@
 	>
 		<input
 			matInput
+			placeholder="Time"
 			[formControl]="time"
 			[matTimepicker]="picker"
-			class="!text-sm !text-input dark:!text-white"
+			[class]="
+				'!text-sm !text-input placeholder:!text-placeholder dark:!text-white ' +
+				extraClasses()
+			"
+			(blur)="onTouched()"
+			(change)="onTouched()"
 		/>
 		<mat-timepicker-toggle matIconSuffix [for]="picker" class="pr-2" />
 		<mat-timepicker #picker />

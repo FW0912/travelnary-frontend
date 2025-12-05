@@ -77,6 +77,14 @@ export class LocationService {
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
+    public updateLocation(
+		dto: ModifyLocationDto
+	): Observable<ApiResponse<any>> {
+		return this.http
+			.post<ApiResponse<any>>(`${this.baseApiUrl}/save`, dto)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
 	public deleteLocation(id: string): Observable<ApiResponse<boolean>> {
 		return this.http
 			.delete<ApiResponse<any>>(`${this.baseApiUrl}/${id}`)

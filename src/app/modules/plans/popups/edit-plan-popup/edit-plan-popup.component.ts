@@ -22,7 +22,7 @@ import { BorderButtonComponent } from "../../../../shared/components/buttons/bor
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
 import { SearchableDropdownComponent } from "../../../../shared/components/dropdowns/searchable-dropdown/searchable-dropdown.component";
 import { ErrorMessageWrapperComponent } from "../../../../shared/components/error-message-wrapper/error-message-wrapper.component";
-import { DateInputComponent } from "../../../../shared/components/inputs/date-input/date-input.component";
+import { DateRangeInputComponent } from "../../../../shared/components/inputs/date-range-input/date-range-input.component";
 import { DestinationSearchComponent } from "../../../../shared/components/inputs/destination-search/destination-search.component";
 import { TextAreaComponent } from "../../../../shared/components/inputs/text-area/text-area.component";
 import { TextInputComponent } from "../../../../shared/components/inputs/text-input/text-input.component";
@@ -54,7 +54,7 @@ import { Router } from "@angular/router";
 		TextAreaComponent,
 		DestinationSearchComponent,
 		BorderButtonComponent,
-		DateInputComponent,
+		DateRangeInputComponent,
 		ButtonComponent,
 		SearchableDropdownComponent,
 		ErrorMessageWrapperComponent,

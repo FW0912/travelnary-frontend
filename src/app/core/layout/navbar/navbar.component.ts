@@ -32,6 +32,7 @@ import { Router } from "@angular/router";
 import { SnackbarService } from "../../services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../models/utils/others/snackbar-type.enum";
 import { MatDialog } from "@angular/material/dialog";
+import { SettingsPopupComponent } from "../../../modules/user/popups/settings-popup/settings-popup.component";
 
 @Component({
 	selector: "app-navbar",
@@ -149,7 +150,13 @@ export class NavbarComponent {
 		this.router.navigateByUrl(`/profile/${userId}`);
 	}
 
-	protected settings(): void {}
+	protected settings(): void {
+		this.dialog.open(SettingsPopupComponent, {
+			minWidth: "35%",
+			maxWidth: "50vw",
+			maxHeight: "80%",
+		});
+	}
 
 	protected logout(): void {
 		this.authService.logout().subscribe();

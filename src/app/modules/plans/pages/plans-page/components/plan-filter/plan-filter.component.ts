@@ -5,7 +5,7 @@ import {
 	output,
 } from "@angular/core";
 import { TextInputComponent } from "../../../../../../shared/components/inputs/text-input/text-input.component";
-import { DateInputComponent } from "../../../../../../shared/components/inputs/date-input/date-input.component";
+import { DateRangeInputComponent } from "../../../../../../shared/components/inputs/date-range-input/date-range-input.component";
 import { ButtonComponent } from "../../../../../../shared/components/buttons/button/button.component";
 import { BorderButtonComponent } from "../../../../../../shared/components/buttons/border-button/border-button.component";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -20,7 +20,7 @@ import { SnackbarService } from "../../../../../../core/services/snackbar/snackb
 	selector: "app-plan-filter",
 	imports: [
 		TextInputComponent,
-		DateInputComponent,
+		DateRangeInputComponent,
 		ButtonComponent,
 		BorderButtonComponent,
 		ReactiveFormsModule,

@@ -24,7 +24,7 @@ import { DestinationSearchComponent } from "../../../../shared/components/inputs
 import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
 import { NgOptimizedImage } from "@angular/common";
 import { DateValidators } from "../../../../shared/validators/date/date-validators";
-import { DateInputComponent } from "../../../../shared/components/inputs/date-input/date-input.component";
+import { DateRangeInputComponent } from "../../../../shared/components/inputs/date-range-input/date-range-input.component";
 import { DropdownComponent } from "../../../../shared/components/dropdowns/dropdown/dropdown.component";
 import { IValueOption } from "../../../../shared/models/utils/value-option";
 import { GeneralUtils } from "../../../../shared/utils/general-utils";
@@ -52,7 +52,7 @@ import { Router } from "@angular/router";
 		TextAreaComponent,
 		DestinationSearchComponent,
 		BorderButtonComponent,
-		DateInputComponent,
+		DateRangeInputComponent,
 		ButtonComponent,
 		SearchableDropdownComponent,
 		ErrorMessageWrapperComponent,
@@ -164,7 +164,7 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 	}
 
 	protected onCurrencyTypeSelected(currencyType: IValueOption | null) {
-		this.formGroup.get("currencyType")!.setValue(currencyType);
+		this.currencyTypeControl.setValue(currencyType);
 	}
 
 	protected onUploadFile(event: Event): void {
@@ -172,7 +172,7 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 
 		if (target.files !== null && target.files.item(0) !== null) {
 			this.uploadError.set(false);
-			this.formGroup.get("photo")!.setValue(target.files.item(0)!);
+			this.photoControl.setValue(target.files.item(0)!);
 
 			const fileReader: FileReader = new FileReader();
 
@@ -183,7 +183,7 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 			fileReader.readAsDataURL(target.files.item(0)!);
 		} else {
 			this.uploadError.set(true);
-			this.formGroup.get("photo")!.setValue(null);
+			this.photoControl.setValue(null);
 			this.photoUrl.set(null);
 		}
 	}

@@ -14,6 +14,9 @@ import { IValueOption } from "../../../../shared/models/utils/value-option";
 import { GetLocationDto } from "../../models/get-location-dto";
 import { PlanService } from "../../../plans/services/plan.service";
 import { LocationService } from "../../services/location.service";
+import { SearchLocationDto } from "../../models/search-location-dto";
+import { TitleCasePipe } from "@angular/common";
+import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
 
 @Component({
 	selector: "app-location-recommendation-page",
@@ -22,6 +25,8 @@ import { LocationService } from "../../services/location.service";
 		BorderButtonComponent,
 		LocationDetailsSectionComponent,
 		ButtonComponent,
+		TitleCasePipe,
+		DefaultImageComponent,
 	],
 	templateUrl: "./location-recommendation-page.component.html",
 	styleUrl: "./location-recommendation-page.component.css",
@@ -32,40 +37,10 @@ export class LocationRecommendationPageComponent {
 	protected destination: string | null = null;
 	protected day: number | null = null;
 	protected locationList = signal<Array<GetLocationDto>>(new Array());
-	protected recommendedLocationList = signal<Array<Location>>([
-		{
-			id: "1",
-			planId: "1",
-			category: {
-				id: "1",
-				name: "Food",
-			},
-			order: 0,
-			name: "The New Duff",
-			address: "139 W Bay St, Nassau, Bahamas",
-			day: new Date(),
-			notes: "Restaurant",
-			time: new Date(),
-			currencyName: "",
-			cost: 0,
-		},
-		{
-			id: "2",
-			planId: "1",
-			category: {
-				id: "2",
-				name: "Lodging",
-			},
-			order: 0,
-			name: "Warwick Paradise Island",
-			address: "Harbour Dr, Nassau, Bahamas",
-			day: new Date(),
-			notes: "4-star hotel",
-			time: new Date(),
-			currencyName: "",
-			cost: 0,
-		},
-	]);
+	protected recommendedLocationList = signal<Array<SearchLocationDto>>(
+		new Array()
+	);
+	private locationCategoryOptionList: Array<IValueOption> | null = null;
 	protected locationCategoryFilterList = signal<Array<IValueOption>>(
 		new Array()
 	);
@@ -118,6 +93,17 @@ export class LocationRecommendationPageComponent {
 				);
 			},
 		});
+
+		this.locationService.getAllLocationCategories().subscribe({
+			next: (x) => {
+				this.locationCategoryOptionList = x.data.map((x) => {
+					return {
+						id: x.id,
+						value: x.name,
+					};
+				});
+			},
+		});
 	}
 
 	protected navigateBack(): void {
@@ -131,6 +117,7 @@ export class LocationRecommendationPageComponent {
 				width: "35%",
 				height: "50%",
 				data: {
+					locationCategories: this.locationCategoryOptionList,
 					locationList: this.locationList(),
 				},
 			}
@@ -186,7 +173,9 @@ export class LocationRecommendationPageComponent {
 		this.locationFilter.set(null);
 	}
 
+	private search(): void {}
+
 	protected onAdd(): void {}
 
-	protected onCheckDetails(): void {}
+	protected onCheckReviews(): void {}
 }

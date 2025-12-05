@@ -8,11 +8,11 @@ export interface ModifyLocationDto {
 	category: LocationCategory;
 	name: string;
 	address: string;
-	photoUrl: string;
+	photoUrl: string | null;
 	notes: string;
 	location: Location;
-	time: string;
+	time: string | null;
 	currencyName: string;
-	cost: string;
+	cost: number | null;
 	sortOrder: number;
 }
