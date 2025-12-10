@@ -13,6 +13,7 @@ import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { BaseFormComponent } from "../../../../../base-form-page/base-form-page.component";
 import { MatDialog } from "@angular/material/dialog";
 import { ConfirmationPopupComponent } from "../../../../../confirmation-popup/confirmation-popup.component";
+import { GetCommentDto } from "../../../../models/get-comment-dto";
 
 @Component({
 	selector: "app-comment-details",
@@ -27,7 +28,7 @@ import { ConfirmationPopupComponent } from "../../../../../confirmation-popup/co
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommentDetailsComponent extends BaseFormComponent {
-	public comment = input.required<Comment>();
+	public comment = input.required<GetCommentDto>();
 	protected isEditOpen = signal<boolean>(false);
 	protected isReplyOpen = signal<boolean>(false);
 

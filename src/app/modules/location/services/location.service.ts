@@ -11,6 +11,7 @@ import { UtilsService } from "../../../core/services/utils/utils.service";
 import { SearchLocationQuery } from "../models/search-location-query";
 import { SearchLocationDto } from "../models/search-location-dto";
 import { LocationCategory } from "../models/location-category";
+import { UpdateLocationSortOrderDto } from "../models/update-location-sort-order-dto";
 
 @Injectable({
 	providedIn: "root",
@@ -77,11 +78,19 @@ export class LocationService {
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
-    public updateLocation(
+	public updateLocation(
 		dto: ModifyLocationDto
 	): Observable<ApiResponse<any>> {
 		return this.http
 			.post<ApiResponse<any>>(`${this.baseApiUrl}/save`, dto)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public updateLocationSortOrder(
+		dto: UpdateLocationSortOrderDto
+	): Observable<ApiResponse<boolean>> {
+		return this.http
+			.put<ApiResponse<boolean>>(`${this.baseApiUrl}/sortOrder`, dto)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 

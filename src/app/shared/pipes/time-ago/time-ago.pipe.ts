@@ -4,9 +4,12 @@ import { Pipe, PipeTransform } from "@angular/core";
 	name: "timeAgo",
 })
 export class TimeAgoPipe implements PipeTransform {
-	transform(date: Date): string {
+	transform(date: string): string {
 		const now = new Date();
-		const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+		const parsedDate = new Date(date);
+		const seconds = Math.floor(
+			(now.getTime() - parsedDate.getTime()) / 1000
+		);
 
 		if (seconds < 60) {
 			return "Just now";
@@ -34,6 +37,6 @@ export class TimeAgoPipe implements PipeTransform {
 				}
 		}
 
-		return date.toLocaleDateString();
+		return parsedDate.toLocaleDateString();
 	}
 }

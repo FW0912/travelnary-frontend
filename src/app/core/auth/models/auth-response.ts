@@ -1,4 +1,4 @@
-import { UserProfile } from "../domain/user/user-profile";
+import { UserProfile } from "../../models/domain/user/user-profile";
 
 export interface AuthResponse {
 	accessToken: string;

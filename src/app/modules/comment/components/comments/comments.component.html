@@ -22,8 +22,9 @@
 				class="text-sm font-medium text-primary cursor-pointer hover:text-primary-hover transition-colors"
 				[ngClass]="{
 					'!cursor-default !text-primary opacity-50':
-						comment.value.length === 0
+						commentControl.value.length === 0
 				}"
+				(click)="postComment()"
 			>
 				Post
 			</button>

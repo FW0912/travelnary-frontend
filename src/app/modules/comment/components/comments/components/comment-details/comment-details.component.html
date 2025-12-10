@@ -3,7 +3,7 @@
 		<div class="flex flex-col items-center">
 			<div class="w-10 h-10 rounded-full bg-placeholder shrink-0"></div>
 
-			@if(comment().reply_list.length > 0 || isReplyOpen()) {
+			@if(comment().replies.length > 0 || isReplyOpen()) {
 			<div class="w-[1px] h-full border-l-2 border-gray-300"></div>
 			}
 		</div>
@@ -11,11 +11,11 @@
 		<div class="flex flex-col gap-2 w-full">
 			<div class="flex flex-col">
 				<span class="font-medium text-sm">{{
-					comment().user.username
+					comment().owner.username
 				}}</span>
 
 				<span class="text-xs text-placeholder">{{
-					comment().posted_date | timeAgo
+					comment().createdDate | timeAgo
 				}}</span>
 			</div>
 
@@ -74,16 +74,16 @@
 						class="bi text-lg text-error"
 						style="-webkit-text-stroke: 0.5px"
 						[ngClass]="
-							comment().is_liked ? 'bi-heart-fill' : 'bi-heart'
+							comment().isLiked ? 'bi-heart-fill' : 'bi-heart'
 						"
 					></i>
 
 					<span class="text-sm font-medium">{{
-						comment().like_count
+						comment().likeCount
 					}}</span>
 				</div>
 
-				@if(comment().is_owner) {
+				@if(comment().isOwner) {
 				<div
 					class="flex gap-1 items-center text-error hover:opacity-70 transition-opacity cursor-pointer"
 					(click)="openDeletePopup()"
@@ -116,8 +116,8 @@
 		</div>
 	</div>
 
-	@if(!isReplyOpen()) { @for(reply of comment().reply_list; let isLast =
-	$last; track reply.id) {
+	@if(!isReplyOpen()) { @for(reply of comment().replies; let isLast = $last;
+	track reply.id) {
 	<div class="flex">
 		<div class="flex flex-col w-10 shrink-0">
 			<div

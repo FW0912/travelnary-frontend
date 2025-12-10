@@ -197,23 +197,27 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 			if (this.photoControl.value !== null) {
 			} else {
 				// const body: ModifyLocationDto = {
-				//     id: "",
-				//     planId: this.planId!,
-				//     day: this.day!,
-				//     category: this.categoryControl.value,
-				//     name: this.nameControl.value,
-				//     address: this.addressControl.value,
-				//     photoUrl: null,
-				//     notes: this.notesControl.value,
-				//     location: {
-				//         latitude: null,
-				//         longitude: null
-				//     },
-				//     time: this.timeControl.value?.toISOString() ?? null,
-				//     currencyName: this.currencyName!,
-				//     cost: this.costControl.value
-				// }
-				// this.locationService.createLocation(body)
+				// 	id: "",
+				// 	planId: this.planId!,
+				// 	day: this.day!,
+				// 	category: {
+				// 		id: this.categoryControl.value!.id,
+				// 		name: this.categoryControl.value!.value,
+				// 		iconUrl: "",
+				// 	},
+				// 	name: this.nameControl.value,
+				// 	address: this.addressControl.value,
+				// 	photoUrl: null,
+				// 	notes: this.notesControl.value,
+				// 	location: {
+				// 		latitude: null,
+				// 		longitude: null,
+				// 	},
+				// 	time: this.timeControl.value?.toISOString() ?? null,
+				// 	currencyName: this.currencyName!,
+				// 	cost: this.costControl.value,
+				// };
+				// this.locationService.createLocation(body);
 			}
 		}
 	}

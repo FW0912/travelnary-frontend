@@ -15,7 +15,7 @@ import {
 	tap,
 	throwError,
 } from "rxjs";
-import { AuthResponse } from "../../models/auth/auth-response";
+import { AuthResponse } from "../../auth/models/auth-response";
 import { ApiResponse } from "../../models/api/api-response";
 import { environment } from "../../../../environments/environment";
 import { SnackbarService } from "../snackbar/snackbar.service";
@@ -24,6 +24,7 @@ import { UtilsService } from "../utils/utils.service";
 import { UserProfile } from "../../models/domain/user/user-profile";
 import { Router } from "@angular/router";
 import { SKIP_REFRESH_TOKEN } from "../../interceptors/refresh-token/refresh-token.interceptor";
+import { UpdateProfileDto } from "../../auth/models/update-profile-dto";
 
 @Injectable({
 	providedIn: "root",
@@ -248,5 +249,14 @@ export class AuthService {
 		return this.http
 			.get<ApiResponse<UserProfile>>(`${this.baseApiUrl}/profile/${id}`)
 			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public updateProfile(
+		dto: UpdateProfileDto
+	): Observable<ApiResponse<UserProfile>> {
+		return this.http.post<ApiResponse<UserProfile>>(
+			`${this.baseApiUrl}/update-profile`,
+			dto
+		);
 	}
 }

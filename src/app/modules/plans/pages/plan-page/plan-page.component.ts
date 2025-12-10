@@ -28,6 +28,8 @@ import { GetLocationByIdDto } from "../../../location/models/get-location-by-id-
 import { GetLocationDto } from "../../../location/models/get-location-dto";
 import { switchMap } from "rxjs";
 import { PlanDetailsComponent } from "./components/plan-details/plan-details.component";
+import { UpdateLocationSortOrderDto } from "../../../location/models/update-location-sort-order-dto";
+import { GetCommentDto } from "../../../comment/models/get-comment-dto";
 
 @Component({
 	selector: "app-plan-page",
@@ -49,57 +51,7 @@ export class PlanPageComponent {
 
 	protected locationList = signal<Array<GetLocationByPlanDto>>(new Array());
 
-	protected commentsList = signal<Array<Comment>>([
-		{
-			id: "b4fb9faf-5a6f-4626-ac14-34a4b231727c",
-			plan_id: "03e06d97-7ef1-4d32-b7fa-2a709e440973",
-			user: {
-				username: "Cheryl",
-				profile_url: "",
-			},
-			content:
-				"This is a plan that I created for me and my friends. It focuses on sightseeing and pictures.",
-			is_reply: false,
-			reply_list: [
-				{
-					id: "8ae3b3ae-28fd-4605-b216-f6b2420a1a58",
-					plan_id: "03e06d97-7ef1-4d32-b7fa-2a709e440973",
-					user: {
-						username: "Andre Valas",
-						profile_url: "",
-					},
-					content:
-						"Great plan, but I wish there were more locations.",
-					is_reply: true,
-					reply_list: [],
-					posted_date: new Date("2025-09-18"),
-					like_count: 2,
-					is_owner: false,
-					is_liked: false,
-				},
-			],
-			posted_date: new Date("2025-09-12"),
-			like_count: 7,
-			is_owner: true,
-			is_liked: false,
-		},
-		{
-			id: "92d4e775-af45-4673-a4c0-02b2d241dea5",
-			plan_id: "03e06d97-7ef1-4d32-b7fa-2a709e440973",
-			user: {
-				username: "Andre Valas",
-				profile_url: "",
-			},
-			content:
-				"Have you ever considered adding more restaurants? The food scene in the Bahamas is great.",
-			is_reply: false,
-			reply_list: [],
-			posted_date: new Date("2025-09-18"),
-			like_count: 5,
-			is_owner: false,
-			is_liked: true,
-		},
-	]);
+	protected commentsList = signal<Array<GetCommentDto>>(new Array());
 
 	constructor(
 		private route: ActivatedRoute,
@@ -250,18 +202,33 @@ export class PlanPageComponent {
 		day: number;
 		locationList: Array<GetLocationDto>;
 	}): void {
-		this.locationList.update((x) =>
-			x.map((y) => {
-				if (y.day === event.day) {
-					return {
-						...y,
-						locations: event.locationList,
-					};
-				}
+		const body: UpdateLocationSortOrderDto = {
+			items: event.locationList.map((x) => {
+				return {
+					id: x.id,
+					sortOrder: x.sortOrder,
+				};
+			}),
+		};
 
-				return y;
-			})
-		);
+		this.locationService.updateLocationSortOrder(body).subscribe({
+			next: (x) => {
+				if (x) {
+					this.locationList.update((x) =>
+						x.map((y) => {
+							if (y.day === event.day) {
+								return {
+									...y,
+									locations: event.locationList,
+								};
+							}
+
+							return y;
+						})
+					);
+				}
+			},
+		});
 	}
 
 	protected onDeleteLocation(event: { day: number; id: string }): void {
@@ -274,5 +241,9 @@ export class PlanPageComponent {
 				return y;
 			})
 		);
+	}
+
+	protected onPostComment(event: GetCommentDto): void {
+		this.commentsList.update((x) => [...x, event]);
 	}
 }

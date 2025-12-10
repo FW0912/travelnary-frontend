@@ -82,6 +82,10 @@
 		<div class="w-1/3 self-stretch rounded-md bg-placeholder"></div>
 	</div>
 
-	<app-comments [commentsList]="commentsList()"></app-comments>
+	<app-comments
+		[planId]="plan()!.id"
+		[commentsList]="commentsList()"
+		(comment)="onPostComment($event)"
+	></app-comments>
 	}
 </div>
