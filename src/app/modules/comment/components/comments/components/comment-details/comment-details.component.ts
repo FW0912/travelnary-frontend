@@ -3,17 +3,34 @@ import {
 	Component,
 	effect,
 	input,
+	linkedSignal,
+	model,
+	output,
 	signal,
 } from "@angular/core";
 import { Comment } from "../../../../../../core/models/domain/comment/comment";
-import { CommonModule, DatePipe } from "@angular/common";
+import { CommonModule, DatePipe, SlicePipe } from "@angular/common";
 import { TimeAgoPipe } from "../../../../../../shared/pipes/time-ago/time-ago.pipe";
 import { TextAreaComponent } from "../../../../../../shared/components/inputs/text-area/text-area.component";
-import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
+import {
+	FormBuilder,
+	FormControl,
+	ReactiveFormsModule,
+	Validators,
+} from "@angular/forms";
 import { BaseFormComponent } from "../../../../../base-form-page/base-form-page.component";
 import { MatDialog } from "@angular/material/dialog";
 import { ConfirmationPopupComponent } from "../../../../../confirmation-popup/confirmation-popup.component";
 import { GetCommentDto } from "../../../../models/get-comment-dto";
+import { CommentService } from "../../../../services/comment.service";
+import { PostCommentDto } from "../../../../models/post-comment-dto";
+import { CommentAction } from "../../../../enums/comment-action";
+import { UpdateCommentDto } from "../../../../models/update-comment-dto";
+import { UserImageComponent } from "../../../../../../shared/components/images/user-image/user-image.component";
+import { SnackbarService } from "../../../../../../core/services/snackbar/snackbar.service";
+import { ESnackbarType } from "../../../../../../core/models/utils/others/snackbar-type.enum";
+import { AuthService } from "../../../../../../core/services/auth/auth.service";
+import { CommentConstants } from "../../../../comment-constants";
 
 @Component({
 	selector: "app-comment-details",
@@ -22,17 +39,37 @@ import { GetCommentDto } from "../../../../models/get-comment-dto";
 		CommonModule,
 		TextAreaComponent,
 		ReactiveFormsModule,
+		UserImageComponent,
+		SlicePipe,
 	],
 	templateUrl: "./comment-details.component.html",
 	styleUrl: "./comment-details.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommentDetailsComponent extends BaseFormComponent {
-	public comment = input.required<GetCommentDto>();
+	public planId = input.required<string>();
+	public comment = model.required<GetCommentDto | null>();
+	public depth = input.required<number>();
+	public isViewingReplies = input.required<boolean>();
+	public isBeingViewed = input.required<boolean>();
+	protected userProfilePicture = signal<string | null>(null);
 	protected isEditOpen = signal<boolean>(false);
 	protected isReplyOpen = signal<boolean>(false);
+	protected isRepliesShown = signal<boolean>(false);
+	protected replyShownCount = signal<number>(
+		CommentConstants.MAX_DEFAULT_REPLIES_SHOWN
+	);
 
-	constructor(private fb: FormBuilder, private dialog: MatDialog) {
+	public delete = output<string>();
+	public viewReplies = output<GetCommentDto>();
+
+	constructor(
+		private fb: FormBuilder,
+		private dialog: MatDialog,
+		private commentService: CommentService,
+		private snackbarService: SnackbarService,
+		protected authService: AuthService
+	) {
 		super();
 
 		this.setFormGroup(
@@ -41,37 +78,127 @@ export class CommentDetailsComponent extends BaseFormComponent {
 				reply: fb.control<string>(""),
 			})
 		);
+
+		effect(() => {
+			const isBeingViewed = this.isBeingViewed();
+
+			if (isBeingViewed) {
+				this.replyShownCount.set(
+					CommentConstants.MAX_VIEWING_REPLIES_SHOWN
+				);
+			}
+		});
 	}
 
-	protected get content() {
-		return this.formGroup.get("content")!;
+	protected get CommentConstants(): typeof CommentConstants {
+		return CommentConstants;
 	}
 
-	protected get reply() {
-		return this.formGroup.get("reply")!;
+	protected get contentControl(): FormControl<string> {
+		return this.formGroup.get("content")! as FormControl;
 	}
 
-	protected onLike(): void {}
+	protected get replyControl(): FormControl<string> {
+		return this.formGroup.get("reply")! as FormControl;
+	}
+
+	ngOnInit(): void {
+		if (this.authService.isLoggedIn()) {
+			this.userProfilePicture.set(
+				this.authService.getRequiredUserData().profileUrl
+			);
+		}
+	}
+
+	protected onLike(): void {
+		this.commentService.likeComment(this.comment()!.id).subscribe({
+			next: () => {
+				this.comment.update((x) => {
+					if (x) {
+						return {
+							...x,
+							isLiked: !x.isLiked,
+							likeCount: !x.isLiked
+								? x.likeCount + 1
+								: x.likeCount - 1,
+						};
+					}
+
+					return x;
+				});
+			},
+		});
+	}
 
 	protected openDeletePopup(): void {
 		const ref = this.dialog.open(ConfirmationPopupComponent, {
 			minWidth: "35%",
 		});
 
-		ref.afterClosed().subscribe((x) => console.log(x));
+		ref.afterClosed().subscribe((x) => {
+			if (x) {
+				this.delete.emit(this.comment()!.id);
+			}
+		});
 	}
 
-	protected onEdit(): void {
-		this.content.patchValue(this.comment().content);
+	protected deleteReply(replyId: string): void {
+		if (this.comment()!.replies) {
+			this.commentService.deleteComment(replyId).subscribe({
+				next: () => {
+					this.comment.update((x) => {
+						if (x) {
+							return {
+								...x,
+								replies: x.replies!.filter(
+									(y) => y.id !== replyId
+								),
+								totalReplies: x.totalReplies - 1,
+							};
+						}
+
+						return x;
+					});
+
+					if (this.comment()!.replies!.length === 0) {
+						this.closeReplies();
+					}
+				},
+			});
+		}
+	}
+
+	protected showEditSection(): void {
+		this.contentControl.patchValue(this.comment()!.content);
 		this.isEditOpen.set(true);
 	}
 
 	protected cancelEdit(): void {
-		this.content.patchValue(this.comment().content);
 		this.isEditOpen.set(false);
 	}
 
-	protected onReply(): void {
+	protected onEdit(): void {
+		const body: UpdateCommentDto = {
+			commentId: this.comment()!.id,
+			content: this.contentControl.value,
+		};
+
+		this.commentService.updateComment(body).subscribe({
+			next: () => {
+				this.comment.update((x) => {
+					if (x) {
+						return { ...x, content: body.content };
+					}
+
+					return x;
+				});
+				this.contentControl.patchValue(body.content);
+				this.isEditOpen.set(false);
+			},
+		});
+	}
+
+	protected showReplySection(): void {
 		this.isReplyOpen.set(true);
 	}
 
@@ -79,5 +206,102 @@ export class CommentDetailsComponent extends BaseFormComponent {
 		this.isReplyOpen.set(false);
 	}
 
-	protected onPostReply(): void {}
+	protected onPostReply(): void {
+		const body: PostCommentDto = {
+			planId: this.planId(),
+			parentId: this.comment()!.id,
+			content: this.replyControl.value,
+		};
+
+		this.commentService.postComment(body).subscribe({
+			next: (x) => {
+				this.comment.update((y) => {
+					if (y) {
+						if (y.replies) {
+							return {
+								...y,
+								replies: [...y.replies, x.data.detail],
+								totalReplies: y.totalReplies + 1,
+							};
+						} else {
+							return {
+								...y,
+								replies: [x.data.detail],
+								totalReplies: 1,
+							};
+						}
+					}
+
+					return y;
+				});
+				this.replyControl.patchValue("");
+				this.isReplyOpen.set(false);
+			},
+		});
+	}
+
+	protected showReplies(): void {
+		if (!this.comment()!.replies || this.comment()!.replies!.length === 0) {
+			this.commentService
+				.getCommentReplies(this.comment()!.id, this.replyShownCount())
+				.subscribe({
+					next: (x) => {
+						this.comment.update((y) => {
+							if (y) {
+								return {
+									...y,
+									replies: x.data.comments,
+								};
+							}
+
+							return y;
+						});
+					},
+				});
+		}
+
+		this.isRepliesShown.set(true);
+	}
+
+	protected showMoreReplies(): void {
+		this.commentService
+			.getCommentReplies(
+				this.comment()!.id,
+				this.comment()!.replies!.length +
+					CommentConstants.MAX_REPLIES_SHOWN_INCREMENT
+			)
+			.subscribe({
+				next: (x) => {
+					const currentRepliesIdSet: Set<string> = new Set(
+						this.comment()!.replies!.map((y) => y.id)
+					);
+
+					this.comment.update((y) => {
+						if (y) {
+							return {
+								...y,
+								replies: [
+									...y.replies!,
+									...x.data.comments.filter(
+										(z) => !currentRepliesIdSet.has(z.id)
+									),
+								],
+							};
+						}
+
+						return y;
+					});
+
+					this.replyShownCount.set(x.data.comments.length);
+
+					if (!this.isBeingViewed()) {
+						this.viewReplies.emit(this.comment()!);
+					}
+				},
+			});
+	}
+
+	protected closeReplies(): void {
+		this.isRepliesShown.set(false);
+	}
 }

@@ -6,7 +6,7 @@ import {
 	output,
 	signal,
 } from "@angular/core";
-import { CommonModule, DatePipe } from "@angular/common";
+import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
 import { UserImageComponent } from "../../../../../../shared/components/images/user-image/user-image.component";
 import { DefaultImageComponent } from "../../../../../../shared/components/images/default-image/default-image.component";
 import { GetPlanByIdDto } from "../../../../models/get-plan-by-id-dto";
@@ -18,6 +18,7 @@ import { GetPlanByIdDto } from "../../../../models/get-plan-by-id-dto";
 		CommonModule,
 		UserImageComponent,
 		DefaultImageComponent,
+		DecimalPipe,
 	],
 	templateUrl: "./plan-details.component.html",
 	styleUrl: "./plan-details.component.css",
@@ -25,6 +26,7 @@ import { GetPlanByIdDto } from "../../../../models/get-plan-by-id-dto";
 })
 export class PlanDetailsComponent {
 	public plan = input.required<GetPlanByIdDto>();
+	public estimatedCost = input.required<number>();
 	public pinToggled = output<void>();
 
 	protected togglePin(): void {

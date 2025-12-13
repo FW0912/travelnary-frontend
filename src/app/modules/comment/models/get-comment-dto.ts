@@ -6,7 +6,7 @@ export interface GetCommentDto {
 	content: string;
 	isReply: true;
 	createdDate: string;
-	replies: Array<string>;
+	replies: Array<GetCommentDto> | null;
 	likeCount: number;
 	isOwner: boolean;
 	isLiked: boolean;

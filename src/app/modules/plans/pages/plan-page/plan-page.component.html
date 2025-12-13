@@ -4,6 +4,7 @@
 		<app-plan-details
 			class="w-full"
 			[plan]="plan()!"
+			[estimatedCost]="estimatedCost()"
 			(pinToggled)="togglePin()"
 		></app-plan-details>
 
@@ -82,10 +83,13 @@
 		<div class="w-1/3 self-stretch rounded-md bg-placeholder"></div>
 	</div>
 
+	@if(comments()) {
 	<app-comments
 		[planId]="plan()!.id"
-		[commentsList]="commentsList()"
-		(comment)="onPostComment($event)"
+		[planOwnerProfilePicture]="plan()!.owner.photoUrl"
+		[comments]="comments()!"
+		(post)="onPostComment($event)"
+		(reply)="onCommentReply()"
 	></app-comments>
-	}
+	} }
 </div>

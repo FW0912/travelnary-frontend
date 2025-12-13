@@ -3,6 +3,7 @@ import {
 	Component,
 	input,
 	output,
+	signal,
 } from "@angular/core";
 import { Comment } from "../../../../core/models/domain/comment/comment";
 import { TextAreaComponent } from "../../../../shared/components/inputs/text-area/text-area.component";
@@ -19,6 +20,9 @@ import { CommentDetailsComponent } from "./components/comment-details/comment-de
 import { CommentService } from "../../services/comment.service";
 import { PostCommentDto } from "../../models/post-comment-dto";
 import { GetCommentDto } from "../../models/get-comment-dto";
+import { CommentAction } from "../../enums/comment-action";
+import { UserImageComponent } from "../../../../shared/components/images/user-image/user-image.component";
+import { GetCommentByPlanDto } from "../../models/get-comment-by-plan-dto";
 
 @Component({
 	selector: "app-comments",
@@ -28,6 +32,7 @@ import { GetCommentDto } from "../../models/get-comment-dto";
 		ReactiveFormsModule,
 		CommonModule,
 		CommentDetailsComponent,
+		UserImageComponent,
 	],
 	templateUrl: "./comments.component.html",
 	styleUrl: "./comments.component.css",
@@ -35,9 +40,12 @@ import { GetCommentDto } from "../../models/get-comment-dto";
 })
 export class CommentsComponent extends BaseFormComponent {
 	public planId = input.required<string>();
-	public commentsList = input.required<Array<GetCommentDto>>();
+	public planOwnerProfilePicture = input.required<string>();
+	public comments = input.required<GetCommentByPlanDto>();
+	public viewedComment = signal<GetCommentDto | null>(null);
 
-	public comment = output<GetCommentDto>();
+	public post = output<GetCommentDto>();
+	public action = output<CommentAction>();
 
 	constructor(
 		private fb: FormBuilder,
@@ -65,8 +73,17 @@ export class CommentsComponent extends BaseFormComponent {
 
 		this.commentService.postComment(body).subscribe({
 			next: (x) => {
-				this.comment.emit(x.data);
+				this.post.emit(x.data.detail);
 			},
 		});
+	}
+
+	protected viewCommentReplies(comment: GetCommentDto): void {
+		console.log(comment);
+		this.viewedComment.set(comment);
+	}
+
+	protected unviewCommentReplies(): void {
+		this.viewedComment.set(null);
 	}
 }

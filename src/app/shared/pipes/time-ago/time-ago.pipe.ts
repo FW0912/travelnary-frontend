@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 export class TimeAgoPipe implements PipeTransform {
 	transform(date: string): string {
 		const now = new Date();
-		const parsedDate = new Date(date);
+		const parsedDate = new Date(date.at(-1) === "Z" ? date : date + "Z");
 		const seconds = Math.floor(
 			(now.getTime() - parsedDate.getTime()) / 1000
 		);

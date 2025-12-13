@@ -30,6 +30,8 @@ import { switchMap } from "rxjs";
 import { PlanDetailsComponent } from "./components/plan-details/plan-details.component";
 import { UpdateLocationSortOrderDto } from "../../../location/models/update-location-sort-order-dto";
 import { GetCommentDto } from "../../../comment/models/get-comment-dto";
+import { CommentService } from "../../../comment/services/comment.service";
+import { GetCommentByPlanDto } from "../../../comment/models/get-comment-by-plan-dto";
 
 @Component({
 	selector: "app-plan-page",
@@ -46,12 +48,10 @@ import { GetCommentDto } from "../../../comment/models/get-comment-dto";
 })
 export class PlanPageComponent {
 	private planId = signal<string>("");
-
 	protected plan = signal<GetPlanByIdDto | null>(null);
-
+	protected estimatedCost = signal<number>(0);
 	protected locationList = signal<Array<GetLocationByPlanDto>>(new Array());
-
-	protected commentsList = signal<Array<GetCommentDto>>(new Array());
+	protected comments = signal<GetCommentByPlanDto | null>(null);
 
 	constructor(
 		private route: ActivatedRoute,
@@ -61,6 +61,7 @@ export class PlanPageComponent {
 		private dialog: MatDialog,
 		private planService: PlanService,
 		private locationService: LocationService,
+		private commentService: CommentService,
 		protected authService: AuthService
 	) {
 		route.paramMap.pipe(takeUntilDestroyed()).subscribe((x) => {
@@ -91,13 +92,19 @@ export class PlanPageComponent {
 					return this.locationService.getLocationByPlan(
 						this.planId()
 					);
-				})
-			)
-			.subscribe({
-				next: (x) => {
+				}),
+				switchMap((x) => {
 					const map: Map<number, GetLocationByPlanDto> = new Map();
 
-					x.data.forEach((y) => map.set(y.day, y));
+					x.data.forEach((y) => {
+						map.set(y.day, y);
+
+						y.locations.forEach((z) => {
+							if (z.cost) {
+								this.estimatedCost.update((a) => a + z.cost);
+							}
+						});
+					});
 
 					const amountOfDays: number =
 						Math.ceil(
@@ -122,6 +129,13 @@ export class PlanPageComponent {
 					}
 
 					this.locationList.set(locationList);
+
+					return this.commentService.getCommentByPlan(this.planId());
+				})
+			)
+			.subscribe({
+				next: (x) => {
+					this.comments.set(x.data);
 				},
 			});
 	}
@@ -244,6 +258,20 @@ export class PlanPageComponent {
 	}
 
 	protected onPostComment(event: GetCommentDto): void {
-		this.commentsList.update((x) => [...x, event]);
+		this.comments.update((x) => {
+			if (x) {
+				return { ...x, comments: [...x.comments, event] };
+			}
+
+			return x;
+		});
+	}
+
+	protected onCommentReply(): void {
+		this.commentService.getCommentByPlan(this.planId()).subscribe({
+			next: (x) => {
+				this.comments.set(x.data);
+			},
+		});
 	}
 }

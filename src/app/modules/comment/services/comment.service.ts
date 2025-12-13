@@ -7,6 +7,8 @@ import { GetCommentDto } from "../models/get-comment-dto";
 import { PostCommentDto } from "../models/post-comment-dto";
 import { UpdateCommentDto } from "../models/update-comment-dto";
 import { UtilsService } from "../../../core/services/utils/utils.service";
+import { DetailResponse } from "../../../core/models/api/detail-response";
+import { GetCommentByPlanDto } from "../models/get-comment-by-plan-dto";
 
 @Injectable({
 	providedIn: "root",
@@ -19,9 +21,9 @@ export class CommentService {
 	public getCommentByPlan(
 		planId: string,
 		limit: number = 5
-	): Observable<ApiResponse<GetCommentDto>> {
+	): Observable<ApiResponse<GetCommentByPlanDto>> {
 		return this.http
-			.get<ApiResponse<GetCommentDto>>(
+			.get<ApiResponse<GetCommentByPlanDto>>(
 				`${this.baseApiUrl}/plan/${planId}`,
 				{
 					params: {
@@ -35,9 +37,9 @@ export class CommentService {
 	public getCommentReplies(
 		commentId: string,
 		limit: number = 3
-	): Observable<ApiResponse<GetCommentDto>> {
+	): Observable<ApiResponse<GetCommentByPlanDto>> {
 		return this.http
-			.get<ApiResponse<GetCommentDto>>(
+			.get<ApiResponse<GetCommentByPlanDto>>(
 				`${this.baseApiUrl}/${commentId}/replies`,
 				{
 					params: {
@@ -50,17 +52,23 @@ export class CommentService {
 
 	public postComment(
 		dto: PostCommentDto
-	): Observable<ApiResponse<GetCommentDto>> {
+	): Observable<ApiResponse<DetailResponse<GetCommentDto>>> {
 		return this.http
-			.post<ApiResponse<GetCommentDto>>(this.baseApiUrl, dto)
+			.post<ApiResponse<DetailResponse<GetCommentDto>>>(
+				this.baseApiUrl,
+				dto
+			)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
 	public updateComment(
 		dto: UpdateCommentDto
-	): Observable<ApiResponse<GetCommentDto>> {
+	): Observable<ApiResponse<DetailResponse<GetCommentDto>>> {
 		return this.http
-			.put<ApiResponse<GetCommentDto>>(this.baseApiUrl, dto)
+			.put<ApiResponse<DetailResponse<GetCommentDto>>>(
+				this.baseApiUrl,
+				dto
+			)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 

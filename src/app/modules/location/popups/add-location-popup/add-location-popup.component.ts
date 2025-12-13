@@ -137,12 +137,17 @@ export class AddLocationPopupComponent {
 	protected search(): void {
 		var searchQuery: string = this.nameFilter.value ?? "";
 
-		if (this.destination) {
-			searchQuery.concat(" ", this.destination);
-		}
+		console.log(this.destination);
+
+		// if (this.destination) {
+		// 	searchQuery = searchQuery.concat(" ", this.destination);
+		// }
+
+		console.log(searchQuery);
 
 		const query: SearchLocationQuery = {
 			searchQuery: searchQuery,
+			Address: this.destination ?? undefined,
 		};
 
 		this.locationService.searchLocation(query).subscribe((x) => {
