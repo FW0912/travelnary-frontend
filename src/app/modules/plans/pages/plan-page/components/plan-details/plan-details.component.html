@@ -20,14 +20,17 @@
 			>
 
 			<div class="flex gap-4 items-center">
-				<div class="flex gap-2 items-center">
+				<button
+					class="flex gap-2 items-center cursor-pointer hover:text-hover transition-colors"
+					(click)="navigateToOwnerProfile()"
+				>
 					<app-user-image
 						[src]="plan().owner.photoUrl"
 						extraClasses="w-8 h-8"
 					></app-user-image>
 
 					<span class="font-medium">{{ plan().owner.username }}</span>
-				</div>
+				</button>
 
 				<div class="flex items-center gap-2 text-sm">
 					<i class="bi bi-eye"></i>

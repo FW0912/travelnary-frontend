@@ -12,6 +12,7 @@ import {
 } from "@angular/material/dialog";
 import { BaseFormComponent } from "../../../base-form-page/base-form-page.component";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { Clipboard, ClipboardModule } from "@angular/cdk/clipboard";
 import { DropdownComponent } from "../../../../shared/components/dropdowns/dropdown/dropdown.component";
 import { IValueOption } from "../../../../shared/models/utils/value-option";
 import { AccessCategory } from "../../../../shared/enums/access-category";
@@ -19,6 +20,8 @@ import { GeneralUtils } from "../../../../shared/utils/general-utils";
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
+import { Router } from "@angular/router";
+import { PlanService } from "../../services/plan.service";
 
 @Component({
 	selector: "app-share-plan-popup",
@@ -28,6 +31,7 @@ import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-typ
 		MatDialogActions,
 		DropdownComponent,
 		ButtonComponent,
+		ClipboardModule,
 	],
 	templateUrl: "./share-plan-popup.component.html",
 	styleUrl: "./share-plan-popup.component.css",
@@ -40,9 +44,13 @@ export class SharePlanPopupComponent {
 	constructor(
 		@Inject(MAT_DIALOG_DATA)
 		private data: {
+			planId?: string;
 			isOwner?: boolean;
 		},
-		private snackbarService: SnackbarService
+		private planService: PlanService,
+		private snackbarService: SnackbarService,
+		private router: Router,
+		private clipboard: Clipboard
 	) {
 		if (data.isOwner) {
 			this.ACCESS_CATEGORY_LIST =
@@ -68,7 +76,43 @@ export class SharePlanPopupComponent {
 			return;
 		}
 
-		console.log(this.selectedAccessCategory);
-		this.snackbarService.openSnackBar("Copied link.", ESnackbarType.INFO);
+		var accessCategory: "view" | "edit" | null = null;
+
+		switch (this.selectedAccessCategory) {
+			case AccessCategory.VIEWER:
+				accessCategory = "view";
+				break;
+			case AccessCategory.EDITOR:
+				accessCategory = "edit";
+				break;
+			default:
+				accessCategory = null;
+		}
+
+		if (accessCategory === null) {
+			this.snackbarService.openSnackBar(
+				"Must select an Access Category!",
+				ESnackbarType.ERROR
+			);
+			return;
+		}
+
+		this.planService
+			.generateShareToken(this.data.planId!, accessCategory)
+			.subscribe({
+				next: (x) => {
+					const token: string = x.data.token;
+					const url: string = `${
+						window.location.origin
+					}/view-plan/${this.data.planId!}?share=${token}`;
+
+					this.clipboard.copy(url);
+
+					this.snackbarService.openSnackBar(
+						"Copied link.",
+						ESnackbarType.INFO
+					);
+				},
+			});
 	}
 }

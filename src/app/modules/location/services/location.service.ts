@@ -1,7 +1,14 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpContext, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "../../../../environments/environment";
-import { Observable } from "rxjs";
+import {
+	catchError,
+	debounceTime,
+	EMPTY,
+	Observable,
+	of,
+	switchMap,
+} from "rxjs";
 import { ApiResponse } from "../../../core/models/api/api-response";
 import { GetLocationDto } from "../models/get-location-dto";
 import { GetLocationByPlanDto } from "../models/get-location-by-plan-dto";
@@ -12,6 +19,10 @@ import { SearchLocationQuery } from "../models/search-location-query";
 import { SearchLocationDto } from "../models/search-location-dto";
 import { LocationCategory } from "../models/location-category";
 import { UpdateLocationSortOrderDto } from "../models/update-location-sort-order-dto";
+import { GetDestinationLocationDto } from "../models/get-destination-details-dto";
+import { SnackbarService } from "../../../core/services/snackbar/snackbar.service";
+import { ESnackbarType } from "../../../core/models/utils/others/snackbar-type.enum";
+import { SKIP_ACCESS_TOKEN } from "../../../core/interceptors/access-token/access-token.interceptor";
 
 @Injectable({
 	providedIn: "root",
@@ -19,7 +30,11 @@ import { UpdateLocationSortOrderDto } from "../models/update-location-sort-order
 export class LocationService {
 	private readonly baseApiUrl: string = `${environment.baseApiUrl}/Location`;
 
-	constructor(private http: HttpClient, private utilsService: UtilsService) {}
+	constructor(
+		private http: HttpClient,
+		private utilsService: UtilsService,
+		private snackbarService: SnackbarService
+	) {}
 
 	public getAllLocationCategories(): Observable<
 		ApiResponse<Array<LocationCategory>>
@@ -49,6 +64,79 @@ export class LocationService {
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
+	public getDestinationLocation(
+		destination: string
+	): Observable<{ latitude: number; longitude: number; radius: number }> {
+		return this.http
+			.get<Array<GetDestinationLocationDto>>(
+				`${environment.forwardGeocodeApiUrl}`,
+				{
+					params: {
+						q: destination,
+						api_key: environment.geocodeApiKey,
+					},
+					context: new HttpContext().set(SKIP_ACCESS_TOKEN, true),
+				}
+			)
+			.pipe(
+				catchError(() => {
+					this.snackbarService.openSnackBar(
+						"Error getting destination details, please try again later.",
+						ESnackbarType.ERROR
+					);
+					return EMPTY;
+				}),
+				switchMap((x) => {
+					if (x === null || x.length === 0) {
+						this.snackbarService.openSnackBar(
+							"Destination not found, please try again later.",
+							ESnackbarType.ERROR
+						);
+						return EMPTY;
+					}
+
+					const destinationDetails = x.at(0)!;
+
+					const minLatitude = Number.parseFloat(
+						destinationDetails.boundingbox.at(0)!
+					);
+					const maxLatitude = Number.parseFloat(
+						destinationDetails.boundingbox.at(1)!
+					);
+					const minLongitude = Number.parseFloat(
+						destinationDetails.boundingbox.at(2)!
+					);
+					const maxLongitude = Number.parseFloat(
+						destinationDetails.boundingbox.at(3)!
+					);
+
+					const centerLatitude = (minLatitude + maxLatitude) / 2;
+					const centerLongitude = (minLongitude + maxLongitude) / 2;
+
+					const R = 6371; // km
+					const deg2rad = (deg: number) => (deg * Math.PI) / 180;
+
+					const dLat = deg2rad(maxLatitude - centerLatitude);
+					const dLon = deg2rad(maxLongitude - centerLongitude);
+
+					const a =
+						Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+						Math.cos(deg2rad(centerLatitude)) *
+							Math.cos(deg2rad(maxLatitude)) *
+							Math.sin(dLon / 2) *
+							Math.sin(dLon / 2);
+
+					const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+					return of({
+						latitude: centerLatitude,
+						longitude: centerLongitude,
+						radius: R * c,
+					});
+				})
+			);
+	}
+
 	public searchLocation(
 		query: SearchLocationQuery
 	): Observable<ApiResponse<Array<SearchLocationDto>>> {
@@ -63,6 +151,27 @@ export class LocationService {
 		return this.http
 			.get<ApiResponse<Array<SearchLocationDto>>>(
 				`${this.baseApiUrl}/search`,
+				{
+					params: params,
+				}
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public searchNearbyLocation(
+		query: SearchLocationQuery
+	): Observable<ApiResponse<Array<SearchLocationDto>>> {
+		var params: HttpParams = new HttpParams();
+
+		Object.entries(query).forEach(([k, v]) => {
+			if (v) {
+				params = params.set(k, v);
+			}
+		});
+
+		return this.http
+			.get<ApiResponse<Array<SearchLocationDto>>>(
+				`${this.baseApiUrl}/nearby`,
 				{
 					params: params,
 				}

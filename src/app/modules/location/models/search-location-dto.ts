@@ -3,8 +3,9 @@ import { BaseLocationDto } from "./base-location-dto";
 export interface SearchLocationDto {
 	id: string;
 	category: {
+		id: string;
 		name: string;
-		localizedName: string;
+		icon: string;
 	};
 	name: string;
 	address: {

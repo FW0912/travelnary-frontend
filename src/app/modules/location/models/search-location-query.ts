@@ -1,6 +1,6 @@
 export interface SearchLocationQuery {
 	Key?: string;
-	searchQuery: string;
+	searchQuery?: string;
 	Category?: string;
 	Phone?: string;
 	Address?: string;

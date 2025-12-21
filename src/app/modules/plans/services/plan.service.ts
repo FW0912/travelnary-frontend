@@ -4,7 +4,7 @@ import {
 	HttpParams,
 } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, catchError, switchMap, throwError } from "rxjs";
+import { Observable, catchError, share, switchMap, throwError } from "rxjs";
 import { environment } from "../../../../environments/environment";
 import { ApiResponse } from "../../../core/models/api/api-response";
 import { ESnackbarType } from "../../../core/models/utils/others/snackbar-type.enum";
@@ -16,6 +16,7 @@ import { AuthService } from "../../../core/services/auth/auth.service";
 import { GetPlanByIdDto } from "../models/get-plan-by-id-dto";
 import { UtilsService } from "../../../core/services/utils/utils.service";
 import { ModifyPlanDto } from "../models/modify-plan-dto";
+import { GeneratePlanShareTokenDto } from "../models/generate-plan-share-token-dto";
 
 @Injectable({
 	providedIn: "root",
@@ -157,6 +158,22 @@ export class PlanService {
 		}
 	}
 
+	public getPlanByToken(
+		id: string,
+		token: string
+	): Observable<ApiResponse<GetPlanByIdDto>> {
+		return this.http
+			.get<ApiResponse<GetPlanByIdDto>>(
+				`${this.baseApiUrl}/${id}/shared`,
+				{
+					params: {
+						Token: token,
+					},
+				}
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
 	public pinPlan(id: string): Observable<ApiResponse<any>> {
 		return this.http
 			.post<ApiResponse<any>>(`${this.baseApiUrl}/pin/${id}`, null)
@@ -174,6 +191,20 @@ export class PlanService {
 	): Observable<ApiResponse<{ id: string }>> {
 		return this.http
 			.post<ApiResponse<{ id: string }>>(`${this.baseApiUrl}/create`, dto)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public generateShareToken(
+		planId: string,
+		shareType: "edit" | "view"
+	): Observable<ApiResponse<GeneratePlanShareTokenDto>> {
+		return this.http
+			.post<ApiResponse<GeneratePlanShareTokenDto>>(
+				`${this.baseApiUrl}/${planId}/generate-share-token`,
+				{
+					shareType: shareType,
+				}
+			)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 

@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import {
+	ChangeDetectionStrategy,
+	Component,
+	DestroyRef,
+	signal,
+} from "@angular/core";
 import { Location } from "../../../../core/models/domain/location/location";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
@@ -17,6 +22,9 @@ import { LocationService } from "../../services/location.service";
 import { SearchLocationDto } from "../../models/search-location-dto";
 import { TitleCasePipe } from "@angular/common";
 import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
+import { Observable } from "rxjs";
+import { ApiResponse } from "../../../../core/models/api/api-response";
+import { SearchLocationQuery } from "../../models/search-location-query";
 
 @Component({
 	selector: "app-location-recommendation-page",
@@ -41,9 +49,7 @@ export class LocationRecommendationPageComponent {
 		new Array()
 	);
 	private locationCategoryOptionList: Array<IValueOption> | null = null;
-	protected locationCategoryFilterList = signal<Array<IValueOption>>(
-		new Array()
-	);
+	protected locationCategoryFilter = signal<IValueOption | null>(null);
 	protected locationFilter = signal<IValueOption | null>(null);
 
 	constructor(
@@ -52,9 +58,10 @@ export class LocationRecommendationPageComponent {
 		private snackbarService: SnackbarService,
 		private planService: PlanService,
 		private locationService: LocationService,
-		private dialog: MatDialog
+		private dialog: MatDialog,
+		private destroyRef: DestroyRef
 	) {
-		route.paramMap.pipe(takeUntilDestroyed()).subscribe((x) => {
+		route.paramMap.pipe(takeUntilDestroyed(destroyRef)).subscribe((x) => {
 			if (x.get("id") === null || x.get("id")!.length === 0) {
 				snackbarService.openSnackBar(
 					"Plan not found!",
@@ -88,20 +95,24 @@ export class LocationRecommendationPageComponent {
 
 		this.locationService.getLocationByPlan(this.planId!).subscribe({
 			next: (x) => {
-				this.locationList.set(
-					x.data.find((x) => x.day === this.day)!.locations
-				);
+				if (x.data && x.data.length > 0) {
+					this.locationList.set(
+						x.data.find((x) => x.day === this.day)!.locations
+					);
+				}
 			},
 		});
 
 		this.locationService.getAllLocationCategories().subscribe({
 			next: (x) => {
-				this.locationCategoryOptionList = x.data.map((x) => {
-					return {
-						id: x.id,
-						value: x.name,
-					};
-				});
+				this.locationCategoryOptionList = x.data
+					.filter((y) => y.name !== "Location")
+					.map((y) => {
+						return {
+							id: y.id,
+							value: y.name,
+						};
+					});
 			},
 		});
 	}
@@ -123,59 +134,112 @@ export class LocationRecommendationPageComponent {
 			}
 		);
 
-		ref.afterClosed().subscribe((x) => {
-			if (!x) {
-				return;
-			}
-
-			if (x.selectedLocationCategory !== null) {
-				if (
-					this.locationCategoryFilterList().find(
-						(y) => y.id === x.selectedLocationCategory.id
-					)
-				) {
-					this.snackbarService.openSnackBar(
-						"Category is already filtered!",
-						ESnackbarType.ERROR,
-						2000
-					);
-				} else {
-					this.locationCategoryFilterList.update((y) => {
-						y.push(x.selectedLocationCategory);
-						return [...y];
-					});
-				}
-			}
-
-			if (x.selectedLocation !== null) {
-				if (this.locationFilter() !== null) {
-					this.snackbarService.openSnackBar(
-						"1 location maximum for filter!",
-						ESnackbarType.ERROR,
-						2000
-					);
+		ref.afterClosed()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe((x) => {
+				if (!x) {
 					return;
 				}
-				this.locationFilter.set(x.selectedLocation);
-			}
-		});
+
+				if (x.selectedLocationCategory !== null) {
+					if (this.locationCategoryFilter() !== null) {
+						this.snackbarService.openSnackBar(
+							"1 category maximum for filter!",
+							ESnackbarType.ERROR,
+							2000
+						);
+						return;
+					}
+
+					this.locationCategoryFilter.set(x.selectedLocationCategory);
+				}
+
+				if (x.selectedLocation !== null) {
+					if (this.locationFilter() !== null) {
+						this.snackbarService.openSnackBar(
+							"1 location maximum for filter!",
+							ESnackbarType.ERROR,
+							2000
+						);
+						return;
+					}
+					this.locationFilter.set(x.selectedLocation);
+				}
+
+				this.search();
+			});
 	}
 
-	protected removeLocationCategoryFilter(
-		locationCategoryFilter: IValueOption
-	): void {
-		this.locationCategoryFilterList.update((x) =>
-			x.filter((y) => y !== locationCategoryFilter)
-		);
+	protected removeLocationCategoryFilter(): void {
+		this.locationCategoryFilter.set(null);
+		this.search();
 	}
 
 	protected removeLocationFilter(): void {
 		this.locationFilter.set(null);
+		this.search();
 	}
 
-	private search(): void {}
+	private search(): void {
+		if (
+			this.locationCategoryFilter() === null &&
+			this.locationFilter() === null
+		) {
+			this.snackbarService.openSnackBar(
+				"No filters applied.",
+				ESnackbarType.INFO,
+				2000
+			);
+			this.recommendedLocationList.set(new Array());
+			return;
+		}
+
+		var observable: Observable<ApiResponse<Array<SearchLocationDto>>>;
+
+		if (this.locationFilter() !== null) {
+			const location: GetLocationDto = this.locationList().find(
+				(x) => x.id === this.locationFilter()!.id
+			)!;
+
+			var body: SearchLocationQuery = {
+				LatLong:
+					location.location.latitude +
+					"," +
+					location.location.longitude,
+			};
+
+			if (this.locationCategoryFilter() !== null) {
+				body.Category = this.locationCategoryFilter()!.value;
+			}
+
+			observable = this.locationService.searchNearbyLocation(body);
+		} else {
+			const body: SearchLocationQuery = {
+				searchQuery: this.destination!,
+				Category: this.locationCategoryFilter()!.value,
+			};
+
+			observable = this.locationService.searchLocation(body);
+		}
+
+		observable.subscribe({
+			next: (x) => {
+				this.recommendedLocationList.set(x.data);
+			},
+		});
+	}
 
 	protected onAdd(): void {}
 
-	protected onCheckReviews(): void {}
+	protected onCheckReviews(location: SearchLocationDto): void {
+		if (!location.webUrl || location.webUrl.length === 0) {
+			this.snackbarService.openSnackBar(
+				"No reviews available.",
+				ESnackbarType.INFO
+			);
+			return;
+		}
+
+		window.open(location.webUrl, "_blank");
+	}
 }

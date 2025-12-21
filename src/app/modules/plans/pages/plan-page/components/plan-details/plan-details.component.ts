@@ -10,6 +10,7 @@ import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
 import { UserImageComponent } from "../../../../../../shared/components/images/user-image/user-image.component";
 import { DefaultImageComponent } from "../../../../../../shared/components/images/default-image/default-image.component";
 import { GetPlanByIdDto } from "../../../../models/get-plan-by-id-dto";
+import { Router } from "@angular/router";
 
 @Component({
 	selector: "app-plan-details",
@@ -28,6 +29,14 @@ export class PlanDetailsComponent {
 	public plan = input.required<GetPlanByIdDto>();
 	public estimatedCost = input.required<number>();
 	public pinToggled = output<void>();
+
+	constructor(private router: Router) {}
+
+	protected navigateToOwnerProfile(): void {
+		if (this.plan()) {
+			this.router.navigateByUrl(`/profile/${this.plan()!.owner.id}`);
+		}
+	}
 
 	protected togglePin(): void {
 		this.pinToggled.emit();

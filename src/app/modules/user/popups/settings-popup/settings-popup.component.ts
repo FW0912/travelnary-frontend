@@ -160,14 +160,8 @@ export class SettingsPopupComponent extends BaseFormComponent {
 	): UpdateProfileDto {
 		return {
 			email: this.emailControl.value,
-			fullName:
-				this.fullNameControl.value.length !== 0
-					? this.fullNameControl.value
-					: null,
-			description:
-				this.descriptionControl.value.length !== 0
-					? this.descriptionControl.value
-					: null,
+			fullName: this.fullNameControl.value ?? null,
+			description: this.descriptionControl.value ?? null,
 			birthday: this.dobControl.value?.toISOString() ?? null,
 			gender: this.genderControl.value,
 			profilePicture: profilePictureUrl,

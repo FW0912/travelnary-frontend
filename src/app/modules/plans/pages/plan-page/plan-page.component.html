@@ -8,9 +8,8 @@
 			(pinToggled)="togglePin()"
 		></app-plan-details>
 
-		@if(authService.isLoggedIn()) {
 		<div class="flex gap-2 items-center">
-			@if(plan()!.isOwner) {
+			@if(plan()!.isOwner || plan()!.isEditor) {
 			<app-border-button
 				extraClasses="!rounded-xl"
 				(onClick)="openEditPlanPopup()"
@@ -20,7 +19,7 @@
 					<span class="font-medium">Edit Plan Details</span>
 				</div>
 			</app-border-button>
-			} @else {
+			} @else if(!plan()!.isOwner && authService.isLoggedIn()) {
 			<app-border-button
 				extraClasses="!rounded-xl"
 				(onClick)="toggleLike()"
@@ -36,8 +35,7 @@
 					<span class="font-medium">Like</span>
 				</div>
 			</app-border-button>
-			}
-
+			} @if(plan()!.isOwner) {
 			<app-border-button
 				extraClasses="!rounded-xl"
 				(onClick)="openSharePlanPopup()"
@@ -48,7 +46,6 @@
 				</div>
 			</app-border-button>
 
-			@if(plan()!.isOwner) {
 			<app-border-button
 				extraClasses="!rounded-xl !border-error"
 				(onClick)="openDeletePopup()"
@@ -60,7 +57,6 @@
 			</app-border-button>
 			}
 		</div>
-		}
 	</div>
 
 	<div class="flex gap-10 justify-between">
@@ -73,7 +69,8 @@
 				[day]="location.day"
 				[currencyName]="plan()!.currency.id"
 				[locationList]="location.locations"
-				[readOnly]="!plan()!.isOwner"
+				[readOnly]="!plan()!.isOwner && !plan()!.isEditor"
+				(onAdd)="onLocationAdd()"
 				(onSort)="onLocationSort($event)"
 				(onDelete)="onDeleteLocation($event)"
 			></app-locations>

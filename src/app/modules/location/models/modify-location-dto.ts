@@ -2,10 +2,10 @@ import { Location } from "./location";
 import { LocationCategory } from "./location-category";
 
 export interface ModifyLocationDto {
-	id: string;
+	id: string | null;
 	planId: string;
 	day: number;
-	category: LocationCategory;
+	category: string;
 	name: string;
 	address: string;
 	photoUrl: string | null;
@@ -14,5 +14,5 @@ export interface ModifyLocationDto {
 	time: string | null;
 	currencyName: string;
 	cost: number | null;
-	sortOrder: number;
+	sortOrder: number | null;
 }

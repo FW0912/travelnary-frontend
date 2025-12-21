@@ -26,12 +26,13 @@ import { LocationService } from "../../../location/services/location.service";
 import { GetLocationByPlanDto } from "../../../location/models/get-location-by-plan-dto";
 import { GetLocationByIdDto } from "../../../location/models/get-location-by-id-dto";
 import { GetLocationDto } from "../../../location/models/get-location-dto";
-import { switchMap } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 import { PlanDetailsComponent } from "./components/plan-details/plan-details.component";
 import { UpdateLocationSortOrderDto } from "../../../location/models/update-location-sort-order-dto";
 import { GetCommentDto } from "../../../comment/models/get-comment-dto";
 import { CommentService } from "../../../comment/services/comment.service";
 import { GetCommentByPlanDto } from "../../../comment/models/get-comment-by-plan-dto";
+import { ApiResponse } from "../../../../core/models/api/api-response";
 
 @Component({
 	selector: "app-plan-page",
@@ -48,6 +49,7 @@ import { GetCommentByPlanDto } from "../../../comment/models/get-comment-by-plan
 })
 export class PlanPageComponent {
 	private planId = signal<string>("");
+	private shareToken = signal<string | null>(null);
 	protected plan = signal<GetPlanByIdDto | null>(null);
 	protected estimatedCost = signal<number>(0);
 	protected locationList = signal<Array<GetLocationByPlanDto>>(new Array());
@@ -76,6 +78,10 @@ export class PlanPageComponent {
 				this.planId.set(x.get("id")!);
 			}
 		});
+
+		route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((x) => {
+			this.shareToken.set(x.get("share"));
+		});
 	}
 
 	ngOnInit(): void {
@@ -83,8 +89,18 @@ export class PlanPageComponent {
 	}
 
 	private fetchData(): void {
-		this.planService
-			.getPlanById(this.planId())
+		var observable: Observable<ApiResponse<GetPlanByIdDto>> | null = null;
+
+		if (this.shareToken() !== null) {
+			observable = this.planService.getPlanByToken(
+				this.planId(),
+				this.shareToken()!
+			);
+		} else {
+			observable = this.planService.getPlanById(this.planId());
+		}
+
+		observable
 			.pipe(
 				switchMap((x) => {
 					this.plan.set(x.data);
@@ -187,6 +203,7 @@ export class PlanPageComponent {
 			minWidth: "35%",
 			maxHeight: "80%",
 			data: {
+				planId: this.planId(),
 				isOwner: this.plan()!.isOwner,
 			},
 		});
@@ -212,11 +229,54 @@ export class PlanPageComponent {
 		});
 	}
 
+	protected onLocationAdd(): void {
+		this.locationService.getLocationByPlan(this.planId()).subscribe({
+			next: (x) => {
+				const map: Map<number, GetLocationByPlanDto> = new Map();
+
+				x.data.forEach((y) => {
+					map.set(y.day, y);
+
+					y.locations.forEach((z) => {
+						if (z.cost) {
+							this.estimatedCost.update((a) => a + z.cost);
+						}
+					});
+				});
+
+				const amountOfDays: number =
+					Math.ceil(
+						Math.abs(
+							new Date(this.plan()!.dateStart).getTime() -
+								new Date(this.plan()!.dateEnd).getTime()
+						) /
+							(1000 * 3600 * 24)
+					) + 1;
+				const locationList: Array<GetLocationByPlanDto> = new Array();
+
+				for (let i = 1; i <= amountOfDays; i++) {
+					if (map.has(i)) {
+						locationList.push(map.get(i)!);
+					} else {
+						locationList.push({
+							day: i,
+							locations: new Array(),
+						});
+					}
+				}
+
+				this.locationList.set(locationList);
+			},
+		});
+	}
+
 	protected onLocationSort(event: {
 		day: number;
 		locationList: Array<GetLocationDto>;
 	}): void {
 		const body: UpdateLocationSortOrderDto = {
+			planId: this.planId(),
+			day: event.day,
 			items: event.locationList.map((x) => {
 				return {
 					id: x.id,

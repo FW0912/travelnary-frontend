@@ -1,6 +1,7 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
+	DestroyRef,
 	effect,
 	input,
 	output,
@@ -21,6 +22,7 @@ import { AddLocationPopupComponent } from "../../popups/add-location-popup/add-l
 import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
 import { GetLocationDto } from "../../models/get-location-dto";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
 	selector: "app-locations",
@@ -49,6 +51,7 @@ export class LocationsComponent {
 
 	public sortedLocationList = signal<Array<GetLocationDto>>(new Array());
 
+	public onAdd = output<void>();
 	public onSort = output<{
 		day: number;
 		locationList: Array<GetLocationDto>;
@@ -58,7 +61,7 @@ export class LocationsComponent {
 		id: string;
 	}>();
 
-	constructor(private dialog: MatDialog) {}
+	constructor(private dialog: MatDialog, private destroyRef: DestroyRef) {}
 
 	protected enableSorting(): void {
 		this.sortedLocationList.set(this.locationList());
@@ -84,15 +87,32 @@ export class LocationsComponent {
 	}
 
 	protected onAddLocation(): void {
-		this.dialog.open(AddLocationPopupComponent, {
+		const dialogRef = this.dialog.open(AddLocationPopupComponent, {
 			maxWidth: "50vw",
 			data: {
 				planId: this.planId(),
 				destination: this.destination(),
 				day: this.day(),
+				lastSortOrder:
+					this.locationList().length > 0
+						? this.locationList().reduce((x, y) =>
+								x.sortOrder > y.sortOrder ? x : y
+						  ).sortOrder
+						: 0,
 				currencyName: this.currencyName(),
 			},
 		});
+
+		dialogRef
+			.afterClosed()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe({
+				next: (x) => {
+					if (x) {
+						this.onAdd.emit();
+					}
+				},
+			});
 	}
 
 	protected onDeleteLocation(event: { day: number; id: string }): void {

@@ -20,6 +20,8 @@ import { SearchLocationQuery } from "../../models/search-location-query";
 import { SearchLocationDto } from "../../models/search-location-dto";
 import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
 import { TitleCasePipe } from "@angular/common";
+import { catchError, EMPTY, switchMap } from "rxjs";
+import { ModifyLocationDto } from "../../models/modify-location-dto";
 
 @Component({
 	selector: "app-add-location-popup",
@@ -41,6 +43,7 @@ export class AddLocationPopupComponent {
 	private destination: string | null = null;
 	protected locationList = signal<Array<SearchLocationDto>>(new Array());
 	private day: number | null = null;
+	private lastSortOrder: number | null = null;
 	private currencyName: string | null = null;
 	protected nameFilter = new FormControl<string>("");
 
@@ -51,6 +54,7 @@ export class AddLocationPopupComponent {
 			planId: string;
 			destination: string;
 			day: number;
+			lastSortOrder: number;
 			currencyName: string;
 		},
 		private dialog: MatDialog,
@@ -85,6 +89,15 @@ export class AddLocationPopupComponent {
 			return;
 		}
 
+		if (data.lastSortOrder === undefined) {
+			snackbarService.openSnackBar(
+				"Can't get last sort order!",
+				ESnackbarType.ERROR
+			);
+			ref.close();
+			return;
+		}
+
 		if (!data.currencyName) {
 			snackbarService.openSnackBar(
 				"Can't get Currency Name!",
@@ -97,6 +110,7 @@ export class AddLocationPopupComponent {
 		this.planId = data.planId;
 		this.destination = data.destination;
 		this.day = data.day;
+		this.lastSortOrder = data.lastSortOrder;
 		this.currencyName = data.currencyName;
 	}
 
@@ -112,14 +126,36 @@ export class AddLocationPopupComponent {
 			minWidth: "35%",
 			maxHeight: "80%",
 			data: {
+				planId: this.planId,
 				currencyName: this.currencyName,
+				day: this.day,
 			},
 		});
 		this.ref.close();
 	}
 
 	protected onAdd(location: SearchLocationDto): void {
-		this.ref.close();
+		const body: ModifyLocationDto = {
+			id: null,
+			planId: this.planId!,
+			day: this.day!,
+			category: location.category.name,
+			name: location.name,
+			address: location.address.address_string,
+			photoUrl: location.photoUrl,
+			notes: location.notes,
+			location: location.location,
+			time: null,
+			currencyName: this.currencyName!,
+			cost: null,
+			sortOrder: this.lastSortOrder! + 1,
+		};
+
+		this.locationService.createLocation(body).subscribe({
+			next: () => {
+				this.ref.close(true);
+			},
+		});
 	}
 
 	protected onCheckReviews(location: SearchLocationDto): void {
@@ -137,17 +173,12 @@ export class AddLocationPopupComponent {
 	protected search(): void {
 		var searchQuery: string = this.nameFilter.value ?? "";
 
-		console.log(this.destination);
-
-		// if (this.destination) {
-		// 	searchQuery = searchQuery.concat(" ", this.destination);
-		// }
-
-		console.log(searchQuery);
+		if (this.destination) {
+			searchQuery = searchQuery.concat(" ", this.destination);
+		}
 
 		const query: SearchLocationQuery = {
 			searchQuery: searchQuery,
-			Address: this.destination ?? undefined,
 		};
 
 		this.locationService.searchLocation(query).subscribe((x) => {
