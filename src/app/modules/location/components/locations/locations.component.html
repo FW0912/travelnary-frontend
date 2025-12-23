@@ -26,6 +26,7 @@
 		} @else { @for(location of locationList(); let isLast = $last; track
 		location.id) {
 		<app-location-details-section
+			[planId]="planId()"
 			[day]="day()"
 			[location]="location"
 			[readOnly]="readOnly()"

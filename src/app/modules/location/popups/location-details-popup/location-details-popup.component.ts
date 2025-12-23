@@ -12,6 +12,7 @@ import { Location } from "../../../../core/models/domain/location/location";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
+import { GetLocationDto } from "../../models/get-location-dto";
 
 @Component({
 	selector: "app-location-details-popup",
@@ -27,13 +28,13 @@ import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocationDetailsPopupComponent {
-	protected location: Location | null = null;
+	protected location: GetLocationDto | null = null;
 
 	constructor(
 		private ref: MatDialogRef<LocationDetailsPopupComponent>,
 		@Inject(MAT_DIALOG_DATA)
 		private data: {
-			location: Location;
+			location: GetLocationDto;
 		},
 		private snackbarService: SnackbarService
 	) {

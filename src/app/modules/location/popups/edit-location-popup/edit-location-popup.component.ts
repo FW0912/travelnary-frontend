@@ -32,6 +32,12 @@ import { TextAreaComponent } from "../../../../shared/components/inputs/text-are
 import { TimePickerComponent } from "../../../../shared/components/inputs/time-picker/time-picker.component";
 import { ButtonComponent } from "../../../../shared/components/buttons/button/button.component";
 import { LocationService } from "../../services/location.service";
+import { GetLocationDto } from "../../models/get-location-dto";
+import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
+import { ModifyLocationDto } from "../../models/modify-location-dto";
+import { Observable, switchMap } from "rxjs";
+import { ApiResponse } from "../../../../core/models/api/api-response";
+import { ImageService } from "../../../image/services/image.service";
 
 @Component({
 	selector: "app-edit-location-popup",
@@ -46,24 +52,31 @@ import { LocationService } from "../../services/location.service";
 		TextAreaComponent,
 		TimePickerComponent,
 		ButtonComponent,
+		BorderButtonComponent,
 	],
 	templateUrl: "./edit-location-popup.component.html",
 	styleUrl: "./edit-location-popup.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditLocationPopupComponent extends BaseFormComponent {
-	protected location: Location | null = null;
+	protected location: GetLocationDto | null = null;
+	private planId: string | null = null;
+	private day: number | null = null;
 	protected locationCategoryOptionList = signal<Array<IValueOption>>(
 		new Array()
 	);
+	protected photoUrl = signal<string | null>(null);
 
 	constructor(
 		private ref: MatDialogRef<EditLocationPopupComponent>,
 		@Inject(MAT_DIALOG_DATA)
 		private data: {
-			location: Location;
+			location: GetLocationDto;
+			planId: string;
+			day: number;
 		},
 		private snackbarService: SnackbarService,
+		private imageService: ImageService,
 		private locationService: LocationService,
 		private fb: FormBuilder
 	) {
@@ -78,7 +91,28 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 			return;
 		}
 
+		if (!data.planId) {
+			snackbarService.openSnackBar(
+				"Can't get Plan Id!",
+				ESnackbarType.ERROR
+			);
+			ref.close();
+			return;
+		}
+
+		if (!data.day) {
+			snackbarService.openSnackBar("Can't get day!", ESnackbarType.ERROR);
+			ref.close();
+			return;
+		}
+
 		this.location = data.location;
+		this.planId = data.planId;
+		this.day = data.day;
+
+		if (this.location.photoUrl) {
+			this.photoUrl.set(this.location.photoUrl);
+		}
 
 		this.setFormGroup(
 			fb.group({
@@ -96,17 +130,42 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 				address: fb.control<string>(this.location.address, [
 					Validators.required,
 				]),
+				photo: fb.control<File | null>(null),
 				notes: fb.control<string>(this.location.notes),
-				time: fb.control<Date | null>(this.location.time, [
-					Validators.required,
-				]),
+				time: fb.control<Date | null>(
+					this.location.time ? new Date(this.location.time) : null
+				),
 				cost: fb.control<number>(this.location.cost),
 			})
 		);
 	}
 
-	protected get categoryControl(): FormControl {
+	protected get categoryControl(): FormControl<IValueOption | null> {
 		return this.formGroup.get("category")! as FormControl;
+	}
+
+	protected get nameControl(): FormControl<string> {
+		return this.formGroup.get("name")! as FormControl;
+	}
+
+	protected get addressControl(): FormControl<string> {
+		return this.formGroup.get("address")! as FormControl;
+	}
+
+	protected get photoControl(): FormControl<File | null> {
+		return this.formGroup.get("photo")! as FormControl;
+	}
+
+	protected get notesControl(): FormControl<string> {
+		return this.formGroup.get("notes")! as FormControl;
+	}
+
+	protected get timeControl(): FormControl<Date | null> {
+		return this.formGroup.get("time")! as FormControl;
+	}
+
+	protected get costControl(): FormControl<number | null> {
+		return this.formGroup.get("cost")! as FormControl;
 	}
 
 	ngOnInit(): void {
@@ -128,8 +187,89 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 		this.formGroup.get("category")!.setValue(category);
 	}
 
+	protected onUploadFile(event: Event): void {
+		const target = event.target! as HTMLInputElement;
+
+		if (target.files !== null && target.files.item(0) !== null) {
+			this.photoControl.setValue(target.files.item(0)!);
+
+			const fileReader: FileReader = new FileReader();
+
+			fileReader.onload = (event) => {
+				this.photoUrl.set(event.target!.result as string);
+			};
+
+			fileReader.readAsDataURL(target.files.item(0)!);
+		} else {
+			this.photoControl.setValue(null);
+			this.photoUrl.set(null);
+		}
+	}
+
 	protected editLocation(): void {
 		this.submit();
 		console.log(this.formGroup);
+
+		if (this.formGroup.valid) {
+			var observable: Observable<ApiResponse<any>>;
+
+			if (this.photoControl.value !== null) {
+				observable = this.imageService
+					.upload(this.photoControl.value!)
+					.pipe(
+						switchMap((x) => {
+							const body: ModifyLocationDto = {
+								id: this.location!.id,
+								planId: this.planId!,
+								day: this.day!,
+								category: this.categoryControl.value!.value,
+								name: this.nameControl.value,
+								address: this.addressControl.value,
+								photoUrl: x.data.fileUrl,
+								notes: this.notesControl.value,
+								location: this.location!.location,
+								time: this.timeControl.value
+									? this.timeControl.value.toISOString()
+									: null,
+								currencyName: this.location!.currencyName,
+								cost: this.costControl.value,
+								sortOrder: this.location!.sortOrder,
+							};
+
+							return this.locationService.updateLocation(body);
+						})
+					);
+			} else {
+				const body: ModifyLocationDto = {
+					id: this.location!.id,
+					planId: this.planId!,
+					day: this.day!,
+					category: this.categoryControl.value!.value,
+					name: this.nameControl.value,
+					address: this.addressControl.value,
+					photoUrl: this.location!.photoUrl,
+					notes: this.notesControl.value,
+					location: this.location!.location,
+					time: this.timeControl.value
+						? this.timeControl.value.toISOString()
+						: null,
+					currencyName: this.location!.currencyName,
+					cost: this.costControl.value,
+					sortOrder: this.location!.sortOrder,
+				};
+
+				observable = this.locationService.updateLocation(body);
+			}
+
+			observable.subscribe({
+				next: () => {
+					this.snackbarService.openSnackBar(
+						"Location edited succesfully.",
+						ESnackbarType.INFO
+					);
+					this.ref.close(true);
+				},
+			});
+		}
 	}
 }

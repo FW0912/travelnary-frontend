@@ -37,6 +37,7 @@ import { DefaultImageComponent } from "../../../../../../shared/components/image
 export class LocationDetailsSectionComponent {
 	@ViewChild("options") private options!: ElementRef;
 
+	public planId = input.required<string>();
 	public day = input.required<number>();
 	public location = input.required<GetLocationDto>();
 	public readOnly = input.required<boolean>();
@@ -89,10 +90,13 @@ export class LocationDetailsSectionComponent {
 	protected openEditDetailsPopup(): void {
 		this.isDropdownOpen.set(false);
 		this.dialog.open(EditLocationPopupComponent, {
-			width: "35%",
+			minWidth: "35%",
+			maxWidth: "50vw",
 			maxHeight: "80%",
 			data: {
 				location: this.location(),
+				planId: this.planId(),
+				day: this.day(),
 			},
 		});
 	}

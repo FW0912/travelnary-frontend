@@ -37,10 +37,11 @@
 				<div
 					class="px-2 py-1 border-2 border-input-border rounded-sm wrap-anywhere whitespace-pre-wrap"
 					[ngClass]="{
-						'text-placeholder': location.notes.length === 0
+						'text-placeholder':
+							!location.notes || location.notes.length === 0
 					}"
 					[textContent]="
-						location.notes.length > 0
+						location.notes && location.notes.length > 0
 							? location.notes
 							: 'No notes given.'
 					"
@@ -54,8 +55,13 @@
 				</div>
 				<div
 					class="flex px-2 py-1 border-2 border-input-border rounded-sm"
+					[ngClass]="{
+						'text-placeholder': !location.time
+					}"
 				>
+					@if(location.time) {
 					{{ location.time | date : "shortTime" }}
+					} @else { No time given. }
 				</div>
 			</div>
 
@@ -68,13 +74,23 @@
 					<div
 						class="flex px-5 py-1 border-2 border-input-border rounded-sm"
 					>
-						{{ location.currencyName }}
+						{{
+							location.currencyName &&
+							location.currencyName.length > 0
+								? location.currencyName
+								: "Unknown"
+						}}
 					</div>
 
 					<div
 						class="flex w-full px-2 py-1 border-2 border-input-border rounded-sm"
+						[ngClass]="{
+							'text-placeholder': !location.cost
+						}"
 					>
+						@if(location.cost) {
 						{{ location.cost | number }}
+						} @else { No cost given. }
 					</div>
 				</div>
 			</div>

@@ -3,7 +3,7 @@
 		<div
 			class="flex shrink-0 w-10 h-10 rounded-full border border-black dark:border-white justify-center items-center"
 		>
-			<i class="bi bi-houses"></i>
+			<i class="bi {{ location().category.icon }}"></i>
 		</div>
 
 		@if(!readOnly() || !isLast()) {
@@ -20,7 +20,7 @@
 			@if(!simple()) {
 			<app-default-image
 				[src]="location().photoUrl"
-				class="w-48 h-28"
+				class="w-48 h-28 shrink-0"
 				extraClasses="w-full h-full"
 			></app-default-image>
 			}

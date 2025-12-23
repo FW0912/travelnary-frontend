@@ -41,14 +41,26 @@ export class UtilsService {
 			) {
 				const error = err.error;
 
-				if (error.errors && error.errors.length > 0) {
+				if (
+					error.errors &&
+					error.errors.length > 0 &&
+					error.errors[0]
+				) {
 					this.snackbarService.openSnackBar(
 						`${error.errors[0]}!`,
 						ESnackbarType.ERROR
 					);
+				} else if (
+					error.errors &&
+					Object.entries(error.errors).length > 0
+				) {
+					this.snackbarService.openSnackBar(
+						`${Object.entries(error.errors).at(0)![1]}!`,
+						ESnackbarType.ERROR
+					);
 				} else {
 					this.snackbarService.openSnackBar(
-						`${error.message}!`,
+						`Unknown error occured, please try again later!`,
 						ESnackbarType.ERROR
 					);
 				}

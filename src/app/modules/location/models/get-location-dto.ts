@@ -4,7 +4,7 @@ export interface GetLocationDto extends BaseLocationDto {
 	category: {
 		id: string;
 		name: string;
-		iconUrl: string;
+		icon: string;
 	};
 	time: string;
 	currencyName: string;

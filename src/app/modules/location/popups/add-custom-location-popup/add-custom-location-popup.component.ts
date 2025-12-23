@@ -27,6 +27,9 @@ import { ErrorMessageWrapperComponent } from "../../../../shared/components/erro
 import { LocationService } from "../../services/location.service";
 import { ImageService } from "../../../image/services/image.service";
 import { ModifyLocationDto } from "../../models/modify-location-dto";
+import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
+import { Observable, switchMap } from "rxjs";
+import { ApiResponse } from "../../../../core/models/api/api-response";
 
 @Component({
 	selector: "app-add-custom-location-popup",
@@ -41,6 +44,7 @@ import { ModifyLocationDto } from "../../models/modify-location-dto";
 		ReactiveFormsModule,
 		TimePickerComponent,
 		ErrorMessageWrapperComponent,
+		BorderButtonComponent,
 	],
 	templateUrl: "./add-custom-location-popup.component.html",
 	styleUrl: "./add-custom-location-popup.component.css",
@@ -49,6 +53,7 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 	private planId: string | null = null;
 	protected currencyName: string | null = null;
 	private day: number | null = null;
+	private lastSortOrder: number | null = null;
 	protected locationCategoryOptionList = signal<Array<IValueOption>>(
 		new Array()
 	);
@@ -61,6 +66,7 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 			planId: string;
 			currencyName: string;
 			day: number;
+			lastSortOrder: number;
 		},
 		private snackbarService: SnackbarService,
 		private imageService: ImageService,
@@ -102,9 +108,19 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 			return;
 		}
 
+		if (data.lastSortOrder === undefined) {
+			snackbarService.openSnackBar(
+				"Can't get last sort order!",
+				ESnackbarType.ERROR
+			);
+			ref.close();
+			return;
+		}
+
 		this.planId = data.planId;
 		this.currencyName = data.currencyName;
 		this.day = data.day;
+		this.lastSortOrder = data.lastSortOrder;
 
 		this.setFormGroup(
 			fb.group({
@@ -194,31 +210,68 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 		this.submit();
 
 		if (this.formGroup.valid) {
+			var observable: Observable<ApiResponse<any>>;
+
 			if (this.photoControl.value !== null) {
+				observable = this.imageService
+					.upload(this.photoControl.value!)
+					.pipe(
+						switchMap((x) => {
+							const body: ModifyLocationDto = {
+								id: "",
+								planId: this.planId!,
+								day: this.day!,
+								category: this.categoryControl.value!.value,
+								name: this.nameControl.value,
+								address: this.addressControl.value,
+								photoUrl: x.data.fileUrl,
+								notes: this.notesControl.value,
+								location: {
+									latitude: null,
+									longitude: null,
+								},
+								time:
+									this.timeControl.value?.toISOString() ??
+									null,
+								currencyName: this.currencyName!,
+								cost: this.costControl.value,
+								sortOrder: this.lastSortOrder! + 1,
+							};
+
+							return this.locationService.createLocation(body);
+						})
+					);
 			} else {
-				// const body: ModifyLocationDto = {
-				// 	id: "",
-				// 	planId: this.planId!,
-				// 	day: this.day!,
-				// 	category: {
-				// 		id: this.categoryControl.value!.id,
-				// 		name: this.categoryControl.value!.value,
-				// 		iconUrl: "",
-				// 	},
-				// 	name: this.nameControl.value,
-				// 	address: this.addressControl.value,
-				// 	photoUrl: null,
-				// 	notes: this.notesControl.value,
-				// 	location: {
-				// 		latitude: null,
-				// 		longitude: null,
-				// 	},
-				// 	time: this.timeControl.value?.toISOString() ?? null,
-				// 	currencyName: this.currencyName!,
-				// 	cost: this.costControl.value,
-				// };
-				// this.locationService.createLocation(body);
+				const body: ModifyLocationDto = {
+					id: "",
+					planId: this.planId!,
+					day: this.day!,
+					category: this.categoryControl.value!.value,
+					name: this.nameControl.value,
+					address: this.addressControl.value,
+					photoUrl: null,
+					notes: this.notesControl.value,
+					location: {
+						latitude: null,
+						longitude: null,
+					},
+					time: this.timeControl.value?.toISOString() ?? null,
+					currencyName: this.currencyName!,
+					cost: this.costControl.value,
+					sortOrder: this.lastSortOrder! + 1,
+				};
+				observable = this.locationService.createLocation(body);
 			}
+
+			observable.subscribe({
+				next: () => {
+					this.snackbarService.openSnackBar(
+						"Location added succesfully.",
+						ESnackbarType.INFO
+					);
+					this.ref.close(true);
+				},
+			});
 		}
 	}
 }

@@ -124,11 +124,13 @@ export class AddLocationPopupComponent {
 	protected openAddCustomLocationPopup(): void {
 		this.dialog.open(AddCustomLocationPopupComponent, {
 			minWidth: "35%",
+			maxWidth: "50vw",
 			maxHeight: "80%",
 			data: {
 				planId: this.planId,
 				currencyName: this.currencyName,
 				day: this.day,
+				lastSortOrder: this.lastSortOrder,
 			},
 		});
 		this.ref.close();
@@ -143,7 +145,16 @@ export class AddLocationPopupComponent {
 			name: location.name,
 			address: location.address.address_string,
 			photoUrl: location.photoUrl,
-			notes: location.notes,
+			notes: location.notes
+				? location.notes.length > 495
+					? location.notes
+							.slice(
+								0,
+								location.notes.slice(0, 495).lastIndexOf(" ")
+							)
+							.concat("...")
+					: location.notes
+				: "",
 			location: location.location,
 			time: null,
 			currencyName: this.currencyName!,
@@ -153,6 +164,10 @@ export class AddLocationPopupComponent {
 
 		this.locationService.createLocation(body).subscribe({
 			next: () => {
+				this.snackbarService.openSnackBar(
+					"Location added succesfully.",
+					ESnackbarType.INFO
+				);
 				this.ref.close(true);
 			},
 		});
