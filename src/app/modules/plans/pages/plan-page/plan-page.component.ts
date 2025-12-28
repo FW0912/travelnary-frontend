@@ -2,6 +2,7 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	DestroyRef,
+	effect,
 	signal,
 } from "@angular/core";
 import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
@@ -26,7 +27,7 @@ import { LocationService } from "../../../location/services/location.service";
 import { GetLocationByPlanDto } from "../../../location/models/get-location-by-plan-dto";
 import { GetLocationByIdDto } from "../../../location/models/get-location-by-id-dto";
 import { GetLocationDto } from "../../../location/models/get-location-dto";
-import { Observable, switchMap } from "rxjs";
+import { catchError, EMPTY, iif, map, Observable, of, switchMap } from "rxjs";
 import { PlanDetailsComponent } from "./components/plan-details/plan-details.component";
 import { UpdateLocationSortOrderDto } from "../../../location/models/update-location-sort-order-dto";
 import { GetCommentDto } from "../../../comment/models/get-comment-dto";
@@ -49,7 +50,7 @@ import { ApiResponse } from "../../../../core/models/api/api-response";
 })
 export class PlanPageComponent {
 	private planId = signal<string>("");
-	private shareToken = signal<string | null>(null);
+	protected shareToken = signal<string | null>(null);
 	protected plan = signal<GetPlanByIdDto | null>(null);
 	protected estimatedCost = signal<number>(0);
 	protected locationList = signal<Array<GetLocationByPlanDto>>(new Array());
@@ -88,17 +89,40 @@ export class PlanPageComponent {
 		this.fetchData();
 	}
 
-	private fetchData(): void {
-		var observable: Observable<ApiResponse<GetPlanByIdDto>> | null = null;
-
+	private getPlanObservable(): Observable<ApiResponse<GetPlanByIdDto>> {
 		if (this.shareToken() !== null) {
-			observable = this.planService.getPlanByToken(
-				this.planId(),
-				this.shareToken()!
-			);
+			return this.planService
+				.getPlanByToken(this.planId(), this.shareToken()!)
+				.pipe(
+					catchError(() => {
+						this.snackbarService.openSnackBar(
+							"Link is invalid, please request another link from the plan owner!",
+							ESnackbarType.INFO,
+							2000
+						);
+						this.router.navigateByUrl("/home");
+						return EMPTY;
+					}),
+					map((x) => {
+						if (
+							this.authService.isLoggedIn() &&
+							x.data.owner.id ===
+								this.authService.getRequiredUserData().userId
+						) {
+							x.data.isOwner = true;
+						}
+
+						return x;
+					})
+				);
 		} else {
-			observable = this.planService.getPlanById(this.planId());
+			return this.planService.getPlanById(this.planId());
 		}
+	}
+
+	private fetchData(): void {
+		var observable: Observable<ApiResponse<GetPlanByIdDto>> =
+			this.getPlanObservable();
 
 		observable
 			.pipe(
@@ -111,16 +135,19 @@ export class PlanPageComponent {
 				}),
 				switchMap((x) => {
 					const map: Map<number, GetLocationByPlanDto> = new Map();
+					var totalEstimatedCost: number = 0;
 
 					x.data.forEach((y) => {
 						map.set(y.day, y);
 
 						y.locations.forEach((z) => {
 							if (z.cost) {
-								this.estimatedCost.update((a) => a + z.cost);
+								totalEstimatedCost += z.cost;
 							}
 						});
 					});
+
+					this.estimatedCost.set(totalEstimatedCost);
 
 					const amountOfDays: number =
 						Math.ceil(
@@ -163,6 +190,7 @@ export class PlanPageComponent {
 			maxHeight: "80%",
 			data: {
 				plan: this.plan(),
+				editorToken: this.shareToken(),
 			},
 		});
 
@@ -214,35 +242,40 @@ export class PlanPageComponent {
 			minWidth: "35%",
 		});
 
-		ref.afterClosed().subscribe((x) => {
-			if (x) {
-				this.planService.deletePlan(this.planId()).subscribe({
-					next: () => {
-						this.snackbarService.openSnackBar(
-							"Plan deleted successfully.",
-							ESnackbarType.INFO
-						);
-						this.router.navigateByUrl("/your-plans");
-					},
-				});
-			}
-		});
+		ref.afterClosed()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe((x) => {
+				if (x) {
+					this.planService.deletePlan(this.planId()).subscribe({
+						next: () => {
+							this.snackbarService.openSnackBar(
+								"Plan deleted successfully.",
+								ESnackbarType.INFO
+							);
+							this.router.navigateByUrl("/your-plans");
+						},
+					});
+				}
+			});
 	}
 
-	protected onLocationAdd(): void {
+	protected onModifyLocation(): void {
 		this.locationService.getLocationByPlan(this.planId()).subscribe({
 			next: (x) => {
 				const map: Map<number, GetLocationByPlanDto> = new Map();
+				var totalEstimatedCost: number = 0;
 
 				x.data.forEach((y) => {
 					map.set(y.day, y);
 
 					y.locations.forEach((z) => {
 						if (z.cost) {
-							this.estimatedCost.update((a) => a + z.cost);
+							totalEstimatedCost += z.cost;
 						}
 					});
 				});
+
+				this.estimatedCost.set(totalEstimatedCost);
 
 				const amountOfDays: number =
 					Math.ceil(
@@ -270,7 +303,20 @@ export class PlanPageComponent {
 		});
 	}
 
-	protected onLocationSort(event: {
+	private getUpdateLocationSortOrderObservable(
+		body: UpdateLocationSortOrderDto
+	): Observable<ApiResponse<boolean>> {
+		if (this.shareToken() && this.plan()!.isEditor) {
+			return this.locationService.updateSharedLocationSortOrder(
+				body,
+				this.shareToken()!
+			);
+		} else {
+			return this.locationService.updateLocationSortOrder(body);
+		}
+	}
+
+	protected onSortLocation(event: {
 		day: number;
 		locationList: Array<GetLocationDto>;
 	}): void {
@@ -285,7 +331,10 @@ export class PlanPageComponent {
 			}),
 		};
 
-		this.locationService.updateLocationSortOrder(body).subscribe({
+		var observable: Observable<ApiResponse<boolean>> =
+			this.getUpdateLocationSortOrderObservable(body);
+
+		observable.subscribe({
 			next: (x) => {
 				if (x) {
 					this.locationList.update((x) =>
@@ -299,6 +348,11 @@ export class PlanPageComponent {
 
 							return y;
 						})
+					);
+
+					this.snackbarService.openSnackBar(
+						"Location orders changed successfully.",
+						ESnackbarType.INFO
 					);
 				}
 			},

@@ -10,7 +10,7 @@ export interface ModifyLocationDto {
 	address: string;
 	photoUrl: string | null;
 	notes: string;
-	location: Location;
+	location: Location | null;
 	time: string | null;
 	currencyName: string;
 	cost: number | null;

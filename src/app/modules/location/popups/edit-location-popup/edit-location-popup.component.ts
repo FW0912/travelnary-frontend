@@ -54,6 +54,7 @@ import { ImageService } from "../../../image/services/image.service";
 		ButtonComponent,
 		BorderButtonComponent,
 	],
+	providers: [DatePipe],
 	templateUrl: "./edit-location-popup.component.html",
 	styleUrl: "./edit-location-popup.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +63,7 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 	protected location: GetLocationDto | null = null;
 	private planId: string | null = null;
 	private day: number | null = null;
+	private editorToken: string | null = null;
 	protected locationCategoryOptionList = signal<Array<IValueOption>>(
 		new Array()
 	);
@@ -74,10 +76,12 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 			location: GetLocationDto;
 			planId: string;
 			day: number;
+			editorToken: string | null;
 		},
 		private snackbarService: SnackbarService,
 		private imageService: ImageService,
 		private locationService: LocationService,
+		private datePipe: DatePipe,
 		private fb: FormBuilder
 	) {
 		super();
@@ -106,9 +110,19 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 			return;
 		}
 
+		if (data.editorToken === undefined) {
+			snackbarService.openSnackBar(
+				"Can't get Editor token!",
+				ESnackbarType.ERROR
+			);
+			ref.close();
+			return;
+		}
+
 		this.location = data.location;
 		this.planId = data.planId;
 		this.day = data.day;
+		this.editorToken = data.editorToken;
 
 		if (this.location.photoUrl) {
 			this.photoUrl.set(this.location.photoUrl);
@@ -206,9 +220,21 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 		}
 	}
 
+	private getUpdateLocationObservable(
+		body: ModifyLocationDto
+	): Observable<ApiResponse<any>> {
+		if (this.editorToken) {
+			return this.locationService.updateSharedLocation(
+				body,
+				this.editorToken
+			);
+		} else {
+			return this.locationService.updateLocation(body);
+		}
+	}
+
 	protected editLocation(): void {
 		this.submit();
-		console.log(this.formGroup);
 
 		if (this.formGroup.valid) {
 			var observable: Observable<ApiResponse<any>>;
@@ -229,14 +255,17 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 								notes: this.notesControl.value,
 								location: this.location!.location,
 								time: this.timeControl.value
-									? this.timeControl.value.toISOString()
+									? this.datePipe.transform(
+											this.timeControl.value,
+											"HH:mm"
+									  )
 									: null,
 								currencyName: this.location!.currencyName,
 								cost: this.costControl.value,
 								sortOrder: this.location!.sortOrder,
 							};
 
-							return this.locationService.updateLocation(body);
+							return this.getUpdateLocationObservable(body);
 						})
 					);
 			} else {
@@ -251,14 +280,17 @@ export class EditLocationPopupComponent extends BaseFormComponent {
 					notes: this.notesControl.value,
 					location: this.location!.location,
 					time: this.timeControl.value
-						? this.timeControl.value.toISOString()
+						? this.datePipe.transform(
+								this.timeControl.value,
+								"HH:mm"
+						  )
 						: null,
 					currencyName: this.location!.currencyName,
 					cost: this.costControl.value,
 					sortOrder: this.location!.sortOrder,
 				};
 
-				observable = this.locationService.updateLocation(body);
+				observable = this.getUpdateLocationObservable(body);
 			}
 
 			observable.subscribe({

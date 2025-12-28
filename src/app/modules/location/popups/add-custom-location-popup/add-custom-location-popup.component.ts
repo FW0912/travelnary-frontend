@@ -30,6 +30,7 @@ import { ModifyLocationDto } from "../../models/modify-location-dto";
 import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
 import { Observable, switchMap } from "rxjs";
 import { ApiResponse } from "../../../../core/models/api/api-response";
+import { DatePipe } from "@angular/common";
 
 @Component({
 	selector: "app-add-custom-location-popup",
@@ -46,6 +47,7 @@ import { ApiResponse } from "../../../../core/models/api/api-response";
 		ErrorMessageWrapperComponent,
 		BorderButtonComponent,
 	],
+	providers: [DatePipe],
 	templateUrl: "./add-custom-location-popup.component.html",
 	styleUrl: "./add-custom-location-popup.component.css",
 })
@@ -54,6 +56,7 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 	protected currencyName: string | null = null;
 	private day: number | null = null;
 	private lastSortOrder: number | null = null;
+	private editorToken: string | null = null;
 	protected locationCategoryOptionList = signal<Array<IValueOption>>(
 		new Array()
 	);
@@ -67,10 +70,12 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 			currencyName: string;
 			day: number;
 			lastSortOrder: number;
+			editorToken: string | null;
 		},
 		private snackbarService: SnackbarService,
 		private imageService: ImageService,
 		private locationService: LocationService,
+		private datePipe: DatePipe,
 		private fb: FormBuilder
 	) {
 		super();
@@ -117,10 +122,20 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 			return;
 		}
 
+		if (data.editorToken === undefined) {
+			snackbarService.openSnackBar(
+				"Can't get Editor token!",
+				ESnackbarType.ERROR
+			);
+			ref.close();
+			return;
+		}
+
 		this.planId = data.planId;
 		this.currencyName = data.currencyName;
 		this.day = data.day;
 		this.lastSortOrder = data.lastSortOrder;
+		this.editorToken = data.editorToken;
 
 		this.setFormGroup(
 			fb.group({
@@ -206,6 +221,19 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 		}
 	}
 
+	private getAddCustomLocationObservable(
+		body: ModifyLocationDto
+	): Observable<ApiResponse<any>> {
+		if (this.editorToken) {
+			return this.locationService.createSharedLocation(
+				body,
+				this.editorToken
+			);
+		} else {
+			return this.locationService.createLocation(body);
+		}
+	}
+
 	protected addCustomLocation(): void {
 		this.submit();
 
@@ -218,7 +246,7 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 					.pipe(
 						switchMap((x) => {
 							const body: ModifyLocationDto = {
-								id: "",
+								id: null,
 								planId: this.planId!,
 								day: this.day!,
 								category: this.categoryControl.value!.value,
@@ -226,24 +254,24 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 								address: this.addressControl.value,
 								photoUrl: x.data.fileUrl,
 								notes: this.notesControl.value,
-								location: {
-									latitude: null,
-									longitude: null,
-								},
-								time:
-									this.timeControl.value?.toISOString() ??
-									null,
+								location: null,
+								time: this.timeControl.value
+									? this.datePipe.transform(
+											this.timeControl.value,
+											"HH:mm"
+									  )
+									: null,
 								currencyName: this.currencyName!,
 								cost: this.costControl.value,
 								sortOrder: this.lastSortOrder! + 1,
 							};
 
-							return this.locationService.createLocation(body);
+							return this.getAddCustomLocationObservable(body);
 						})
 					);
 			} else {
 				const body: ModifyLocationDto = {
-					id: "",
+					id: null,
 					planId: this.planId!,
 					day: this.day!,
 					category: this.categoryControl.value!.value,
@@ -251,16 +279,19 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 					address: this.addressControl.value,
 					photoUrl: null,
 					notes: this.notesControl.value,
-					location: {
-						latitude: null,
-						longitude: null,
-					},
-					time: this.timeControl.value?.toISOString() ?? null,
+					location: null,
+					time: this.timeControl.value
+						? this.datePipe.transform(
+								this.timeControl.value,
+								"HH:mm"
+						  )
+						: null,
 					currencyName: this.currencyName!,
 					cost: this.costControl.value,
 					sortOrder: this.lastSortOrder! + 1,
 				};
-				observable = this.locationService.createLocation(body);
+
+				observable = this.getAddCustomLocationObservable(body);
 			}
 
 			observable.subscribe({

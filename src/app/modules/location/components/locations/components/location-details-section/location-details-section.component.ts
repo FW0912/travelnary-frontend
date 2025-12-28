@@ -1,6 +1,8 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
+	DestroyRef,
+	effect,
 	ElementRef,
 	input,
 	output,
@@ -43,8 +45,11 @@ export class LocationDetailsSectionComponent {
 	public readOnly = input.required<boolean>();
 	public simple = input<boolean>(false);
 	public isLast = input<boolean>(false);
+	public editorToken = input<string | null>(null);
+
 	protected isDropdownOpen = signal<boolean>(false);
 
+	public onEdit = output<void>();
 	public onDelete = output<{
 		day: number;
 		id: string;
@@ -53,6 +58,7 @@ export class LocationDetailsSectionComponent {
 	constructor(
 		private eventService: EventService,
 		private dialog: MatDialog,
+		private destroyRef: DestroyRef,
 		private locationService: LocationService,
 		private snackbarService: SnackbarService
 	) {
@@ -89,7 +95,7 @@ export class LocationDetailsSectionComponent {
 
 	protected openEditDetailsPopup(): void {
 		this.isDropdownOpen.set(false);
-		this.dialog.open(EditLocationPopupComponent, {
+		const dialogRef = this.dialog.open(EditLocationPopupComponent, {
 			minWidth: "35%",
 			maxWidth: "50vw",
 			maxHeight: "80%",
@@ -97,8 +103,18 @@ export class LocationDetailsSectionComponent {
 				location: this.location(),
 				planId: this.planId(),
 				day: this.day(),
+				editorToken: this.editorToken(),
 			},
 		});
+
+		dialogRef
+			.afterClosed()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe((x) => {
+				if (x) {
+					this.onEdit.emit();
+				}
+			});
 	}
 
 	protected openRemovePopup(): void {

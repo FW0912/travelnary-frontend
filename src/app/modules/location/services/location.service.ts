@@ -187,6 +187,19 @@ export class LocationService {
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
+	public createSharedLocation(
+		dto: ModifyLocationDto,
+		token: string
+	): Observable<ApiResponse<any>> {
+		return this.http
+			.post<ApiResponse<any>>(`${this.baseApiUrl}/shared/save`, dto, {
+				params: {
+					shareToken: token,
+				},
+			})
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
 	public updateLocation(
 		dto: ModifyLocationDto
 	): Observable<ApiResponse<any>> {
@@ -195,11 +208,41 @@ export class LocationService {
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
+	public updateSharedLocation(
+		dto: ModifyLocationDto,
+		token: string
+	): Observable<ApiResponse<any>> {
+		return this.http
+			.post<ApiResponse<any>>(`${this.baseApiUrl}/shared/save`, dto, {
+				params: {
+					shareToken: token,
+				},
+			})
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
 	public updateLocationSortOrder(
 		dto: UpdateLocationSortOrderDto
 	): Observable<ApiResponse<boolean>> {
 		return this.http
 			.put<ApiResponse<boolean>>(`${this.baseApiUrl}/sortOrder`, dto)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
+	public updateSharedLocationSortOrder(
+		dto: UpdateLocationSortOrderDto,
+		token: string
+	): Observable<ApiResponse<boolean>> {
+		return this.http
+			.put<ApiResponse<boolean>>(
+				`${this.baseApiUrl}/shared/sortOrder`,
+				dto,
+				{
+					params: {
+						shareToken: token,
+					},
+				}
+			)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 

@@ -22,10 +22,12 @@ import { LocationService } from "../../services/location.service";
 import { SearchLocationDto } from "../../models/search-location-dto";
 import { TitleCasePipe } from "@angular/common";
 import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
-import { Observable } from "rxjs";
+import { catchError, EMPTY, map, Observable } from "rxjs";
 import { ApiResponse } from "../../../../core/models/api/api-response";
 import { SearchLocationQuery } from "../../models/search-location-query";
 import { ModifyLocationDto } from "../../models/modify-location-dto";
+import { GetPlanByIdDto } from "../../../plans/models/get-plan-by-id-dto";
+import { AuthService } from "../../../../core/services/auth/auth.service";
 
 @Component({
 	selector: "app-location-recommendation-page",
@@ -47,6 +49,7 @@ export class LocationRecommendationPageComponent {
 	protected day: number | null = null;
 	private currencyName: string | null = null;
 	private lastSortOrder: number | null = null;
+	private editorToken = signal<string | null>(null);
 	protected locationList = signal<Array<GetLocationDto>>(new Array());
 	protected recommendedLocationList = signal<Array<SearchLocationDto>>(
 		new Array()
@@ -60,6 +63,7 @@ export class LocationRecommendationPageComponent {
 		private router: Router,
 		private snackbarService: SnackbarService,
 		private planService: PlanService,
+		private authService: AuthService,
 		private locationService: LocationService,
 		private dialog: MatDialog,
 		private destroyRef: DestroyRef
@@ -87,10 +91,45 @@ export class LocationRecommendationPageComponent {
 				this.day = Number.parseInt(x.get("day")!);
 			}
 		});
+
+		route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((x) => {
+			this.editorToken.set(x.get("share"));
+		});
+	}
+
+	private getPlanObservable(): Observable<ApiResponse<GetPlanByIdDto>> {
+		if (this.editorToken() !== null) {
+			return this.planService
+				.getPlanByToken(this.planId!, this.editorToken()!)
+				.pipe(
+					catchError(() => {
+						this.snackbarService.openSnackBar(
+							"Link is invalid, please request another link from the plan owner!",
+							ESnackbarType.INFO,
+							2000
+						);
+						this.router.navigateByUrl("/home");
+						return EMPTY;
+					}),
+					map((x) => {
+						if (
+							this.authService.isLoggedIn() &&
+							x.data.owner.id ===
+								this.authService.getRequiredUserData().userId
+						) {
+							x.data.isOwner = true;
+						}
+
+						return x;
+					})
+				);
+		} else {
+			return this.planService.getPlanById(this.planId!);
+		}
 	}
 
 	ngOnInit(): void {
-		this.planService.getPlanById(this.planId!).subscribe({
+		this.getPlanObservable().subscribe({
 			next: (x) => {
 				this.destination = x.data.destination;
 			},
@@ -121,7 +160,6 @@ export class LocationRecommendationPageComponent {
 					);
 
 					this.locationList().forEach((x) => {
-						console.log(x.location);
 						if (
 							this.lastSortOrder === null ||
 							x.sortOrder > this.lastSortOrder
@@ -139,7 +177,13 @@ export class LocationRecommendationPageComponent {
 	}
 
 	protected navigateBack(): void {
-		this.router.navigateByUrl(`/view-plan/${this.planId}`);
+		if (this.editorToken()) {
+			this.router.navigateByUrl(
+				`/view-plan/${this.planId}?share=${this.editorToken()}`
+			);
+		} else {
+			this.router.navigateByUrl(`/view-plan/${this.planId}`);
+		}
 	}
 
 	protected openFilterRecommendationsPopup(): void {
@@ -232,11 +276,12 @@ export class LocationRecommendationPageComponent {
 					location.location.latitude +
 					"," +
 					location.location.longitude,
+				Category:
+					this.locationCategoryFilter()?.value ??
+					this.locationCategoryOptionList!.at(0)!.value,
+				Radius: 10,
+				RadiusUnit: "km",
 			};
-
-			if (this.locationCategoryFilter() !== null) {
-				body.Category = this.locationCategoryFilter()!.value;
-			}
 
 			observable = this.locationService.searchNearbyLocation(body);
 		} else {
@@ -256,7 +301,6 @@ export class LocationRecommendationPageComponent {
 	}
 
 	protected onAdd(location: SearchLocationDto): void {
-		console.log(location);
 		const body: ModifyLocationDto = {
 			id: null,
 			planId: this.planId!,
@@ -282,7 +326,18 @@ export class LocationRecommendationPageComponent {
 			sortOrder: this.lastSortOrder! + 1,
 		};
 
-		this.locationService.createLocation(body).subscribe({
+		var observable: Observable<ApiResponse<any>>;
+
+		if (this.editorToken()) {
+			observable = this.locationService.createSharedLocation(
+				body,
+				this.editorToken()!
+			);
+		} else {
+			observable = this.locationService.createLocation(body);
+		}
+
+		observable.subscribe({
 			next: () => {
 				this.recommendedLocationList.update((x) =>
 					x.filter((y) => y.name !== location.name)

@@ -31,6 +31,7 @@ import { SnackbarService } from "../../../../../../core/services/snackbar/snackb
 import { ESnackbarType } from "../../../../../../core/models/utils/others/snackbar-type.enum";
 import { AuthService } from "../../../../../../core/services/auth/auth.service";
 import { CommentConstants } from "../../../../comment-constants";
+import { Router } from "@angular/router";
 
 @Component({
 	selector: "app-comment-details",
@@ -68,6 +69,7 @@ export class CommentDetailsComponent extends BaseFormComponent {
 		private dialog: MatDialog,
 		private commentService: CommentService,
 		private snackbarService: SnackbarService,
+		private router: Router,
 		protected authService: AuthService
 	) {
 		super();
@@ -107,6 +109,12 @@ export class CommentDetailsComponent extends BaseFormComponent {
 			this.userProfilePicture.set(
 				this.authService.getRequiredUserData().profileUrl
 			);
+		}
+	}
+
+	protected navigateToOwnerProfile(): void {
+		if (this.comment()) {
+			this.router.navigateByUrl(`/profile/${this.comment()!.owner.id}`);
 		}
 	}
 

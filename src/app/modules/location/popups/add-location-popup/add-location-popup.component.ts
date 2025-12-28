@@ -1,4 +1,4 @@
-import { Component, Inject, signal } from "@angular/core";
+import { Component, DestroyRef, Inject, signal } from "@angular/core";
 import {
 	MAT_DIALOG_DATA,
 	MatDialog,
@@ -20,8 +20,10 @@ import { SearchLocationQuery } from "../../models/search-location-query";
 import { SearchLocationDto } from "../../models/search-location-dto";
 import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
 import { TitleCasePipe } from "@angular/common";
-import { catchError, EMPTY, switchMap } from "rxjs";
+import { catchError, EMPTY, Observable, switchMap } from "rxjs";
 import { ModifyLocationDto } from "../../models/modify-location-dto";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ApiResponse } from "../../../../core/models/api/api-response";
 
 @Component({
 	selector: "app-add-location-popup",
@@ -45,6 +47,7 @@ export class AddLocationPopupComponent {
 	private day: number | null = null;
 	private lastSortOrder: number | null = null;
 	private currencyName: string | null = null;
+	private editorToken: string | null = null;
 	protected nameFilter = new FormControl<string>("");
 
 	constructor(
@@ -56,10 +59,12 @@ export class AddLocationPopupComponent {
 			day: number;
 			lastSortOrder: number;
 			currencyName: string;
+			editorToken: string | null;
 		},
 		private dialog: MatDialog,
 		private snackbarService: SnackbarService,
 		private locationService: LocationService,
+		private destroyRef: DestroyRef,
 		private router: Router
 	) {
 		if (!data) {
@@ -107,22 +112,39 @@ export class AddLocationPopupComponent {
 			return;
 		}
 
+		if (data.editorToken === undefined) {
+			snackbarService.openSnackBar(
+				"Can't get Editor token!",
+				ESnackbarType.ERROR
+			);
+			ref.close();
+			return;
+		}
+
 		this.planId = data.planId;
 		this.destination = data.destination;
 		this.day = data.day;
 		this.lastSortOrder = data.lastSortOrder;
 		this.currencyName = data.currencyName;
+		this.editorToken = data.editorToken;
 	}
 
 	protected navigateToLocationRecommendationsPage(): void {
 		this.ref.close();
-		this.router.navigateByUrl(
-			`/location-recommendation/${this.planId}/${this.day}`
-		);
+
+		if (this.editorToken) {
+			this.router.navigateByUrl(
+				`/location-recommendation/${this.planId}/${this.day}?share=${this.editorToken}`
+			);
+		} else {
+			this.router.navigateByUrl(
+				`/location-recommendation/${this.planId}/${this.day}`
+			);
+		}
 	}
 
 	protected openAddCustomLocationPopup(): void {
-		this.dialog.open(AddCustomLocationPopupComponent, {
+		const dialogRef = this.dialog.open(AddCustomLocationPopupComponent, {
 			minWidth: "35%",
 			maxWidth: "50vw",
 			maxHeight: "80%",
@@ -131,9 +153,19 @@ export class AddLocationPopupComponent {
 				currencyName: this.currencyName,
 				day: this.day,
 				lastSortOrder: this.lastSortOrder,
+				editorToken: this.editorToken,
 			},
 		});
-		this.ref.close();
+		dialogRef
+			.afterClosed()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe((x) => {
+				if (x) {
+					this.ref.close(true);
+				} else {
+					this.ref.close();
+				}
+			});
 	}
 
 	protected onAdd(location: SearchLocationDto): void {
@@ -162,7 +194,18 @@ export class AddLocationPopupComponent {
 			sortOrder: this.lastSortOrder! + 1,
 		};
 
-		this.locationService.createLocation(body).subscribe({
+		var observable: Observable<ApiResponse<any>>;
+
+		if (this.editorToken) {
+			observable = this.locationService.createSharedLocation(
+				body,
+				this.editorToken
+			);
+		} else {
+			observable = this.locationService.createLocation(body);
+		}
+
+		observable.subscribe({
 			next: () => {
 				this.snackbarService.openSnackBar(
 					"Location added succesfully.",

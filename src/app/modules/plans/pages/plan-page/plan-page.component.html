@@ -70,14 +70,16 @@
 				[currencyName]="plan()!.currency.id"
 				[locationList]="location.locations"
 				[readOnly]="!plan()!.isOwner && !plan()!.isEditor"
-				(onAdd)="onLocationAdd()"
-				(onSort)="onLocationSort($event)"
+				[editorToken]="shareToken()"
+				(onAdd)="onModifyLocation()"
+				(onEdit)="onModifyLocation()"
+				(onSort)="onSortLocation($event)"
 				(onDelete)="onDeleteLocation($event)"
 			></app-locations>
 			}
 		</div>
 
-		<div class="w-1/3 self-stretch rounded-md bg-placeholder"></div>
+		<div class="w-1/3 self-stretch rounded-md"></div>
 	</div>
 
 	@if(comments()) {

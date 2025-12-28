@@ -220,6 +220,24 @@ export class PlanService {
 			.pipe(this.utilsService.generalErrorCatch());
 	}
 
+	public updateSharedPlan(
+		id: string,
+		dto: ModifyPlanDto,
+		token: string
+	): Observable<ApiResponse<GetPlanByIdDto>> {
+		return this.http
+			.put<ApiResponse<GetPlanByIdDto>>(
+				`${this.baseApiUrl}/${id}/shared/update`,
+				dto,
+				{
+					params: {
+						Token: token,
+					},
+				}
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+
 	public deletePlan(id: string): Observable<ApiResponse<boolean>> {
 		return this.http
 			.delete<ApiResponse<boolean>>(`${this.baseApiUrl}/${id}`)

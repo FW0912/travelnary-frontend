@@ -3,6 +3,7 @@
 		>Comments ({{ comments().totalComments }})</span
 	>
 
+	@if(authService.isLoggedIn()) {
 	<div class="flex gap-3" [formGroup]="formGroup">
 		<app-user-image
 			[src]="planOwnerProfilePicture()"
@@ -33,9 +34,12 @@
 			</button>
 		</div>
 	</div>
-
-	@if(!viewedComment()) { @for(comment of comments().comments; let i = $index;
-	track comment.id) {
+	} @if(comments().totalComments === 0) {
+	<div class="flex w-full h-20 items-center justify-center">
+		<span>No comments found.</span>
+	</div>
+	} @else { @if(!viewedComment()) { @for(comment of comments().comments; let i
+	= $index; track comment.id) {
 	<app-comment-details
 		[planId]="planId()"
 		[(comment)]="comments().comments[i]"
@@ -61,5 +65,5 @@
 		[isBeingViewed]="true"
 		(viewReplies)="viewCommentReplies($event)"
 	></app-comment-details>
-	}
+	} }
 </div>

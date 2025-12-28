@@ -32,6 +32,8 @@
 			[readOnly]="readOnly()"
 			[simple]="simple()"
 			[isLast]="isLast"
+			[editorToken]="editorToken()"
+			(onEdit)="onEditLocation()"
 			(onDelete)="onDeleteLocation($event)"
 		></app-location-details-section>
 		} } @if(!readOnly()) {

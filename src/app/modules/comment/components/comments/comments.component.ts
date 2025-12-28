@@ -23,6 +23,7 @@ import { GetCommentDto } from "../../models/get-comment-dto";
 import { CommentAction } from "../../enums/comment-action";
 import { UserImageComponent } from "../../../../shared/components/images/user-image/user-image.component";
 import { GetCommentByPlanDto } from "../../models/get-comment-by-plan-dto";
+import { AuthService } from "../../../../core/services/auth/auth.service";
 
 @Component({
 	selector: "app-comments",
@@ -49,7 +50,8 @@ export class CommentsComponent extends BaseFormComponent {
 
 	constructor(
 		private fb: FormBuilder,
-		private commentService: CommentService
+		private commentService: CommentService,
+		protected authService: AuthService
 	) {
 		super();
 

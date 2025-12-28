@@ -11,6 +11,7 @@ import { UserImageComponent } from "../../../../../../shared/components/images/u
 import { DefaultImageComponent } from "../../../../../../shared/components/images/default-image/default-image.component";
 import { GetPlanByIdDto } from "../../../../models/get-plan-by-id-dto";
 import { Router } from "@angular/router";
+import { AuthService } from "../../../../../../core/services/auth/auth.service";
 
 @Component({
 	selector: "app-plan-details",
@@ -30,7 +31,7 @@ export class PlanDetailsComponent {
 	public estimatedCost = input.required<number>();
 	public pinToggled = output<void>();
 
-	constructor(private router: Router) {}
+	constructor(private router: Router, protected authService: AuthService) {}
 
 	protected navigateToOwnerProfile(): void {
 		if (this.plan()) {

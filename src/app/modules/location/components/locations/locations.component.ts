@@ -47,11 +47,13 @@ export class LocationsComponent {
 	public locationList = input.required<Array<GetLocationDto>>();
 	public readOnly = input.required<boolean>();
 	public simple = input<boolean>(false);
+	public editorToken = input<string | null>(null);
 	public isSorting = signal<boolean>(false);
 
 	public sortedLocationList = signal<Array<GetLocationDto>>(new Array());
 
 	public onAdd = output<void>();
+	public onEdit = output<void>();
 	public onSort = output<{
 		day: number;
 		locationList: Array<GetLocationDto>;
@@ -83,6 +85,9 @@ export class LocationsComponent {
 	protected onCardDrop(event: CdkDragDrop<Array<Location>>): void {
 		const clone = [...this.sortedLocationList()];
 		moveItemInArray(clone, event.previousIndex, event.currentIndex);
+		clone.forEach((x, i) => {
+			x.sortOrder = i + 1;
+		});
 		this.sortedLocationList.set(clone);
 	}
 
@@ -100,6 +105,7 @@ export class LocationsComponent {
 						  ).sortOrder
 						: 0,
 				currencyName: this.currencyName(),
+				editorToken: this.editorToken(),
 			},
 		});
 
@@ -113,6 +119,10 @@ export class LocationsComponent {
 					}
 				},
 			});
+	}
+
+	protected onEditLocation(): void {
+		this.onEdit.emit();
 	}
 
 	protected onDeleteLocation(event: { day: number; id: string }): void {

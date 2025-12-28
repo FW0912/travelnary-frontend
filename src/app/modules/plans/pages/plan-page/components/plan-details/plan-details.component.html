@@ -6,6 +6,7 @@
 					plan().name
 				}}</span>
 
+				@if(authService.isLoggedIn()) {
 				<i
 					class="bi text-2xl cursor-pointer hover:text-hover transition-colors"
 					[ngClass]="
@@ -13,6 +14,7 @@
 					"
 					(click)="togglePin()"
 				></i>
+				}
 			</div>
 
 			<span class="text-sm text-placeholder"

@@ -3,8 +3,10 @@
 	<div class="flex gap-2">
 		<div class="flex flex-col items-center">
 			<app-user-image
+				class="cursor-pointer"
 				[src]="comment()!.owner.photoUrl"
 				extraClasses="w-10 h-10 text-4xl"
+				(click)="navigateToOwnerProfile()"
 			></app-user-image>
 
 			@if(isRepliesShown() || isBeingViewed() || isReplyOpen()) {
@@ -14,7 +16,9 @@
 
 		<div class="flex flex-col gap-2 w-full">
 			<div class="flex flex-col">
-				<span class="font-medium text-sm"
+				<span
+					class="font-medium text-sm hover:text-hover transition-colors cursor-pointer"
+					(click)="navigateToOwnerProfile()"
 					>{{ comment()!.owner.username
 					}}<span class="text-primary">{{
 						comment()!.isOwner ? " (owner)" : ""

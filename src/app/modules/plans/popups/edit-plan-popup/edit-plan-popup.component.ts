@@ -39,9 +39,10 @@ import { CurrencyService } from "../../../currency/services/currency.service";
 import { GetPlanByIdDto } from "../../models/get-plan-by-id-dto";
 import { ImageService } from "../../../image/services/image.service";
 import { PlanService } from "../../services/plan.service";
-import { switchMap } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 import { ModifyPlanDto } from "../../models/modify-plan-dto";
 import { Router } from "@angular/router";
+import { ApiResponse } from "../../../../core/models/api/api-response";
 
 @Component({
 	selector: "app-edit-plan-popup",
@@ -65,6 +66,7 @@ import { Router } from "@angular/router";
 })
 export class EditPlanPopupComponent extends BaseFormComponent {
 	protected plan: GetPlanByIdDto | null = null;
+	protected editorToken: string | null = null;
 	protected uploadError = signal<boolean>(false);
 	protected uploadButtonClasses = computed(() => {
 		const base: string = "w-full";
@@ -90,6 +92,7 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		@Inject(MAT_DIALOG_DATA)
 		private data: {
 			plan: GetPlanByIdDto;
+			editorToken: string | null;
 		},
 		private currencyService: CurrencyService,
 		private imageService: ImageService,
@@ -109,7 +112,18 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 			return;
 		}
 
+		if (data.editorToken === undefined) {
+			snackbarService.openSnackBar(
+				"Can't get Editor token!",
+				ESnackbarType.ERROR
+			);
+			ref.close();
+			return;
+		}
+
 		this.plan = data.plan;
+		this.editorToken = data.editorToken;
+
 		const initialCurrencyType: IValueOption = {
 			id: this.plan.currency.id,
 			value: this.plan.currency.id,
@@ -218,12 +232,28 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		}
 	}
 
+	private getUpdatePlanObservable(
+		body: ModifyPlanDto
+	): Observable<ApiResponse<any>> {
+		if (this.editorToken) {
+			return this.planService.updateSharedPlan(
+				this.plan!.id,
+				body,
+				this.editorToken
+			);
+		} else {
+			return this.planService.updatePlan(this.plan!.id, body);
+		}
+	}
+
 	protected updatePlan(): void {
 		this.submit();
 
 		if (this.formGroup.valid) {
+			var observable: Observable<ApiResponse<any>>;
+
 			if (this.photoControl.value !== null) {
-				this.imageService
+				observable = this.imageService
 					.upload(this.photoControl.value)
 					.pipe(
 						switchMap((x) => {
@@ -240,21 +270,9 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 								isPrivate: !this.isPublicControl.value,
 							};
 
-							return this.planService.updatePlan(
-								this.plan!.id,
-								body
-							);
+							return this.getUpdatePlanObservable(body);
 						})
-					)
-					.subscribe({
-						next: (x) => {
-							this.ref.close(true);
-							this.snackbarService.openSnackBar(
-								"Plan updated successfully.",
-								ESnackbarType.INFO
-							);
-						},
-					});
+					);
 			} else {
 				const body: ModifyPlanDto = {
 					name: this.planNameControl.value,
@@ -268,16 +286,18 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 					isPrivate: !this.isPublicControl.value,
 				};
 
-				this.planService.updatePlan(this.plan!.id, body).subscribe({
-					next: (x) => {
-						this.ref.close(true);
-						this.snackbarService.openSnackBar(
-							"Plan updated successfully.",
-							ESnackbarType.INFO
-						);
-					},
-				});
+				observable = this.getUpdatePlanObservable(body);
 			}
+
+			observable.subscribe({
+				next: (x) => {
+					this.ref.close(true);
+					this.snackbarService.openSnackBar(
+						"Plan updated successfully.",
+						ESnackbarType.INFO
+					);
+				},
+			});
 		}
 	}
 }
