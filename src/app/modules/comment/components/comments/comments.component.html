@@ -47,6 +47,7 @@
 		[isViewingReplies]="false"
 		[isBeingViewed]="false"
 		(viewReplies)="viewCommentReplies($event)"
+		(delete)="deleteComment($event)"
 	></app-comment-details>
 	} } @else {
 	<button
@@ -64,6 +65,7 @@
 		[isViewingReplies]="true"
 		[isBeingViewed]="true"
 		(viewReplies)="viewCommentReplies($event)"
+		(delete)="deleteViewedComment($event)"
 	></app-comment-details>
 	} }
 </div>

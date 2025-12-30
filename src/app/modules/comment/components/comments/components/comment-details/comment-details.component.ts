@@ -145,34 +145,49 @@ export class CommentDetailsComponent extends BaseFormComponent {
 
 		ref.afterClosed().subscribe((x) => {
 			if (x) {
-				this.delete.emit(this.comment()!.id);
+				if (
+					this.comment()!.replies &&
+					this.comment()!.replies!.length > 0
+				) {
+					this.snackbarService.openSnackBar(
+						"This comment cannot be deleted as it already has replies.",
+						ESnackbarType.ERROR
+					);
+					return;
+				}
+				this.commentService
+					.deleteComment(this.comment()!.id)
+					.subscribe({
+						next: () => {
+							this.delete.emit(this.comment()!.id);
+						},
+					});
 			}
 		});
 	}
 
 	protected deleteReply(replyId: string): void {
 		if (this.comment()!.replies) {
-			this.commentService.deleteComment(replyId).subscribe({
-				next: () => {
-					this.comment.update((x) => {
-						if (x) {
-							return {
-								...x,
-								replies: x.replies!.filter(
-									(y) => y.id !== replyId
-								),
-								totalReplies: x.totalReplies - 1,
-							};
-						}
+			this.comment.update((x) => {
+				if (x) {
+					return {
+						...x,
+						replies: x.replies!.filter((y) => y.id !== replyId),
+						totalReplies: x.totalReplies - 1,
+					};
+				}
 
-						return x;
-					});
-
-					if (this.comment()!.replies!.length === 0) {
-						this.closeReplies();
-					}
-				},
+				return x;
 			});
+
+			if (this.comment()!.replies!.length === 0) {
+				this.closeReplies();
+			}
+
+			this.snackbarService.openSnackBar(
+				"Comment successfully deleted.",
+				ESnackbarType.INFO
+			);
 		}
 	}
 
@@ -202,6 +217,11 @@ export class CommentDetailsComponent extends BaseFormComponent {
 				});
 				this.contentControl.patchValue(body.content);
 				this.isEditOpen.set(false);
+
+				this.snackbarService.openSnackBar(
+					"Comment successfully edited.",
+					ESnackbarType.INFO
+				);
 			},
 		});
 	}
@@ -244,6 +264,11 @@ export class CommentDetailsComponent extends BaseFormComponent {
 				});
 				this.replyControl.patchValue("");
 				this.isReplyOpen.set(false);
+
+				this.snackbarService.openSnackBar(
+					"Comment replied successfully.",
+					ESnackbarType.INFO
+				);
 			},
 		});
 	}
