@@ -43,6 +43,7 @@ import { Observable, switchMap } from "rxjs";
 import { ModifyPlanDto } from "../../models/modify-plan-dto";
 import { Router } from "@angular/router";
 import { ApiResponse } from "../../../../core/models/api/api-response";
+import { UploadImageDto } from "../../../image/models/upload-image-dto";
 
 @Component({
 	selector: "app-edit-plan-popup",
@@ -246,6 +247,20 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 		}
 	}
 
+	private getUploadImageObservable(): Observable<
+		ApiResponse<UploadImageDto>
+	> {
+		if (this.editorToken) {
+			return this.imageService.uploadShared(
+				this.plan!.id,
+				this.photoControl.value!,
+				this.editorToken
+			);
+		} else {
+			return this.imageService.upload(this.photoControl.value!);
+		}
+	}
+
 	protected updatePlan(): void {
 		this.submit();
 
@@ -253,26 +268,24 @@ export class EditPlanPopupComponent extends BaseFormComponent {
 			var observable: Observable<ApiResponse<any>>;
 
 			if (this.photoControl.value !== null) {
-				observable = this.imageService
-					.upload(this.photoControl.value)
-					.pipe(
-						switchMap((x) => {
-							const body: ModifyPlanDto = {
-								name: this.planNameControl.value,
-								description: this.planDescriptionControl.value,
-								destination: this.destinationControl.value,
-								photoUrl: x.data.fileUrl,
-								dateStart:
-									this.dateRangeControl.value!.start!.toISOString(),
-								dateEnd:
-									this.dateRangeControl.value!.end!.toISOString(),
-								currencyId: this.currencyTypeControl.value!.id,
-								isPrivate: !this.isPublicControl.value,
-							};
+				observable = this.getUploadImageObservable().pipe(
+					switchMap((x) => {
+						const body: ModifyPlanDto = {
+							name: this.planNameControl.value,
+							description: this.planDescriptionControl.value,
+							destination: this.destinationControl.value,
+							photoUrl: x.data.fileUrl,
+							dateStart:
+								this.dateRangeControl.value!.start!.toISOString(),
+							dateEnd:
+								this.dateRangeControl.value!.end!.toISOString(),
+							currencyId: this.currencyTypeControl.value!.id,
+							isPrivate: !this.isPublicControl.value,
+						};
 
-							return this.getUpdatePlanObservable(body);
-						})
-					);
+						return this.getUpdatePlanObservable(body);
+					})
+				);
 			} else {
 				const body: ModifyPlanDto = {
 					name: this.planNameControl.value,

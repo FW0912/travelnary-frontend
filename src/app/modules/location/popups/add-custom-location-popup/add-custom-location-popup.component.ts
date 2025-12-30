@@ -31,6 +31,7 @@ import { BorderButtonComponent } from "../../../../shared/components/buttons/bor
 import { Observable, switchMap } from "rxjs";
 import { ApiResponse } from "../../../../core/models/api/api-response";
 import { DatePipe } from "@angular/common";
+import { UploadImageDto } from "../../../image/models/upload-image-dto";
 
 @Component({
 	selector: "app-add-custom-location-popup",
@@ -234,6 +235,20 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 		}
 	}
 
+	private getUploadImageObservable(): Observable<
+		ApiResponse<UploadImageDto>
+	> {
+		if (this.editorToken) {
+			return this.imageService.uploadShared(
+				this.planId!,
+				this.photoControl.value!,
+				this.editorToken
+			);
+		} else {
+			return this.imageService.upload(this.photoControl.value!);
+		}
+	}
+
 	protected addCustomLocation(): void {
 		this.submit();
 
@@ -241,34 +256,32 @@ export class AddCustomLocationPopupComponent extends BaseFormComponent {
 			var observable: Observable<ApiResponse<any>>;
 
 			if (this.photoControl.value !== null) {
-				observable = this.imageService
-					.upload(this.photoControl.value!)
-					.pipe(
-						switchMap((x) => {
-							const body: ModifyLocationDto = {
-								id: null,
-								planId: this.planId!,
-								day: this.day!,
-								category: this.categoryControl.value!.value,
-								name: this.nameControl.value,
-								address: this.addressControl.value,
-								photoUrl: x.data.fileUrl,
-								notes: this.notesControl.value,
-								location: null,
-								time: this.timeControl.value
-									? this.datePipe.transform(
-											this.timeControl.value,
-											"HH:mm"
-									  )
-									: null,
-								currencyName: this.currencyName!,
-								cost: this.costControl.value,
-								sortOrder: this.lastSortOrder! + 1,
-							};
+				observable = this.getUploadImageObservable().pipe(
+					switchMap((x) => {
+						const body: ModifyLocationDto = {
+							id: null,
+							planId: this.planId!,
+							day: this.day!,
+							category: this.categoryControl.value!.value,
+							name: this.nameControl.value,
+							address: this.addressControl.value,
+							photoUrl: x.data.fileUrl,
+							notes: this.notesControl.value,
+							location: null,
+							time: this.timeControl.value
+								? this.datePipe.transform(
+										this.timeControl.value,
+										"HH:mm"
+								  )
+								: null,
+							currencyName: this.currencyName!,
+							cost: this.costControl.value,
+							sortOrder: this.lastSortOrder! + 1,
+						};
 
-							return this.getAddCustomLocationObservable(body);
-						})
-					);
+						return this.getAddCustomLocationObservable(body);
+					})
+				);
 			} else {
 				const body: ModifyLocationDto = {
 					id: null,

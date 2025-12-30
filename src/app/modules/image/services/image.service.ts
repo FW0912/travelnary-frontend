@@ -25,4 +25,25 @@ export class ImageService {
 			)
 			.pipe(this.utilsService.generalErrorCatch());
 	}
+
+	public uploadShared(
+		planId: string,
+		file: File,
+		token: string
+	): Observable<ApiResponse<UploadImageDto>> {
+		const formData: FormData = new FormData();
+		formData.set("file", file);
+
+		return this.http
+			.post<ApiResponse<UploadImageDto>>(
+				`${this.baseApiUrl}/upload/shared/${planId}`,
+				formData,
+				{
+					params: {
+						token: token,
+					},
+				}
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
 }
