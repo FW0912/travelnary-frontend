@@ -24,6 +24,8 @@ import { CommentAction } from "../../enums/comment-action";
 import { UserImageComponent } from "../../../../shared/components/images/user-image/user-image.component";
 import { GetCommentByPlanDto } from "../../models/get-comment-by-plan-dto";
 import { AuthService } from "../../../../core/services/auth/auth.service";
+import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
+import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 
 @Component({
 	selector: "app-comments",
@@ -46,11 +48,12 @@ export class CommentsComponent extends BaseFormComponent {
 	public viewedComment = signal<GetCommentDto | null>(null);
 
 	public post = output<GetCommentDto>();
-	public action = output<CommentAction>();
+	public delete = output<string>();
 
 	constructor(
 		private fb: FormBuilder,
 		private commentService: CommentService,
+		private snackbarService: SnackbarService,
 		protected authService: AuthService
 	) {
 		super();
@@ -75,17 +78,42 @@ export class CommentsComponent extends BaseFormComponent {
 
 		this.commentService.postComment(body).subscribe({
 			next: (x) => {
+				this.commentControl.patchValue("");
 				this.post.emit(x.data.detail);
+				this.snackbarService.openSnackBar(
+					"Comment successfully posted.",
+					ESnackbarType.INFO
+				);
 			},
 		});
 	}
 
 	protected viewCommentReplies(comment: GetCommentDto): void {
-		console.log(comment);
 		this.viewedComment.set(comment);
+		this.snackbarService.openSnackBar(
+			"Showing more replies.",
+			ESnackbarType.INFO
+		);
 	}
 
 	protected unviewCommentReplies(): void {
 		this.viewedComment.set(null);
+		this.snackbarService.openSnackBar(
+			"Closing replies.",
+			ESnackbarType.INFO
+		);
+	}
+
+	protected deleteComment(commentId: string): void {
+		this.delete.emit(commentId);
+		this.snackbarService.openSnackBar(
+			"Comment successfully deleted.",
+			ESnackbarType.INFO
+		);
+	}
+
+	protected deleteViewedComment(commentId: string): void {
+		this.unviewCommentReplies();
+		this.deleteComment(commentId);
 	}
 }

@@ -381,11 +381,16 @@ export class PlanPageComponent {
 		});
 	}
 
-	protected onCommentReply(): void {
-		this.commentService.getCommentByPlan(this.planId()).subscribe({
-			next: (x) => {
-				this.comments.set(x.data);
-			},
+	protected onDeleteComment(commentId: string): void {
+		this.comments.update((x) => {
+			if (x) {
+				return {
+					...x,
+					comments: x.comments.filter((y) => y.id !== commentId),
+				};
+			}
+
+			return x;
 		});
 	}
 }
