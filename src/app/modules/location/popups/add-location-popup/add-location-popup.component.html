@@ -1,0 +1,164 @@
+<app-base-popup title="Add Location">
+	<mat-dialog-content class="dark:!text-white">
+		<div class="flex flex-col gap-4">
+			<div class="flex items-center gap-4">
+				<app-border-button
+					class="w-full"
+					extraClasses="w-full"
+					(onClick)="navigateToLocationRecommendationsPage()"
+				>
+					<div class="flex items-center gap-2">
+						<i class="bi bi-search"></i>
+
+						<span>Find Recommendations</span>
+					</div>
+				</app-border-button>
+
+				<app-border-button
+					class="w-full"
+					extraClasses="w-full"
+					(onClick)="openAddCustomLocationPopup()"
+				>
+					<div class="flex items-center gap-2">
+						<i class="bi bi-plus-lg"></i>
+
+						<span>Add a Custom Location</span>
+					</div>
+				</app-border-button>
+			</div>
+
+			<div class="flex w-full relative">
+				<app-text-input
+					id="search"
+					name="search"
+					placeholder="Search by name..."
+					class="w-full"
+					extraClasses="py-2 !rounded-lg pl-3 pr-10"
+					[formControl]="nameFilter"
+					(keyup.enter)="search()"
+				></app-text-input>
+
+				<i
+					class="bi bi-search text-sm absolute top-1/2 -translate-y-1/2 right-4"
+				></i>
+			</div>
+
+			<div class="flex flex-col gap-5">
+				@if(locationList().length === 0) {
+				<div class="flex justify-center items-center p-3">
+					<span>No locations found.</span>
+				</div>
+				} @else { @for(location of locationList(); track location.id) {
+				<div class="flex justify-between gap-10">
+					<div class="flex gap-2">
+						<div
+							class="flex shrink-0 w-8 h-8 rounded-full border border-black dark:border-white justify-center items-center"
+						>
+							<i class="bi {{ location.category.icon }}"></i>
+						</div>
+
+						<div class="flex flex-col gap-3">
+							<div class="flex flex-col gap-1">
+								<span class="!text-base line-clamp-1">{{
+									location.name
+								}}</span>
+
+								<div class="flex items-center gap-2">
+									<i
+										class="bi bi-star-fill text-yellow-500"
+									></i>
+
+									<span>
+										@if(location.rating &&
+										location.rating.length > 0) {
+										{{ location.rating }} stars } @else
+										{Unrated}
+									</span>
+								</div>
+
+								<div class="flex items-center gap-1">
+									@if(location.category &&
+									location.category.name &&
+									location.category.name.length > 0) {
+									<span>{{
+										location.category.name | titlecase
+									}}</span>
+									} @if(location.category &&
+									location.category.name &&
+									location.category.name.length > 0 &&
+									location.priceLevel &&
+									location.priceLevel.length > 0) {
+									<i class="bi bi-dot"></i>
+									} @if(location.priceLevel &&
+									location.priceLevel.length > 0) {
+									<span>{{ location.priceLevel }}</span>
+									}
+								</div>
+
+								@if(location.address &&
+								location.address.address_string &&
+								location.address.address_string.length > 0) {
+								<div class="flex gap-1">
+									<i class="bi bi-geo-alt-fill"></i>
+
+									<div class="line-clamp-2">
+										{{ location.address.address_string }}
+									</div>
+								</div>
+								}
+
+								<div class="flex items-center gap-1">
+									<div class="line-clamp-2">
+										@if(location.notes &&
+										location.notes.length > 0) {
+										{{ location.notes }}
+										} @else {No description.}
+									</div>
+								</div>
+							</div>
+
+							<div class="flex items-center gap-2">
+								<app-button (onClick)="onAdd(location)"
+									>Add</app-button
+								>
+								<app-border-button
+									(onClick)="onCheckReviews(location)"
+									>Check Reviews</app-border-button
+								>
+							</div>
+						</div>
+					</div>
+
+					<app-default-image
+						[src]="location.photoUrl"
+						class="w-48 h-auto max-h-32 shrink-0"
+						extraClasses="w-full h-full"
+					></app-default-image>
+				</div>
+				} }
+			</div>
+
+			<!-- <div class="flex items-center justify-between">
+				<hr class="w-full" />
+				<span class="px-5">or</span>
+				<hr class="w-full" />
+			</div>
+
+			<app-border-button class="w-full" extraClasses="w-full">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-search"></i>
+
+					<span>Find Recommendations</span>
+				</div>
+			</app-border-button>
+
+			<app-border-button class="w-full" extraClasses="w-full">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-plus-lg"></i>
+
+					<span>Add a Custom Location</span>
+				</div>
+			</app-border-button> -->
+		</div>
+	</mat-dialog-content>
+</app-base-popup>

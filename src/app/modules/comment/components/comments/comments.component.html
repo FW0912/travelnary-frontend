@@ -1,0 +1,69 @@
+<div class="flex flex-col gap-4 w-2/3" [formGroup]="baseFormGroup">
+	<span class="text-xl font-medium text-primary"
+		>Comments ({{ comments().totalComments }})</span
+	>
+
+	@if(authService.isLoggedIn()) {
+	<div class="flex gap-3" [formGroup]="formGroup">
+		<app-user-image
+			[src]="planOwnerProfilePicture()"
+			extraClasses="w-10 h-10 text-4xl"
+		></app-user-image>
+
+		<div class="flex w-full gap-4">
+			<app-text-area
+				id="comment"
+				name="comment"
+				[minRows]="1"
+				[maxRows]="3"
+				placeholder="What's on your mind?"
+				class="w-full"
+				extraClasses="!min-h-10"
+				formControlName="comment"
+			></app-text-area>
+
+			<button
+				class="text-sm font-medium text-primary cursor-pointer hover:text-primary-hover transition-colors"
+				[ngClass]="{
+					'!cursor-default !text-primary opacity-50':
+						commentControl.value.length === 0
+				}"
+				(click)="postComment()"
+			>
+				Post
+			</button>
+		</div>
+	</div>
+	} @if(comments().totalComments === 0) {
+	<div class="flex w-full h-20 items-center justify-center">
+		<span>No comments found.</span>
+	</div>
+	} @else { @if(!viewedComment()) { @for(comment of comments().comments; let i
+	= $index; track comment.id) {
+	<app-comment-details
+		[planId]="planId()"
+		[(comment)]="comments().comments[i]"
+		[depth]="1"
+		[isViewingReplies]="false"
+		[isBeingViewed]="false"
+		(viewReplies)="viewCommentReplies($event)"
+	></app-comment-details>
+	} } @else {
+	<button
+		class="flex items-center gap-2 hover:text-hover transition-colors cursor-pointer"
+		(click)="unviewCommentReplies()"
+	>
+		<i class="bi bi-arrow-left"></i>
+		<span>Back to Default View</span>
+	</button>
+
+	<app-comment-details
+		[planId]="planId()"
+		[(comment)]="viewedComment"
+		[depth]="1"
+		[isViewingReplies]="true"
+		[isBeingViewed]="true"
+		(viewReplies)="viewCommentReplies($event)"
+	></app-comment-details>
+	} }
+</div>

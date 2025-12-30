@@ -1,0 +1,81 @@
+<div class="flex justify-between">
+	<div class="flex flex-col gap-4">
+		<div class="flex flex-col gap-2">
+			<div class="flex gap-5 items-center">
+				<span class="text-4xl text-primary font-semibold">{{
+					plan().name
+				}}</span>
+
+				@if(authService.isLoggedIn()) {
+				<i
+					class="bi text-2xl cursor-pointer hover:text-hover transition-colors"
+					[ngClass]="
+						plan().isPinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'
+					"
+					(click)="togglePin()"
+				></i>
+				}
+			</div>
+
+			<span class="text-sm text-placeholder"
+				>Last updated on {{ plan().updatedOn | date : "d MMM y" }}</span
+			>
+
+			<div class="flex gap-4 items-center">
+				<button
+					class="flex gap-2 items-center cursor-pointer hover:text-hover transition-colors"
+					(click)="navigateToOwnerProfile()"
+				>
+					<app-user-image
+						[src]="plan().owner.photoUrl"
+						extraClasses="w-8 h-8"
+					></app-user-image>
+
+					<span class="font-medium">{{ plan().owner.username }}</span>
+				</button>
+
+				<div class="flex items-center gap-2 text-sm">
+					<i class="bi bi-eye"></i>
+					<span>{{ plan().viewCount }} views</span>
+				</div>
+
+				<div class="flex items-center gap-2 text-sm">
+					<i class="bi bi-heart-fill text-red-500"></i>
+					<span>{{ plan().likeCount }} likes</span>
+				</div>
+			</div>
+		</div>
+
+		<div>{{ plan().description }}</div>
+
+		<div class="flex flex-col gap-1 text-sm">
+			<div class="flex items-center gap-2">
+				<i class="bi bi-calendar-range text-primary"></i>
+				<span
+					>{{ plan().dateStart | date : "d MMM y" }} -
+					{{ plan().dateEnd | date : "d MMM y" }}</span
+				>
+			</div>
+
+			<div class="flex items-center gap-2">
+				<i class="bi bi-geo-alt-fill text-primary"></i>
+				<span>{{ plan().destination }}</span>
+			</div>
+		</div>
+
+		<div class="flex flex-col gap-1">
+			<span class="text-primary font-medium">Total Estimated Cost</span>
+			<span
+				>{{ plan().currency.id }}
+				{{ estimatedCost() | number : "1.2" }}
+			</span>
+		</div>
+	</div>
+
+	<!-- <div class="w-1/4 h-44 rounded-md bg-placeholder"></div> -->
+	<app-default-image
+		[src]="plan().photoUrl"
+		class="w-1/4 h-auto max-h-60"
+		extraClasses="w-full h-full"
+	></app-default-image>
+</div>

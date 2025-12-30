@@ -1,0 +1,58 @@
+<app-error-message-wrapper
+	[errors]="ngControl.errors"
+	[isControlTouched]="ngControl.touched"
+	[isFormSubmitted]="isFormSubmitted()"
+>
+	@if(autoCompleteOptionList() != null) {
+	<input
+		blurOnEnter
+		[type]="type()"
+		[id]="id()"
+		[name]="name()"
+		[class]="class()"
+		[placeholder]="placeholder()"
+		[disabled]="isDisabled()"
+		[(ngModel)]="value"
+		(input)="onChange(value())"
+		(blur)="onTouched()"
+		[matAutocomplete]="auto"
+		[ngClass]="{
+			'!outline-error !border-error':
+				ngControl &&
+				ngControl.invalid &&
+				(ngControl.touched || isFormSubmitted())
+		}"
+	/>
+	<mat-autocomplete
+		#auto="matAutocomplete"
+		(optionSelected)="onChange(value())"
+	>
+		@for (option of autoCompleteOptionList() | async; track option.id) {
+		<mat-option
+			[value]="option.value"
+			[classList]="'mat-mdc-option mdc-list-item !text-sm !min-h-10'"
+			>{{ option.value }}</mat-option
+		>
+		}
+	</mat-autocomplete>
+	} @else {
+	<input
+		blurOnEnter
+		[type]="type()"
+		[id]="id()"
+		[name]="name()"
+		[class]="class()"
+		[placeholder]="placeholder()"
+		[disabled]="isDisabled()"
+		[(ngModel)]="value"
+		(input)="onChange(value())"
+		(blur)="onTouched()"
+		[ngClass]="{
+			'!outline-error !border-error':
+				ngControl &&
+				ngControl.invalid &&
+				(ngControl.touched || isFormSubmitted())
+		}"
+	/>
+	}
+</app-error-message-wrapper>

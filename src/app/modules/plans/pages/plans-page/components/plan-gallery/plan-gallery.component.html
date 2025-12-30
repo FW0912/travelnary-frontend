@@ -1,0 +1,16 @@
+@if(planList().length === 0) {
+<div class="flex w-full h-60 justify-center items-center">
+	<span>No plans found.</span>
+</div>
+} @else {
+<div
+	class="grid px-1 py-2 grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10"
+>
+	@for(plan of planList(); track plan.id) {
+	<app-plan-gallery-card
+		class="w-full aspect-[4/7] xl:aspect-[4/5]"
+		[plan]="plan"
+	></app-plan-gallery-card>
+	}
+</div>
+}

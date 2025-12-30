@@ -1,0 +1,11 @@
+app-error-message-wrapper .error {
+	.border,
+	.border-2,
+	.mdc-text-field {
+		border-color: var(--color-error) !important;
+	}
+
+	.mdc-notched-outline {
+		visibility: hidden;
+	}
+}

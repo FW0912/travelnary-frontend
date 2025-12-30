@@ -1,0 +1,75 @@
+<div class="flex flex-col gap-4">
+	<div class="flex items-center gap-4">
+		<span class="text-3xl text-primary font-medium">Day {{ day() }}</span>
+
+		@if(!readOnly()) { @if(!isSorting()) {
+		<app-border-button (onClick)="enableSorting()">
+			<div class="flex items-center gap-2">
+				<i class="bi bi-sort-down-alt"></i>
+				<span class="font-medium">Change Order</span>
+			</div>
+		</app-border-button>
+		} @else {
+		<app-button (onClick)="saveSortedList()">Save</app-button>
+		<app-border-button (onClick)="cancelSorting()"
+			>Cancel</app-border-button
+		>
+		} }
+	</div>
+
+	@if(!isSorting()) {
+	<div class="flex flex-col">
+		@if(locationList().length === 0 && readOnly()) {
+		<div class="flex pb-4">
+			<span>No locations found.</span>
+		</div>
+		} @else { @for(location of locationList(); let isLast = $last; track
+		location.id) {
+		<app-location-details-section
+			[planId]="planId()"
+			[day]="day()"
+			[location]="location"
+			[readOnly]="readOnly()"
+			[simple]="simple()"
+			[isLast]="isLast"
+			[editorToken]="editorToken()"
+			(onEdit)="onEditLocation()"
+			(onDelete)="onDeleteLocation($event)"
+		></app-location-details-section>
+		} } @if(!readOnly()) {
+		<div
+			class="flex gap-3 pb-4 items-center hover:text-hover transition-colors cursor-pointer"
+			(click)="onAddLocation()"
+		>
+			<div
+				class="flex shrink-0 w-10 h-10 rounded-full border border-black dark:border-white justify-center items-center"
+			>
+				<i class="bi bi-plus-lg"></i>
+			</div>
+
+			<span class="font-medium">Add a Location</span>
+		</div>
+		}
+	</div>
+	} @else {
+	<div
+		cdkDropList
+		class="card-drop-list flex flex-col gap-4"
+		(cdkDropListDropped)="onCardDrop($event)"
+	>
+		@for(location of sortedLocationList(); track location.id) {
+		<div class="location-details-card flex items-center gap-4" cdkDrag>
+			<i
+				class="bi bi-grip-vertical text-3xl cursor-grab"
+				cdkDragHandle
+			></i>
+
+			<app-location-details-card
+				class="w-full"
+				[location]="location"
+			></app-location-details-card>
+		</div>
+		}
+	</div>
+	}
+</div>

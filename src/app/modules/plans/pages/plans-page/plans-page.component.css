@@ -1,0 +1,3 @@
+.dark :host {
+	--mat-paginator-container-background-color: var(--color-dark);
+}

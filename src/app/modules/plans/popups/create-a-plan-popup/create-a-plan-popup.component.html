@@ -1,0 +1,166 @@
+<app-base-popup title="Create a Plan" [formGroup]="baseFormGroup">
+	<mat-dialog-content [formGroup]="formGroup" class="dark:!text-white !pb-11">
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-col gap-2">
+				<label for="planName" class="font-medium text-sm"
+					>Plan Name</label
+				>
+
+				<app-text-input
+					id="planName"
+					name="planName"
+					placeholder="Plan Name"
+					formControlName="planName"
+				></app-text-input>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label for="planDescription" class="font-medium text-sm"
+					>Plan Description (optional)</label
+				>
+
+				<app-text-area
+					id="planDescription"
+					name="planDescription"
+					placeholder="Plan Description"
+					formControlName="planDescription"
+				></app-text-area>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label for="destination" class="font-medium text-sm"
+					><div class="flex gap-2 items-center">
+						<i class="bi bi-geo-alt-fill"></i>
+						Destination
+					</div></label
+				>
+
+				<app-destination-search
+					formControlName="destination"
+				></app-destination-search>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label class="font-medium text-sm"
+					><div class="flex gap-2 items-center">
+						<i class="bi bi-image"></i>
+						Photo
+					</div></label
+				>
+
+				<input
+					#photoInput
+					type="file"
+					class="hidden"
+					accept="image/png, image/jpeg, image/jpg"
+					(change)="onUploadFile($event)"
+				/>
+
+				<div class="flex gap-5 items-center justify-center">
+					@if(photoUrl() !== null) {
+					<div class="flex w-1/2">
+						<img
+							[src]="photoUrl()!"
+							class="w-full object-contain rounded-md"
+						/>
+					</div>
+					}
+
+					<app-error-message-wrapper
+						[class]="uploadButtonClasses()"
+						[errors]="photoControl.errors"
+						[isControlTouched]="photoControl.touched"
+						[isFormSubmitted]="isFormSubmitted.value"
+					>
+						<app-border-button
+							[class]="uploadButtonClasses()"
+							[extraClasses]="uploadButtonClasses()"
+							(onClick)="photoInput.click()"
+						>
+							<div class="flex gap-2 justify-center items-center">
+								<i class="bi bi-upload"></i>
+								Upload Photo
+							</div>
+						</app-border-button>
+					</app-error-message-wrapper>
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label for="destination" class="font-medium text-sm"
+					><div class="flex gap-2 items-center">
+						<i class="bi bi-calendar-range"></i>
+						Date Range
+					</div></label
+				>
+
+				<app-date-range-input formControlName="dateRange"></app-date-range-input>
+			</div>
+
+			<div class="flex gap-4 items-center">
+				<label class="font-medium text-sm"
+					><div class="flex gap-2 items-center">
+						<i class="bi bi-currency-exchange text-xl"></i>
+						Currency Type
+					</div></label
+				>
+
+				<app-error-message-wrapper
+					[errors]="currencyTypeControl.errors"
+					[isControlTouched]="currencyTypeControl.touched"
+					[isFormSubmitted]="isFormSubmitted.value"
+				>
+					<app-searchable-dropdown
+						widthClass="w-40"
+						contentClass="max-h-20"
+						id="currencyType"
+						placeholder="Currency"
+						[optionList]="currencyTypeList()"
+						(onSelected)="onCurrencyTypeSelected($event)"
+					></app-searchable-dropdown>
+				</app-error-message-wrapper>
+			</div>
+
+			<div class="flex gap-4 items-center">
+				<label class="font-medium text-sm"
+					><div class="flex gap-2 items-center">
+						<i class="bi bi-person-lock text-xl"></i>
+						Access
+					</div></label
+				>
+
+				<div class="flex gap-2 items-center cursor-pointer">
+					<input
+						type="radio"
+						class="cursor-pointer"
+						id="private"
+						[value]="false"
+						formControlName="isPublic"
+					/>
+
+					<label for="private" class="text-sm cursor-pointer"
+						>Private</label
+					>
+				</div>
+
+				<div class="flex gap-2 items-center">
+					<input
+						type="radio"
+						class="cursor-pointer"
+						id="public"
+						[value]="true"
+						formControlName="isPublic"
+					/>
+
+					<label for="public" class="text-sm cursor-pointer"
+						>Public</label
+					>
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<app-button (onClick)="createPlan()">Create</app-button>
+	</mat-dialog-actions>
+</app-base-popup>

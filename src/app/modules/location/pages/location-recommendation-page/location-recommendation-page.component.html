@@ -1,0 +1,146 @@
+@if(this.planId && this.day) {
+<div class="flex flex-col lg:flex-row px-5 gap-10">
+	<div
+		class="flex flex-col gap-4 w-full h-fit lg:w-1/3 lg:min-w-1/3 shrink-0"
+	>
+		<div
+			class="flex items-center gap-2 cursor-pointer hover:text-hover transition-colors"
+			(click)="navigateBack()"
+		>
+			<i class="bi bi-arrow-left"></i>
+
+			<span class="font-medium">Back</span>
+		</div>
+		<app-locations
+			class="min-h-[calc(100vh-8.5rem)]"
+			[planId]="planId"
+			[destination]="destination"
+			[day]="day"
+			[locationList]="locationList()"
+			[readOnly]="true"
+			[simple]="true"
+		></app-locations>
+	</div>
+
+	<div class="flex flex-col gap-3 grow">
+		<span class="text-3xl font-medium text-primary">Recommendations</span>
+
+		<div class="flex flex-wrap gap-2 items-center">
+			<app-border-button
+				extraClasses="rounded-xl"
+				(onClick)="openFilterRecommendationsPopup()"
+			>
+				<div class="flex gap-2 items-center">
+					<i class="bi bi-sliders"></i>
+					<span>Filter</span>
+				</div>
+			</app-border-button>
+
+			@if(locationCategoryFilter() !== null) {
+			<div class="flex items-center gap-2 rounded-full border px-4 py-2">
+				<span class="text-sm">{{
+					locationCategoryFilter()!.value
+				}}</span>
+				<i
+					class="bi bi-x cursor-pointer hover:text-hover transition-colors"
+					(click)="removeLocationCategoryFilter()"
+				></i>
+			</div>
+			} @if(locationFilter() !== null) {
+			<div class="flex items-center gap-2 rounded-full border px-4 py-2">
+				<i class="bi bi-geo-alt-fill"></i>
+				<span class="text-sm"
+					>Nearby {{ locationFilter()!.value }}</span
+				>
+				<i
+					class="bi bi-x cursor-pointer hover:text-hover transition-colors"
+					(click)="removeLocationFilter()"
+				></i>
+			</div>
+			}
+		</div>
+
+		<div class="flex flex-col gap-4">
+			@if(recommendedLocationList().length === 0) {
+			<div class="flex w-full h-20 justify-center items-center">
+				<span>No locations found.</span>
+			</div>
+			} @else { @for(location of recommendedLocationList(); track
+			location.id) {
+			<div class="flex gap-4">
+				<app-default-image
+					[src]="location.photoUrl"
+					class="w-52 h-auto max-h-40 shrink-0"
+					extraClasses="w-full h-full"
+				></app-default-image>
+
+				<div class="flex flex-col gap-3 py-2">
+					<div class="flex flex-col gap-2">
+						<div class="flex flex-col gap-1">
+							<span class="font-medium text-lg">{{
+								location.name
+							}}</span>
+
+							<div class="flex items-center gap-2 text-sm">
+								<i class="bi bi-star-fill text-yellow-500"></i>
+								<span>
+									@if(location.rating &&
+									location.rating.length > 0) {
+									{{ location.rating }} stars } @else
+									{Unrated}
+								</span>
+							</div>
+
+							<div class="flex items-center gap-1 text-sm">
+								@if(location.category && location.category.name
+								&& location.category.name.length > 0) {
+								<span>{{
+									location.category.name | titlecase
+								}}</span>
+								} @if(location.category &&
+								location.category.name &&
+								location.category.name.length > 0 &&
+								location.priceLevel &&
+								location.priceLevel.length > 0) {
+								<i class="bi bi-dot"></i>
+								} @if(location.priceLevel &&
+								location.priceLevel.length > 0) {
+								<span>{{ location.priceLevel }}</span>
+								}
+							</div>
+
+							@if(location.address &&
+							location.address.address_string &&
+							location.address.address_string.length > 0) {
+							<div class="flex gap-1">
+								<i class="bi bi-geo-alt-fill"></i>
+								<div class="line-clamp-2 text-sm">
+									{{ location.address.address_string }}
+								</div>
+							</div>
+							}
+						</div>
+
+						<div class="flex items-center gap-1">
+							<div class="line-clamp-2 text-sm">
+								@if(location.notes && location.notes.length > 0)
+								{
+								{{ location.notes }}
+								} @else {No description.}
+							</div>
+						</div>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<app-button (onClick)="onAdd(location)">Add</app-button>
+						<app-border-button (onClick)="onCheckReviews(location)"
+							>Check Reviews</app-border-button
+						>
+					</div>
+				</div>
+			</div>
+			} }
+		</div>
+	</div>
+</div>
+}

@@ -1,0 +1,15 @@
+@if(formControl) {
+<div class="w-full relative">
+	<app-text-input
+		id="destination"
+		name="destination"
+		placeholder="Search for a destination..."
+		[extraClasses]="'pr-8 ' + extraClasses()"
+		[autoCompleteOptionList]="filteredDestinationOptionList"
+		[formControl]="formControl"
+	></app-text-input>
+	<i
+		class="bi bi-search text-sm absolute top-1/2 -translate-y-1/2 right-2"
+	></i>
+</div>
+}

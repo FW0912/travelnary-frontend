@@ -1,0 +1,65 @@
+<div
+	class="flex flex-col md:flex-row w-full min-h-[calc(100vh-8.5rem)] md:justify-center gap-10"
+>
+	<app-plan-filter
+		class="max-md:self-center"
+		(onFilter)="onFilter($event)"
+	></app-plan-filter>
+
+	<div class="flex flex-col w-full md:w-3/4 gap-2">
+		<span class="text-primary text-3xl">
+			@switch(planPageType) { @case(PlanPageType.BROWSE_PLANS) { Browse
+			Plans } @case(PlanPageType.PINNED_PLANS) { Pinned Plans }
+			@case(PlanPageType.YOUR_PLANS) { Your Plans } }
+		</span>
+
+		<div
+			class="flex items-center gap-2 sticky z-10 top-0 py-4 bg-light dark:bg-dark"
+		>
+			@switch(planPageType) { @case(PlanPageType.BROWSE_PLANS) {
+			<app-dropdown
+				[optionList]="PLAN_FILTER_TYPE_LIST"
+				[initialOption]="PLAN_FILTER_TYPE_LIST[0]"
+				(onSelected)="onPlanFilterTypeSelected($event)"
+				widthClass="w-44"
+			></app-dropdown>
+			} @case(PlanPageType.YOUR_PLANS) {
+			<app-border-button
+				extraClasses="w-40"
+				(onClick)="openCreatePlanPopup()"
+			>
+				<div class="flex gap-2 font-medium">
+					<i class="bi bi-plus-lg"></i>
+					Create a Plan
+				</div>
+			</app-border-button>
+			} }
+
+			<div class="flex w-full relative">
+				<app-text-input
+					id="search"
+					name="search"
+					placeholder="Search by name..."
+					class="w-full"
+					extraClasses="py-2 !rounded-lg pl-3 pr-10"
+					[formControl]="nameFilter"
+					(keyup.enter)="filterPlans()"
+				></app-text-input>
+
+				<i
+					class="bi bi-search text-sm absolute top-1/2 -translate-y-1/2 right-4"
+				></i>
+			</div>
+		</div>
+
+		<app-plan-gallery [planList]="planList()!"></app-plan-gallery>
+
+		<mat-paginator
+			class="mt-5"
+			[length]="totalPlans()"
+			[pageSize]="12"
+			[hidePageSize]="true"
+			(page)="handlePageEvent($event)"
+		></mat-paginator>
+	</div>
+</div>

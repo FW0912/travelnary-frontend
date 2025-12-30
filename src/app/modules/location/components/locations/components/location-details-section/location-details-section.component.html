@@ -1,0 +1,70 @@
+<div class="flex gap-3">
+	<div class="flex flex-col items-center">
+		<div
+			class="flex shrink-0 w-10 h-10 rounded-full border border-black dark:border-white justify-center items-center"
+		>
+			<i class="bi {{ location().category.icon }}"></i>
+		</div>
+
+		@if(!readOnly() || !isLast()) {
+		<div class="w-1 h-full border-l-2 border-dotted"></div>
+		}
+	</div>
+
+	<div class="flex flex-col gap-3 mt-1 w-full pb-10">
+		<div class="flex justify-between w-full gap-20">
+			<app-location-details
+				[location]="location()"
+			></app-location-details>
+
+			@if(!simple()) {
+			<app-default-image
+				[src]="location().photoUrl"
+				class="w-48 h-28 shrink-0"
+				extraClasses="w-full h-full"
+			></app-default-image>
+			}
+		</div>
+
+		<div class="relative w-fit" #options>
+			<app-border-button
+				extraClasses="!rounded-2xl"
+				(onClick)="toggleOptionsDropdown()"
+			>
+				<div class="flex gap-2 items-center">
+					<i class="bi bi-three-dots"></i>
+
+					<span class="font-medium">Options</span>
+				</div>
+			</app-border-button>
+
+			@if(isDropdownOpen()) {
+			<div
+				class="absolute text-sm font-medium top-full mt-2 py-2 overflow-y-auto left-0 bg-white dark:bg-dark-bg text-black dark:text-white w-fit rounded-lg shadow-md overflow-hidden gap-1"
+			>
+				<button
+					class="flex w-full py-1 px-4 hover:bg-hover-bg dark:hover:bg-dark-hover-bg transition-colors cursor-pointer text-nowrap"
+					(click)="openDetailsPopup()"
+				>
+					View Details
+				</button>
+
+				@if(!readOnly()) {
+				<button
+					class="flex w-full py-1 px-4 hover:bg-hover-bg dark:hover:bg-dark-hover-bg transition-colors cursor-pointer text-nowrap"
+					(click)="openEditDetailsPopup()"
+				>
+					Edit Details
+				</button>
+				<button
+					class="flex w-full py-1 px-4 hover:bg-hover-bg dark:hover:bg-dark-hover-bg transition-colors cursor-pointer text-error text-nowrap"
+					(click)="openRemovePopup()"
+				>
+					Remove
+				</button>
+				}
+			</div>
+			}
+		</div>
+	</div>
+</div>

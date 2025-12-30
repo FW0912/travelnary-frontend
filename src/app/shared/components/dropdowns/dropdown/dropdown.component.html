@@ -1,0 +1,37 @@
+<div [class]="'relative text-sm ' + widthClass() + ' ' + extraClasses()">
+	<button
+		class="flex w-full gap-2 items-center justify-between px-4 py-2 border rounded-lg border-black hover:bg-hover-bg dark:border-white dark:hover:bg-dark-hover-bg transition-colors cursor-pointer"
+		(click)="toggleDropdown()"
+	>
+		@if(selectedOption()) {
+		<span>{{ selectedOption()!.value }}</span>
+		} @else {
+		<span class="text-placeholder">{{
+			placeholder() ? placeholder() : "No Option"
+		}}</span>
+		}
+
+		<i
+			class="bi bi-caret-down-fill transition-transform text-xs"
+			[ngClass]="{ 'rotate-180': isDropdownOpen() }"
+		></i>
+	</button>
+
+	@if(isDropdownOpen()) {
+	<div
+		[class]="
+			'absolute top-full mt-2 z-10 overflow-y-auto left-0 bg-white dark:bg-dark-bg text-black dark:text-white w-full rounded-lg shadow-md overflow-hidden gap-1 ' +
+			contentClass()
+		"
+	>
+		@for(option of optionList(); track option.id) {
+		<button
+			class="flex w-full py-2 px-4 hover:bg-hover-bg dark:hover:bg-dark-hover-bg transition-colors cursor-pointer text-nowrap"
+			(click)="onOptionSelected(option)"
+		>
+			{{ option.value }}
+		</button>
+		}
+	</div>
+	}
+</div>

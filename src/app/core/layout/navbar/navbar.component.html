@@ -1,0 +1,237 @@
+@if(!displayAsList()) {
+<div class="flex w-full h-16 items-center justify-between font-poppins">
+	<div class="flex items-center gap-5">
+		<app-link href="/home" extraClasses="flex items-center gap-2">
+			<img
+				src="icons/travelnary-icon.png"
+				class="w-8 h-8 object-contain"
+			/>
+			<span class="text-xl">Travelnary</span>
+		</app-link>
+
+		<div class="w-0.5 border-l-2 self-stretch border-accent"></div>
+
+		<app-link href="/browse-plans">Browse Plans</app-link>
+
+		@if(authService.isLoggedIn()) {
+		<app-link href="/pinned-plans">Pinned Plans</app-link>
+
+		<app-link href="/your-plans">Your Plans</app-link>
+		}
+
+		<app-link href="/about-us">About Us</app-link>
+	</div>
+
+	<div class="flex items-center gap-5">
+		@if(!authService.isLoggedIn()) {
+		<app-link
+			href="/login"
+			extraClasses="underline text-primary text-xs hover:text-primary-hover"
+			>Have an account?</app-link
+		>
+		}
+
+		<div class="relative" #themeDropdown>
+			@switch(themeService.theme()) { @case(ThemeEnum.LIGHT) {
+			<i
+				class="bi bi-brightness-high text-xl hover:text-primary transition-colors cursor-pointer"
+				(click)="toggleThemeDropdown()"
+			></i>
+			} @case(ThemeEnum.DARK) {
+			<i
+				class="bi bi-moon text-xl hover:text-primary transition-colors cursor-pointer"
+				(click)="toggleThemeDropdown()"
+			></i>
+			} } @if(isThemeDropdownOpen()) {
+			<div
+				class="flex flex-col rounded-lg w-32 bg-white text-black border-gray-200 shadow-md overflow-hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50"
+			>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.LIGHT)"
+				>
+					<span class="select-none">Light</span>
+					<i class="bi bi-brightness-high"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.DARK)"
+				>
+					<span class="select-none">Dark</span>
+					<i class="bi bi-moon"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(null)"
+				>
+					<span class="select-none">System</span>
+					<i class="bi bi-pc-display"></i>
+				</button>
+			</div>
+			}
+		</div>
+
+		@if(authService.isLoggedIn()) { @let userData =
+		authService.getRequiredUserData();
+
+		<div class="relative" #userDropdown (click)="toggleUserDropdown()">
+			<div
+				class="flex gap-3 items-center hover:text-primary transition-colors cursor-pointer"
+			>
+				@if(userData.profileUrl) { } @else {
+				<i
+					class="bi bi-person-circle text-3xl !text-black dark:!text-white"
+				></i>
+				}
+
+				<span
+					class="truncate select-none !text-black dark:!text-white"
+					>{{ userData.username }}</span
+				>
+
+				<i
+					class="bi bi-caret-down-fill text-xs transition-transform"
+					[ngClass]="{ 'rotate-180': isUserDropdownOpen() }"
+				></i>
+			</div>
+
+			@if(isUserDropdownOpen()) {
+			<div
+				class="flex flex-col rounded-lg w-28 bg-white text-black border-gray-200 shadow-md overflow-hidden absolute top-full mt-1 right-0 z-50"
+			>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="profile()"
+				>
+					<span class="text-sm">Profile</span>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="settings()"
+				>
+					<span class="text-sm">Settings</span>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer text-error"
+					(click)="logout()"
+				>
+					<span class="text-sm">Logout</span>
+				</button>
+			</div>
+			}
+		</div>
+		} @else {
+		<app-border-button
+			href="/register"
+			extraClasses="text-sm border-accent hover:bg-accent"
+			>Sign Up</app-border-button
+		>
+		}
+	</div>
+</div>
+} @else {
+<div
+	class="flex relative w-full h-12 items-center justify-between font-poppins"
+>
+	<app-link href="/home" extraClasses="flex items-center gap-2">
+		<img src="icons/travelnary-icon.png" class="w-8 h-8 object-contain" />
+		<span class="text-xl">Travelnary</span>
+	</app-link>
+
+	<div class="flex relative gap-3 items-center">
+		<div class="relative" #themeDropdown>
+			@switch(themeService.theme()) { @case(ThemeEnum.LIGHT) {
+			<i
+				class="bi bi-brightness-high text-xl hover:text-primary transition-colors cursor-pointer"
+				(click)="toggleThemeDropdown()"
+			></i>
+			} @case(ThemeEnum.DARK) {
+			<i
+				class="bi bi-moon text-xl hover:text-primary transition-colors cursor-pointer"
+				(click)="toggleThemeDropdown()"
+			></i>
+			} } @if(isThemeDropdownOpen()) {
+			<div
+				class="flex flex-col rounded-lg w-32 bg-white text-black border-gray-200 shadow-md overflow-hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50"
+			>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.LIGHT)"
+				>
+					<span>Light</span>
+					<i class="bi bi-brightness-high"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(ThemeEnum.DARK)"
+				>
+					<span>Dark</span>
+					<i class="bi bi-moon"></i>
+				</button>
+				<button
+					class="flex items-center justify-between py-2 px-4 border-0 hover:bg-gray-100 cursor-pointer"
+					(click)="changeTheme(null)"
+				>
+					<span>System</span>
+					<i class="bi bi-pc-display"></i>
+				</button>
+			</div>
+			}
+		</div>
+
+		<i
+			class="bi bi-list text-2xl hover:text-primary transition-colors cursor-pointer"
+			(click)="toggleList()"
+		></i>
+
+		@if(isListOpen()) {
+		<div
+			class="flex flex-col items-center gap-5 bg-white text-black absolute top-full right-0 p-3 border-gray-200 shadow-md rounded-lg z-50"
+			#list
+			(click)="toggleList()"
+		>
+			@if(authService.isLoggedIn()) { @let userData =
+			authService.getRequiredUserData();
+			<button
+				class="flex gap-3 items-center hover:text-primary transition-colors cursor-pointer"
+				(click)="profile()"
+			>
+				<app-user-image
+					[src]="userData.profileUrl"
+					extraClasses="w-16 h-16"
+				></app-user-image>
+
+				<span class="truncate">{{ userData.username }}</span>
+			</button>
+			}
+
+			<app-link
+				href="/browse-plans"
+				extraClasses="block text-center w-full"
+				>Browse Plans</app-link
+			>
+
+			@if(authService.isLoggedIn()) {
+			<app-link href="/pinned-plans">Pinned Plans</app-link>
+
+			<app-link href="/your-plans">Your Plans</app-link>
+			}
+
+			<app-link href="/about-us">About Us</app-link>
+
+			@if(!authService.isLoggedIn()) {
+			<app-link href="/login">Sign In</app-link>
+			<app-link href="/register">Sign Up</app-link>
+			} @if(authService.isLoggedIn()) {
+			<button
+				class="flex items-center justify-between border-0 hover:text-red-300 transition-colors cursor-pointer text-error"
+				(click)="logout()"
+			>
+				<span class="text-sm">Logout</span>
+			</button>
+			}
+		</div>
+		}
+	</div>
+</div>
+}

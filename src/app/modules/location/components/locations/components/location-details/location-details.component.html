@@ -1,0 +1,31 @@
+<div class="flex flex-col gap-1 text-sm">
+	<span class="text-lg font-medium">{{ location().name }}</span>
+
+	<div class="flex gap-2">
+		<i class="bi bi-geo-alt-fill"></i>
+		<span>{{ location().address }}</span>
+	</div>
+
+	@if(location().time) {
+	<div class="flex items-center gap-2">
+		<i class="bi bi-clock"></i>
+		<span>{{ location().time | date : "shortTime" }}</span>
+	</div>
+	} @if(location().cost) {
+	<div class="flex items-center gap-2">
+		<i class="bi bi-coin"></i>
+		<span
+			>{{ location().currencyName }} {{ location().cost | number }}</span
+		>
+	</div>
+	} @if(location().notes && location().notes.length > 0) {
+	<div class="flex flex-col">
+		<span class="text-primary font-medium">Notes</span>
+
+		<div
+			class="line-clamp-2 whitespace-pre-wrap wrap-anywhere"
+			[textContent]="location().notes"
+		></div>
+	</div>
+	}
+</div>

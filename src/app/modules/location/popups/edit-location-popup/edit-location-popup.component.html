@@ -1,0 +1,123 @@
+<app-base-popup title="Edit Location Details">
+	<mat-dialog-content class="dark:!text-white" [formGroup]="baseFormGroup">
+		@if(location) {
+		<div class="flex flex-col gap-4" [formGroup]="formGroup">
+			<div class="flex flex-col gap-1">
+				<span class="font-medium">Category</span>
+				<app-dropdown
+					[optionList]="locationCategoryOptionList()"
+					[initialOption]="categoryControl.value"
+					placeholder="Select a category"
+					widthClass="w-full"
+					(onSelected)="onCategorySelected($event)"
+				></app-dropdown>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<span class="font-medium">Name</span>
+				<app-text-input
+					id="name"
+					name="name"
+					formControlName="name"
+					placeholder="Input name here..."
+				></app-text-input>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-geo-alt-fill"></i>
+					<span class="font-medium">Address</span>
+				</div>
+				<app-text-input
+					id="address"
+					name="address"
+					formControlName="address"
+					placeholder="Input address here..."
+				></app-text-input>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label class="font-medium text-sm"
+					><div class="flex gap-2 items-center">
+						<i class="bi bi-image"></i>
+						Photo
+					</div></label
+				>
+
+				<input
+					#photoInput
+					type="file"
+					class="hidden"
+					accept="image/png, image/jpeg, image/jpg"
+					(change)="onUploadFile($event)"
+				/>
+
+				<div class="flex gap-10 items-center justify-center">
+					@if(photoUrl() !== null) {
+					<div class="flex w-1/3">
+						<img
+							[src]="photoUrl()!"
+							class="w-full object-contain rounded-md"
+						/>
+					</div>
+					}
+
+					<app-border-button (onClick)="photoInput.click()">
+						<div class="flex gap-2 justify-center items-center">
+							<i class="bi bi-upload"></i>
+							Upload Photo
+						</div>
+					</app-border-button>
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-card-text"></i>
+					<span class="font-medium">Notes</span>
+				</div>
+				<app-text-area
+					id="notes"
+					name="notes"
+					formControlName="notes"
+					placeholder="Input notes here..."
+				></app-text-area>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-clock"></i>
+					<span class="font-medium">Time</span>
+				</div>
+				<app-time-picker formControlName="time"></app-time-picker>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2">
+					<i class="bi bi-coin"></i>
+					<span class="font-medium">Estimated Cost</span>
+				</div>
+				<div class="flex gap-2">
+					<div
+						class="flex px-5 py-1 border-2 border-input-border rounded-sm"
+					>
+						{{ location.currencyName }}
+					</div>
+
+					<app-text-input
+						id="cost"
+						name="cost"
+						placeholder="Amount"
+						type="number"
+						formControlName="cost"
+					></app-text-input>
+				</div>
+			</div>
+		</div>
+		}
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<app-button (onClick)="editLocation()">Save</app-button>
+	</mat-dialog-actions>
+</app-base-popup>

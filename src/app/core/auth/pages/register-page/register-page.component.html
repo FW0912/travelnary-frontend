@@ -1,0 +1,113 @@
+<div
+	class="flex w-full h-screen items-center justify-center bg-[url(/images/register-image.jpg)] bg-cover bg-no-repeat"
+>
+	<div class="absolute w-full h-full z-0 backdrop-brightness-[25%]"></div>
+	<div
+		class="flex flex-col gap-10 w-4/5 lg:w-1/3 px-15 py-10 border border-gray-200 dark:border-gray-500 bg-light dark:bg-dark shadow-md rounded-lg items-center justify-center z-10"
+		[formGroup]="baseFormGroup"
+		(keyup.enter)="register()"
+	>
+		<app-link href="/" extraClasses="flex items-center gap-3">
+			<img
+				src="icons/travelnary-icon.png"
+				class="w-8 h-8 object-contain"
+			/>
+
+			<span class="text-2xl font-poppins">Travelnary</span>
+		</app-link>
+
+		<div
+			class="flex flex-col w-full gap-2 font-poppins"
+			[formGroup]="formGroup"
+		>
+			<div class="flex flex-col gap-2">
+				<span class="text-xl text-primary">Sign Up</span>
+				<span class="text-sm not-dark:text-gray-500"
+					>Register an account with us to continue.</span
+				>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<div class="flex flex-col gap-1">
+					<label for="username" class="font-medium text-sm"
+						>Username</label
+					>
+					<app-text-input
+						id="username"
+						name="username"
+						placeholder="username"
+						formControlName="username"
+					></app-text-input>
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label for="password" class="font-medium text-sm"
+						>Password</label
+					>
+					<div class="relative w-full">
+						<app-text-input
+							[type]="isPasswordHidden() ? 'password' : 'text'"
+							id="password"
+							name="password"
+							placeholder="**********"
+							extraClasses="pr-8"
+							formControlName="password"
+						></app-text-input>
+						@if(isPasswordHidden()) {
+						<i
+							class="bi bi-eye-slash absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:text-gray-500 transition-colors"
+							(click)="togglePasswordHidden()"
+						></i>
+						} @else {
+						<i
+							class="bi bi-eye absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:text-gray-500 transition-colors"
+							(click)="togglePasswordHidden()"
+						></i>
+						}
+					</div>
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label for="fullName" class="font-medium text-sm"
+						>Full Name (optional)</label
+					>
+					<app-text-input
+						id="fullName"
+						name="fullName"
+						placeholder="full name"
+						formControlName="fullName"
+					></app-text-input>
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label for="email" class="font-medium text-sm"
+						>Email Address</label
+					>
+					<app-text-input
+						type="email"
+						id="email"
+						name="email"
+						placeholder="example@gmail.com"
+						formControlName="email"
+					></app-text-input>
+				</div>
+			</div>
+
+			<div class="flex gap-1 items-center text-xs">
+				<span class="not-dark:text-gray-500"
+					>Have an account already?</span
+				>
+
+				<app-link
+					href="/login"
+					extraClasses="text-accent hover:text-accent-hover underline"
+					>Sign In</app-link
+				>
+			</div>
+		</div>
+
+		<app-button class="w-full" extraClasses="w-full" (onClick)="register()"
+			>Sign Up</app-button
+		>
+	</div>
+</div>

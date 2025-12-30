@@ -1,0 +1,94 @@
+<div class="flex flex-col gap-10 px-10">
+	@if(plan()) {
+	<div class="flex flex-col gap-5">
+		<app-plan-details
+			class="w-full"
+			[plan]="plan()!"
+			[estimatedCost]="estimatedCost()"
+			(pinToggled)="togglePin()"
+		></app-plan-details>
+
+		<div class="flex gap-2 items-center">
+			@if(plan()!.isOwner || plan()!.isEditor) {
+			<app-border-button
+				extraClasses="!rounded-xl"
+				(onClick)="openEditPlanPopup()"
+			>
+				<div class="flex gap-2 items-center">
+					<i class="bi bi-pencil-square"></i>
+					<span class="font-medium">Edit Plan Details</span>
+				</div>
+			</app-border-button>
+			} @else if(!plan()!.isOwner && authService.isLoggedIn()) {
+			<app-border-button
+				extraClasses="!rounded-xl"
+				(onClick)="toggleLike()"
+			>
+				<div class="flex gap-2 items-center">
+					<i
+						class="bi text-error"
+						style="-webkit-text-stroke: 0.5px"
+						[ngClass]="
+							plan()!.isLiked ? 'bi-heart-fill' : 'bi-heart'
+						"
+					></i>
+					<span class="font-medium">Like</span>
+				</div>
+			</app-border-button>
+			} @if(plan()!.isOwner) {
+			<app-border-button
+				extraClasses="!rounded-xl"
+				(onClick)="openSharePlanPopup()"
+			>
+				<div class="flex gap-2 items-center">
+					<i class="bi bi-share"></i>
+					<span class="font-medium">Share</span>
+				</div>
+			</app-border-button>
+
+			<app-border-button
+				extraClasses="!rounded-xl !border-error"
+				(onClick)="openDeletePopup()"
+			>
+				<div class="flex gap-2 items-center text-error">
+					<i class="bi bi-trash3"></i>
+					<span class="font-medium">Delete</span>
+				</div>
+			</app-border-button>
+			}
+		</div>
+	</div>
+
+	<div class="flex gap-10">
+		<div class="flex flex-col gap-4 w-full">
+			@for(location of locationList(); track location.day) {
+			<app-locations
+				class="w-full"
+				[planId]="plan()!.id"
+				[destination]="plan()!.destination"
+				[day]="location.day"
+				[currencyName]="plan()!.currency.id"
+				[locationList]="location.locations"
+				[readOnly]="!plan()!.isOwner && !plan()!.isEditor"
+				[editorToken]="shareToken()"
+				(onAdd)="onModifyLocation()"
+				(onEdit)="onModifyLocation()"
+				(onSort)="onSortLocation($event)"
+				(onDelete)="onDeleteLocation($event)"
+			></app-locations>
+			}
+		</div>
+
+		<div class="w-1/3 self-stretch rounded-md"></div>
+	</div>
+
+	@if(comments()) {
+	<app-comments
+		[planId]="plan()!.id"
+		[planOwnerProfilePicture]="plan()!.owner.photoUrl"
+		[comments]="comments()!"
+		(post)="onPostComment($event)"
+		(reply)="onCommentReply()"
+	></app-comments>
+	} }
+</div>

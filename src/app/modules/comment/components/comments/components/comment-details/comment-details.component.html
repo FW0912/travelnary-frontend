@@ -1,0 +1,275 @@
+@if(comment()) {
+<div class="flex flex-col" [formGroup]="formGroup">
+	<div class="flex gap-2">
+		<div class="flex flex-col items-center">
+			<app-user-image
+				class="cursor-pointer"
+				[src]="comment()!.owner.photoUrl"
+				extraClasses="w-10 h-10 text-4xl"
+				(click)="navigateToOwnerProfile()"
+			></app-user-image>
+
+			@if(isRepliesShown() || isBeingViewed() || isReplyOpen()) {
+			<div class="w-[1px] h-full border-l-2 border-gray-300"></div>
+			}
+		</div>
+
+		<div class="flex flex-col gap-2 w-full">
+			<div class="flex flex-col">
+				<span
+					class="font-medium text-sm hover:text-hover transition-colors cursor-pointer"
+					(click)="navigateToOwnerProfile()"
+					>{{ comment()!.owner.username
+					}}<span class="text-primary">{{
+						comment()!.isOwner ? " (owner)" : ""
+					}}</span>
+				</span>
+
+				<span class="text-xs text-placeholder">{{
+					comment()!.createdDate | timeAgo
+				}}</span>
+			</div>
+
+			@if(!isEditOpen()) {
+			<div class="text-sm">{{ comment()!.content }}</div>
+			} @else {
+			<div class="flex w-full gap-4">
+				<app-text-area
+					id="comment"
+					name="comment"
+					[minRows]="1"
+					[maxRows]="3"
+					placeholder="What's on your mind?"
+					class="w-full"
+					extraClasses="!min-h-10"
+					formControlName="content"
+				></app-text-area>
+
+				<button
+					class="text-sm font-medium text-primary cursor-pointer hover:text-primary-hover transition-colors"
+					[ngClass]="{
+						'!cursor-default !text-primary opacity-50':
+							contentControl.value.length === 0
+					}"
+					[disabled]="contentControl.value.length === 0"
+					(click)="onEdit()"
+				>
+					Edit
+				</button>
+			</div>
+			}
+
+			<div class="flex gap-4 items-center">
+				@if(isEditOpen()) {
+				<button
+					class="flex gap-1 items-center text-error hover:opacity-70 transition-opacity cursor-pointer"
+					(click)="cancelEdit()"
+				>
+					<i class="bi bi-x-circle"></i>
+
+					<span class="text-sm font-medium">Cancel Edit</span>
+				</button>
+				} @else if(isReplyOpen()) {
+				<button
+					class="flex gap-1 items-center text-error hover:opacity-70 transition-opacity cursor-pointer"
+					(click)="cancelReply()"
+				>
+					<i class="bi bi-x-circle"></i>
+
+					<span class="text-sm font-medium">Cancel Reply</span>
+				</button>
+				} @else {
+				<button
+					class="flex gap-2 items-center hover:opacity-70 transition-opacity cursor-pointer"
+					(click)="onLike()"
+				>
+					<i
+						class="bi text-lg text-error"
+						style="-webkit-text-stroke: 0.5px"
+						[ngClass]="
+							comment()!.isLiked ? 'bi-heart-fill' : 'bi-heart'
+						"
+					></i>
+
+					<span class="text-sm font-medium">{{
+						comment()!.likeCount
+					}}</span>
+				</button>
+
+				@if(authService.isLoggedIn()) { @if(comment()!.isOwner) {
+				<button
+					class="flex gap-1 items-center text-error hover:opacity-70 transition-opacity cursor-pointer"
+					(click)="openDeletePopup()"
+				>
+					<i class="bi bi-trash3"></i>
+
+					<span class="text-sm font-medium">Delete</span>
+				</button>
+
+				<button
+					class="flex gap-1 items-center hover:opacity-70 transition-opacity cursor-pointer"
+					(click)="showEditSection()"
+				>
+					<i class="bi bi-pencil-square"></i>
+
+					<span class="text-sm font-medium">Edit</span>
+				</button>
+				}
+
+				<button
+					class="flex gap-1 items-center hover:opacity-70 transition-opacity cursor-pointer"
+					(click)="showReplySection()"
+				>
+					<i class="bi bi-reply"></i>
+
+					<span class="text-sm font-medium">Reply</span>
+				</button>
+				} }
+			</div>
+		</div>
+	</div>
+
+	@if(isRepliesShown()) {
+	<div class="flex gap-2">
+		<div class="flex w-9 justify-center">
+			<div
+				class="w-[1px] h-7 border-l-2 border-gray-300 self-center"
+			></div>
+		</div>
+
+		<button
+			class="flex gap-1 text-primary font-medium hover:text-primary-hover transition-colors cursor-pointer pt-1"
+			(click)="closeReplies()"
+		>
+			<
+			<span class="underline">Close Replies</span>
+		</button>
+	</div>
+	} @if(!isReplyOpen()) { @if((isRepliesShown() || isBeingViewed()) && depth()
+	< (isViewingReplies() ? CommentConstants.MAX_VIEWING_REPLIES_DEPTH :
+	CommentConstants.MAX_DEFAULT_DEPTH)) { @for(reply of comment()!.replies |
+	slice:0:replyShownCount(); let i = $index, isLast = $last; track reply.id) {
+	<div class="flex">
+		<div class="flex flex-col w-9 shrink-0">
+			<div
+				class="w-[1px] h-7 border-l-2 border-gray-300 self-center"
+			></div>
+
+			<div
+				class="h-[1px] w-1/2 border-t-2 border-gray-300 self-end"
+			></div>
+
+			@if(!isLast) {
+			<div
+				class="w-[1px] h-full border-l-2 border-gray-300 self-center"
+			></div>
+			}
+		</div>
+
+		<app-comment-details
+			class="py-2 w-full ml-1"
+			[planId]="planId()"
+			[(comment)]="comment()!.replies![i]"
+			[depth]="depth() + 1"
+			[isViewingReplies]="isViewingReplies()"
+			[isBeingViewed]="false"
+			(delete)="deleteReply($event)"
+			(viewReplies)="viewReplies.emit($event)"
+		></app-comment-details>
+	</div>
+	} } } @else {
+	<div class="flex">
+		<div class="flex flex-col w-9 shrink-0">
+			<div
+				class="w-[1px] h-7 border-l-2 border-gray-300 self-center"
+			></div>
+
+			<div
+				class="h-[1px] w-1/2 border-t-2 border-gray-300 self-end"
+			></div>
+		</div>
+
+		<div class="flex w-full py-2 gap-2 ml-1">
+			<app-user-image
+				[src]="userProfilePicture()"
+				extraClasses="w-10 h-10 text-4xl"
+			></app-user-image>
+
+			<div class="flex w-full gap-4">
+				<app-text-area
+					id="comment"
+					name="comment"
+					[minRows]="1"
+					[maxRows]="3"
+					placeholder="What's on your mind?"
+					class="w-full"
+					extraClasses="!min-h-10"
+					formControlName="reply"
+				></app-text-area>
+
+				<button
+					class="text-sm font-medium text-primary cursor-pointer hover:text-primary-hover transition-colors"
+					[ngClass]="{
+						'!cursor-default !text-primary opacity-50':
+							replyControl.value.length === 0
+					}"
+					[disabled]="replyControl.value.length === 0"
+					(click)="onPostReply()"
+				>
+					Reply
+				</button>
+			</div>
+		</div>
+	</div>
+	} @if(!isReplyOpen()) { @if((comment()!.totalReplies > 0)) {
+	@if((isRepliesShown() || isBeingViewed()) && comment()!.replies &&
+	comment()!.replies!.length >= CommentConstants.MAX_DEFAULT_REPLIES_SHOWN &&
+	comment()!.totalReplies > replyShownCount()) {
+	<div class="flex py-1">
+		<div class="w-10"></div>
+
+		<button
+			class="flex gap-1 text-primary font-medium hover:text-primary-hover transition-colors cursor-pointer"
+			(click)="showMoreReplies()"
+		>
+			>
+			<span class="underline"
+				>View More Replies ({{
+					comment()!.totalReplies - this.replyShownCount()
+				}})</span
+			>
+		</button>
+	</div>
+	} @else if(depth() >= (isViewingReplies() ?
+	CommentConstants.MAX_VIEWING_REPLIES_DEPTH :
+	CommentConstants.MAX_DEFAULT_DEPTH)) {
+	<div class="flex">
+		<div class="w-10"></div>
+
+		<button
+			class="flex gap-1 text-primary font-medium hover:text-primary-hover transition-colors cursor-pointer pt-1"
+			(click)="viewReplies.emit(comment()!)"
+		>
+			>
+			<span class="underline"
+				>View Replies ({{ comment()!.totalReplies }})</span
+			>
+		</button>
+	</div>
+	} @else if(!isBeingViewed() && !isRepliesShown()) {
+	<div class="flex">
+		<div class="w-10"></div>
+
+		<button
+			class="flex gap-1 text-primary font-medium hover:text-primary-hover transition-colors cursor-pointer pt-1"
+			(click)="showReplies()"
+		>
+			>
+			<span class="underline"
+				>View Replies ({{ comment()!.totalReplies }})</span
+			>
+		</button>
+	</div>
+	} } }
+</div>
+}

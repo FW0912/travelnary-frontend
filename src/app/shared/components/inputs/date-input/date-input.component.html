@@ -1,0 +1,32 @@
+<app-error-message-wrapper
+	[errors]="ngControl.errors"
+	[isControlTouched]="ngControl.touched"
+	[isFormSubmitted]="isFormSubmitted()"
+>
+	<mat-form-field
+		appearance="outline"
+		subscriptSizing="dynamic"
+		[classList]="'w-full ' + extraClasses()"
+	>
+		<input
+			matInput
+			placeholder="dd/MM/yyyy"
+			[matDatepicker]="picker"
+			[formControl]="date"
+			[class]="
+				'!text-sm !text-input placeholder:!text-placeholder dark:!text-white ' +
+				extraClasses()
+			"
+			(blur)="onTouched()"
+			(dateChange)="onTouched()"
+		/>
+		<mat-datepicker #picker> </mat-datepicker>
+		<mat-datepicker-toggle
+			[disableRipple]="true"
+			matIconSuffix
+			[for]="picker"
+			[classList]="'!pr-1'"
+		></mat-datepicker-toggle>
+		<mat-date-range-picker #picker></mat-date-range-picker>
+	</mat-form-field>
+</app-error-message-wrapper>
