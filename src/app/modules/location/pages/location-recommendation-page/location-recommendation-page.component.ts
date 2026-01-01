@@ -34,7 +34,6 @@ import { AuthService } from "../../../../core/services/auth/auth.service";
 	imports: [
 		LocationsComponent,
 		BorderButtonComponent,
-		LocationDetailsSectionComponent,
 		ButtonComponent,
 		TitleCasePipe,
 		DefaultImageComponent,
@@ -49,7 +48,8 @@ export class LocationRecommendationPageComponent {
 	protected day: number | null = null;
 	private currencyName: string | null = null;
 	private lastSortOrder: number | null = null;
-	private editorToken = signal<string | null>(null);
+	protected isOwner = signal<boolean>(false);
+	protected editorToken = signal<string | null>(null);
 	protected locationList = signal<Array<GetLocationDto>>(new Array());
 	protected recommendedLocationList = signal<Array<SearchLocationDto>>(
 		new Array()
@@ -132,6 +132,7 @@ export class LocationRecommendationPageComponent {
 		this.getPlanObservable().subscribe({
 			next: (x) => {
 				this.destination = x.data.destination;
+				this.isOwner.set(x.data.isOwner);
 			},
 		});
 
@@ -176,6 +177,14 @@ export class LocationRecommendationPageComponent {
 		});
 	}
 
+	protected onModifyLocation(): void {
+		this.fetchLocations();
+	}
+
+	protected onDeleteLocation(event: { day: number; id: string }): void {
+		this.locationList.update((x) => x.filter((z) => z.id !== event.id));
+	}
+
 	protected navigateBack(): void {
 		if (this.editorToken()) {
 			this.router.navigateByUrl(
@@ -191,7 +200,6 @@ export class LocationRecommendationPageComponent {
 			FilterLocationRecommendationsPopupComponent,
 			{
 				width: "35%",
-				height: "50%",
 				data: {
 					locationCategories: this.locationCategoryOptionList,
 					locationList: this.locationList().filter(

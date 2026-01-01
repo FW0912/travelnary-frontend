@@ -78,7 +78,7 @@
 
 					<span class="text-sm font-medium">Cancel Reply</span>
 				</button>
-				} @else {
+				} @else if(authService.isLoggedIn()) {
 				<button
 					class="flex gap-2 items-center hover:opacity-70 transition-opacity cursor-pointer"
 					(click)="onLike()"
@@ -96,7 +96,7 @@
 					}}</span>
 				</button>
 
-				@if(authService.isLoggedIn()) { @if(comment()!.isOwner) {
+				@if(comment()!.isOwner) {
 				<button
 					class="flex gap-1 items-center text-error hover:opacity-70 transition-opacity cursor-pointer"
 					(click)="openDeletePopup()"
@@ -124,7 +124,7 @@
 
 					<span class="text-sm font-medium">Reply</span>
 				</button>
-				} }
+				}
 			</div>
 		</div>
 	</div>

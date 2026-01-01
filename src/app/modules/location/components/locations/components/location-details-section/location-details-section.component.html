@@ -6,7 +6,7 @@
 			<i class="bi {{ location().category.icon }}"></i>
 		</div>
 
-		@if(!readOnly() || !isLast()) {
+		@if((!simple() && !readOnly()) || !isLast()) {
 		<div class="w-1 h-full border-l-2 border-dotted"></div>
 		}
 	</div>

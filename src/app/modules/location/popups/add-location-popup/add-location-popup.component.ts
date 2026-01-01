@@ -162,8 +162,6 @@ export class AddLocationPopupComponent {
 			.subscribe((x) => {
 				if (x) {
 					this.ref.close(true);
-				} else {
-					this.ref.close();
 				}
 			});
 	}

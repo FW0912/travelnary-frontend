@@ -40,7 +40,7 @@
 				<label class="font-medium text-sm"
 					><div class="flex gap-2 items-center">
 						<i class="bi bi-image"></i>
-						Photo
+						Photo (optional)
 					</div></label
 				>
 
@@ -74,7 +74,7 @@
 			<div class="flex flex-col gap-1">
 				<div class="flex items-center gap-2">
 					<i class="bi bi-card-text"></i>
-					<span class="font-medium">Notes</span>
+					<span class="font-medium">Notes (optional)</span>
 				</div>
 				<app-text-area
 					id="notes"
@@ -85,9 +85,15 @@
 			</div>
 
 			<div class="flex flex-col gap-1">
-				<div class="flex items-center gap-2">
+				<div class="flex gap-2">
 					<i class="bi bi-clock"></i>
-					<span class="font-medium">Time</span>
+					<div class="flex flex-col">
+						<span class="font-medium">Time (optional)</span>
+						<span class="text-xs"
+							>Use the dropdown or input your own time (e.g. 2:35
+							PM)</span
+						>
+					</div>
 				</div>
 				<app-time-picker formControlName="time"></app-time-picker>
 			</div>
@@ -95,7 +101,7 @@
 			<div class="flex flex-col gap-1">
 				<div class="flex items-center gap-2">
 					<i class="bi bi-coin"></i>
-					<span class="font-medium">Estimated Cost</span>
+					<span class="font-medium">Estimated Cost (optional)</span>
 				</div>
 				<div class="flex gap-2">
 					<div

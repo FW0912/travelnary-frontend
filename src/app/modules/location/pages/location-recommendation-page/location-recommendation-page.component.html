@@ -17,8 +17,11 @@
 			[destination]="destination"
 			[day]="day"
 			[locationList]="locationList()"
-			[readOnly]="true"
+			[readOnly]="!isOwner() && editorToken() === null"
 			[simple]="true"
+			[editorToken]="editorToken()"
+			(onEdit)="onModifyLocation()"
+			(onDelete)="onDeleteLocation($event)"
 		></app-locations>
 	</div>
 
