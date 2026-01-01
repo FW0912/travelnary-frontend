@@ -8,6 +8,7 @@ import {
 	Observable,
 	of,
 	switchMap,
+	tap,
 } from "rxjs";
 import { ApiResponse } from "../../../core/models/api/api-response";
 import { GetLocationDto } from "../models/get-location-dto";
@@ -19,10 +20,13 @@ import { SearchLocationQuery } from "../models/search-location-query";
 import { SearchLocationDto } from "../models/search-location-dto";
 import { LocationCategory } from "../models/location-category";
 import { UpdateLocationSortOrderDto } from "../models/update-location-sort-order-dto";
-import { GetDestinationLocationDto } from "../models/get-destination-details-dto";
+import { GetDestinationLocationDto } from "../models/get-destination-location-dto";
 import { SnackbarService } from "../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../core/models/utils/others/snackbar-type.enum";
 import { SKIP_ACCESS_TOKEN } from "../../../core/interceptors/access-token/access-token.interceptor";
+import { DestinationUtils } from "../../../shared/utils/destination-utils";
+import { DestinationLocationDto } from "../models/destination-location-dto";
+import { CacheService } from "../../../core/services/cache/cache.service";
 
 @Injectable({
 	providedIn: "root",
@@ -33,17 +37,35 @@ export class LocationService {
 	constructor(
 		private http: HttpClient,
 		private utilsService: UtilsService,
-		private snackbarService: SnackbarService
+		private snackbarService: SnackbarService,
+		private cacheService: CacheService
 	) {}
 
 	public getAllLocationCategories(): Observable<
 		ApiResponse<Array<LocationCategory>>
 	> {
+		const cacheKey = "location-categories";
+
+		if (this.cacheService.has(cacheKey)) {
+			return of(
+				this.cacheService.get<ApiResponse<Array<LocationCategory>>>(
+					cacheKey
+				)!
+			);
+		}
+
 		return this.http
 			.get<ApiResponse<Array<LocationCategory>>>(
 				`${this.baseApiUrl}/category`
 			)
-			.pipe(this.utilsService.generalErrorCatch());
+			.pipe(
+				tap({
+					next: (x) => {
+						this.cacheService.setWithTtl(cacheKey, x);
+					},
+				}),
+				this.utilsService.generalErrorCatch()
+			);
 	}
 
 	public getLocationByPlan(
@@ -66,7 +88,13 @@ export class LocationService {
 
 	public getDestinationLocation(
 		destination: string
-	): Observable<{ latitude: number; longitude: number; radius: number }> {
+	): Observable<DestinationLocationDto> {
+		const cacheKey = `destination-location-${destination.split(",")[0]}`;
+
+		if (this.cacheService.has(cacheKey)) {
+			return of(this.cacheService.get<DestinationLocationDto>(cacheKey)!);
+		}
+
 		return this.http
 			.get<Array<GetDestinationLocationDto>>(
 				`${environment.forwardGeocodeApiUrl}`,
@@ -97,42 +125,21 @@ export class LocationService {
 
 					const destinationDetails = x.at(0)!;
 
-					const minLatitude = Number.parseFloat(
-						destinationDetails.boundingbox.at(0)!
-					);
-					const maxLatitude = Number.parseFloat(
-						destinationDetails.boundingbox.at(1)!
-					);
-					const minLongitude = Number.parseFloat(
-						destinationDetails.boundingbox.at(2)!
-					);
-					const maxLongitude = Number.parseFloat(
-						destinationDetails.boundingbox.at(3)!
-					);
+					const latitude = Number(destinationDetails.lat);
+					const longitude = Number(destinationDetails.lon);
+					const placeLevel =
+						DestinationUtils.classifyPlaceLevel(destinationDetails);
+					const radius = DestinationUtils.getSearchRadius(placeLevel);
 
-					const centerLatitude = (minLatitude + maxLatitude) / 2;
-					const centerLongitude = (minLongitude + maxLongitude) / 2;
+					const location = {
+						latitude: latitude,
+						longitude: longitude,
+						radius: radius, // km
+					};
 
-					const R = 6371; // km
-					const deg2rad = (deg: number) => (deg * Math.PI) / 180;
+					this.cacheService.setWithTtl(cacheKey, location);
 
-					const dLat = deg2rad(maxLatitude - centerLatitude);
-					const dLon = deg2rad(maxLongitude - centerLongitude);
-
-					const a =
-						Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-						Math.cos(deg2rad(centerLatitude)) *
-							Math.cos(deg2rad(maxLatitude)) *
-							Math.sin(dLon / 2) *
-							Math.sin(dLon / 2);
-
-					const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-					return of({
-						latitude: centerLatitude,
-						longitude: centerLongitude,
-						radius: R * c,
-					});
+					return of(location);
 				})
 			);
 	}

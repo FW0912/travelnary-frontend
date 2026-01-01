@@ -192,6 +192,8 @@ export class AddLocationPopupComponent {
 			sortOrder: this.lastSortOrder! + 1,
 		};
 
+		console.log(JSON.stringify(body));
+
 		var observable: Observable<ApiResponse<any>>;
 
 		if (this.editorToken) {
@@ -226,18 +228,40 @@ export class AddLocationPopupComponent {
 		window.open(location.webUrl, "_blank");
 	}
 
-	protected search(): void {
+	private getSearchObservable(): Observable<
+		ApiResponse<Array<SearchLocationDto>>
+	> {
 		var searchQuery: string = this.nameFilter.value ?? "";
-
-		if (this.destination) {
-			searchQuery = searchQuery.concat(" ", this.destination);
-		}
 
 		const query: SearchLocationQuery = {
 			searchQuery: searchQuery,
 		};
 
-		this.locationService.searchLocation(query).subscribe((x) => {
+		if (this.destination) {
+			// query.searchQuery = query.searchQuery + " " + this.destination;
+
+			return this.locationService
+				.getDestinationLocation(this.destination)
+				.pipe(
+					switchMap((x) => {
+						query.LatLong = x.latitude + "," + x.longitude;
+						query.Radius = x.radius;
+						query.RadiusUnit = "km";
+
+						console.log(JSON.stringify(query));
+
+						return this.locationService.searchLocation(query);
+					})
+				);
+		}
+
+		console.log(JSON.stringify(query));
+
+		return this.locationService.searchLocation(query);
+	}
+
+	protected search(): void {
+		this.getSearchObservable().subscribe((x) => {
 			this.locationList.set(x.data);
 		});
 	}

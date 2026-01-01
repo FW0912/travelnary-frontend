@@ -17,7 +17,7 @@ export class LocalStorageService {
 		}
 	}
 
-	public getItem<T>(key: string): T | string | null {
+	public getItem<T = any>(key: string): T | string | null {
 		if (isPlatformBrowser(this.platformId)) {
 			const item: string | null = localStorage.getItem(key);
 
