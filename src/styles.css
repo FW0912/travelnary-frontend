@@ -144,6 +144,10 @@ div[matformfieldlineripple] {
 	@apply text-white;
 }
 
+.dark .cdk-drag-preview {
+	@apply text-white;
+}
+
 .mdc-text-field--focused {
 	@apply !border-transparent;
 }

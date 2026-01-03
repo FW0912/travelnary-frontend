@@ -10,7 +10,7 @@
 	>
 		<input
 			matInput
-			placeholder="Time"
+			placeholder="HH:MM AM/PM"
 			[formControl]="time"
 			[matTimepicker]="picker"
 			[class]="
@@ -21,6 +21,6 @@
 			(change)="onTouched()"
 		/>
 		<mat-timepicker-toggle matIconSuffix [for]="picker" class="pr-2" />
-		<mat-timepicker #picker />
+		<mat-timepicker interval="15m" #picker />
 	</mat-form-field>
 </app-error-message-wrapper>

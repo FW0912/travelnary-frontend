@@ -40,7 +40,7 @@ export class CommentService {
 	): Observable<ApiResponse<GetCommentByPlanDto>> {
 		return this.http
 			.get<ApiResponse<GetCommentByPlanDto>>(
-				`${this.baseApiUrl}/${commentId}/replies`,
+				`${this.baseApiUrl}/${commentId}/replies/public`,
 				{
 					params: {
 						limit: limit,

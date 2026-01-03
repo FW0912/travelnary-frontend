@@ -119,6 +119,14 @@ export class CommentDetailsComponent extends BaseFormComponent {
 	}
 
 	protected onLike(): void {
+		if (!this.authService.isLoggedIn()) {
+			this.snackbarService.openSnackBar(
+				"Login to like this comment.",
+				ESnackbarType.INFO
+			);
+			return;
+		}
+
 		this.commentService.likeComment(this.comment()!.id).subscribe({
 			next: () => {
 				this.comment.update((x) => {
@@ -227,6 +235,14 @@ export class CommentDetailsComponent extends BaseFormComponent {
 	}
 
 	protected showReplySection(): void {
+		if (!this.authService.isLoggedIn()) {
+			this.snackbarService.openSnackBar(
+				"Login to reply to this comment.",
+				ESnackbarType.INFO
+			);
+			return;
+		}
+
 		this.isReplyOpen.set(true);
 	}
 

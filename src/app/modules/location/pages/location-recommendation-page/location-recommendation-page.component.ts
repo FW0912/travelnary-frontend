@@ -22,19 +22,19 @@ import { LocationService } from "../../services/location.service";
 import { SearchLocationDto } from "../../models/search-location-dto";
 import { TitleCasePipe } from "@angular/common";
 import { DefaultImageComponent } from "../../../../shared/components/images/default-image/default-image.component";
-import { catchError, EMPTY, map, Observable } from "rxjs";
+import { catchError, EMPTY, map, Observable, of, switchMap } from "rxjs";
 import { ApiResponse } from "../../../../core/models/api/api-response";
 import { SearchLocationQuery } from "../../models/search-location-query";
 import { ModifyLocationDto } from "../../models/modify-location-dto";
 import { GetPlanByIdDto } from "../../../plans/models/get-plan-by-id-dto";
 import { AuthService } from "../../../../core/services/auth/auth.service";
+import { DestinationLocationDto } from "../../models/destination-location-dto";
 
 @Component({
 	selector: "app-location-recommendation-page",
 	imports: [
 		LocationsComponent,
 		BorderButtonComponent,
-		LocationDetailsSectionComponent,
 		ButtonComponent,
 		TitleCasePipe,
 		DefaultImageComponent,
@@ -49,7 +49,8 @@ export class LocationRecommendationPageComponent {
 	protected day: number | null = null;
 	private currencyName: string | null = null;
 	private lastSortOrder: number | null = null;
-	private editorToken = signal<string | null>(null);
+	protected isOwner = signal<boolean>(false);
+	protected editorToken = signal<string | null>(null);
 	protected locationList = signal<Array<GetLocationDto>>(new Array());
 	protected recommendedLocationList = signal<Array<SearchLocationDto>>(
 		new Array()
@@ -132,6 +133,7 @@ export class LocationRecommendationPageComponent {
 		this.getPlanObservable().subscribe({
 			next: (x) => {
 				this.destination = x.data.destination;
+				this.isOwner.set(x.data.isOwner);
 			},
 		});
 
@@ -156,7 +158,8 @@ export class LocationRecommendationPageComponent {
 			next: (x) => {
 				if (x.data && x.data.length > 0) {
 					this.locationList.set(
-						x.data.find((x) => x.day === this.day)!.locations
+						x.data.find((x) => x.day === this.day)?.locations ??
+							new Array()
 					);
 
 					this.locationList().forEach((x) => {
@@ -176,6 +179,14 @@ export class LocationRecommendationPageComponent {
 		});
 	}
 
+	protected onModifyLocation(): void {
+		this.fetchLocations();
+	}
+
+	protected onDeleteLocation(event: { day: number; id: string }): void {
+		this.locationList.update((x) => x.filter((z) => z.id !== event.id));
+	}
+
 	protected navigateBack(): void {
 		if (this.editorToken()) {
 			this.router.navigateByUrl(
@@ -191,7 +202,6 @@ export class LocationRecommendationPageComponent {
 			FilterLocationRecommendationsPopupComponent,
 			{
 				width: "35%",
-				height: "50%",
 				data: {
 					locationCategories: this.locationCategoryOptionList,
 					locationList: this.locationList().filter(
@@ -250,6 +260,65 @@ export class LocationRecommendationPageComponent {
 		this.search();
 	}
 
+	private getDestinationLocationObservable(): Observable<DestinationLocationDto | null> {
+		if (this.destination) {
+			return this.locationService.getDestinationLocation(
+				this.destination
+			);
+		}
+
+		return of(null);
+	}
+
+	private getSearchObservable(): Observable<
+		ApiResponse<Array<SearchLocationDto>>
+	> {
+		return this.getDestinationLocationObservable().pipe(
+			switchMap((x) => {
+				if (this.locationFilter() !== null) {
+					const location: GetLocationDto = this.locationList().find(
+						(x) => x.id === this.locationFilter()!.id
+					)!;
+
+					const body: SearchLocationQuery = {
+						LatLong:
+							location.location.latitude +
+							"," +
+							location.location.longitude,
+						Category:
+							this.locationCategoryFilter()?.value ??
+							this.locationCategoryOptionList!.at(0)!.value,
+						Radius: 5,
+						RadiusUnit: "km",
+					};
+
+					console.log(JSON.stringify(body));
+
+					return this.locationService.searchNearbyLocation(body);
+				}
+
+				const body: SearchLocationQuery = {
+					searchQuery: "",
+					Category: this.locationCategoryFilter()!.value,
+				};
+
+				if (this.destination) {
+					body.searchQuery = this.destination;
+				}
+
+				if (x) {
+					body.LatLong = x.latitude + "," + x.longitude;
+					body.Radius = x.radius;
+					body.RadiusUnit = "km";
+				}
+
+				console.log(JSON.stringify(body));
+
+				return this.locationService.searchLocation(body);
+			})
+		);
+	}
+
 	private search(): void {
 		if (
 			this.locationCategoryFilter() === null &&
@@ -264,36 +333,7 @@ export class LocationRecommendationPageComponent {
 			return;
 		}
 
-		var observable: Observable<ApiResponse<Array<SearchLocationDto>>>;
-
-		if (this.locationFilter() !== null) {
-			const location: GetLocationDto = this.locationList().find(
-				(x) => x.id === this.locationFilter()!.id
-			)!;
-
-			var body: SearchLocationQuery = {
-				LatLong:
-					location.location.latitude +
-					"," +
-					location.location.longitude,
-				Category:
-					this.locationCategoryFilter()?.value ??
-					this.locationCategoryOptionList!.at(0)!.value,
-				Radius: 10,
-				RadiusUnit: "km",
-			};
-
-			observable = this.locationService.searchNearbyLocation(body);
-		} else {
-			const body: SearchLocationQuery = {
-				searchQuery: this.destination!,
-				Category: this.locationCategoryFilter()!.value,
-			};
-
-			observable = this.locationService.searchLocation(body);
-		}
-
-		observable.subscribe({
+		this.getSearchObservable().subscribe({
 			next: (x) => {
 				this.recommendedLocationList.set(x.data);
 			},

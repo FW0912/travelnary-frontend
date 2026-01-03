@@ -16,6 +16,7 @@ import {
 	NG_VALUE_ACCESSOR,
 	ReactiveFormsModule,
 } from "@angular/forms";
+import { DestinationUtils } from "../../../utils/destination-utils";
 
 @Component({
 	selector: "app-destination-search",
@@ -35,6 +36,8 @@ export class DestinationSearchComponent extends BaseInputComponent<string> {
 	private destinationFilterSubject: Subject<string> = new Subject<string>();
 	protected destinationOptionList: Array<IValueOption> = new Array();
 	protected filteredDestinationOptionList = new BehaviorSubject(new Array());
+
+	private readonly IMPORTANT_CITY_POPULATION = 100_000;
 
 	private value = signal<string>("");
 	private isDisabled = signal<boolean>(false);
@@ -56,13 +59,18 @@ export class DestinationSearchComponent extends BaseInputComponent<string> {
 				}> = Array.from(
 					new Set<string>(
 						Object.keys(data)
-							.map((x) =>
-								new Array(x).concat(
+							.map((x) => {
+								const normalizedCountryName: string =
+									DestinationUtils.normalizeDestinationName(
+										x
+									);
+
+								return new Array(normalizedCountryName).concat(
 									data[x].map((y: string) =>
-										y.concat(", ", x)
+										y.concat(", ", normalizedCountryName)
 									)
-								)
-							)
+								);
+							})
 							.reduce((a: Array<string>, b: Array<string>) =>
 								a.concat(b)
 							)

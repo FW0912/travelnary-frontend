@@ -12,13 +12,16 @@
 			<span class="font-medium">Back</span>
 		</div>
 		<app-locations
-			class="min-h-[calc(100vh-8.5rem)]"
+			class="lg:min-h-[calc(100vh-8.5rem)]"
 			[planId]="planId"
 			[destination]="destination"
 			[day]="day"
 			[locationList]="locationList()"
-			[readOnly]="true"
+			[readOnly]="!isOwner() && editorToken() === null"
 			[simple]="true"
+			[editorToken]="editorToken()"
+			(onEdit)="onModifyLocation()"
+			(onDelete)="onDeleteLocation($event)"
 		></app-locations>
 	</div>
 

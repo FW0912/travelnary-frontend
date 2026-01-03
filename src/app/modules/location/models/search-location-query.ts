@@ -7,5 +7,7 @@ export interface SearchLocationQuery {
 	LatLong?: string;
 	Radius?: number;
 	RadiusUnit?: string;
+	City?: string;
+	Country?: string;
 	Language?: string;
 }

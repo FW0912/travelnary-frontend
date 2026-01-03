@@ -36,7 +36,7 @@
 			(onEdit)="onEditLocation()"
 			(onDelete)="onDeleteLocation($event)"
 		></app-location-details-section>
-		} } @if(!readOnly()) {
+		} } @if(!readOnly() && !simple()) {
 		<div
 			class="flex gap-3 pb-4 items-center hover:text-hover transition-colors cursor-pointer"
 			(click)="onAddLocation()"
