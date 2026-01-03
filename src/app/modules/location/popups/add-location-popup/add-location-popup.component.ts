@@ -238,21 +238,18 @@ export class AddLocationPopupComponent {
 		};
 
 		if (this.destination) {
-			// query.searchQuery = query.searchQuery + " " + this.destination;
+			query.searchQuery = query.searchQuery + ", " + this.destination;
 
-			return this.locationService
-				.getDestinationLocation(this.destination)
-				.pipe(
-					switchMap((x) => {
-						query.LatLong = x.latitude + "," + x.longitude;
-						query.Radius = x.radius;
-						query.RadiusUnit = "km";
+			const splitDestination = this.destination
+				.split(",")
+				.map((x) => x.trim());
 
-						console.log(JSON.stringify(query));
-
-						return this.locationService.searchLocation(query);
-					})
-				);
+			if (splitDestination.length === 1) {
+				query.Country = splitDestination[0];
+			} else {
+				query.City = splitDestination.slice(0, -1).join(", ");
+				query.Country = splitDestination.at(-1);
+			}
 		}
 
 		console.log(JSON.stringify(query));

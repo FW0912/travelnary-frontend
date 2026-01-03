@@ -158,7 +158,8 @@ export class LocationRecommendationPageComponent {
 			next: (x) => {
 				if (x.data && x.data.length > 0) {
 					this.locationList.set(
-						x.data.find((x) => x.day === this.day)!.locations
+						x.data.find((x) => x.day === this.day)?.locations ??
+							new Array()
 					);
 
 					this.locationList().forEach((x) => {
@@ -300,6 +301,10 @@ export class LocationRecommendationPageComponent {
 					searchQuery: "",
 					Category: this.locationCategoryFilter()!.value,
 				};
+
+				if (this.destination) {
+					body.searchQuery = this.destination;
+				}
 
 				if (x) {
 					body.LatLong = x.latitude + "," + x.longitude;

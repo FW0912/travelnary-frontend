@@ -21,15 +21,16 @@ export class CacheService {
 	}
 
 	private hydrate() {
-		const raw = this.localStorageService.getItem(this.CACHE_KEY);
+		const cache = this.localStorageService.getItem<
+			Record<string, Cached<any>>
+		>(this.CACHE_KEY);
 
-		if (!raw) {
+		if (!cache) {
 			return;
 		}
 
 		try {
-			const parsed: Record<string, Cached<any>> = JSON.parse(raw);
-			Object.entries(parsed).forEach(([key, value]) => {
+			Object.entries(cache).forEach(([key, value]) => {
 				if (!this.isExpired(value)) {
 					this.memoryCache.set(key, value);
 				}
