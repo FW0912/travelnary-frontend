@@ -96,6 +96,7 @@ export class PlansPageComponent {
 		serviceCall.subscribe({
 			next: (response) => {
 				this.planList.set(response.data.data);
+				this.totalPlans.set(response.data.totalItems);
 			},
 		});
 	}

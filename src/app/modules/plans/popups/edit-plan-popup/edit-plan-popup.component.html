@@ -45,7 +45,7 @@
 				<label class="font-medium text-sm"
 					><div class="flex gap-2 items-center">
 						<i class="bi bi-image"></i>
-						Photo
+						Photo (optional)
 					</div></label
 				>
 
@@ -57,7 +57,7 @@
 					(change)="onUploadFile($event)"
 				/>
 
-				<div class="flex gap-5 items-center">
+				<div class="flex gap-5 items-center justify-center">
 					@if(photoUrl() !== null) {
 					<div class="flex w-3/4">
 						<img
@@ -67,23 +67,12 @@
 					</div>
 					}
 
-					<app-error-message-wrapper
-						[class]="uploadButtonClasses()"
-						[errors]="photoControl.errors"
-						[isControlTouched]="photoControl.touched"
-						[isFormSubmitted]="isFormSubmitted.value"
-					>
-						<app-border-button
-							[class]="uploadButtonClasses()"
-							[extraClasses]="uploadButtonClasses()"
-							(onClick)="photoInput.click()"
-						>
-							<div class="flex gap-2 justify-center items-center">
-								<i class="bi bi-upload"></i>
-								Upload Photo
-							</div>
-						</app-border-button>
-					</app-error-message-wrapper>
+					<app-border-button (onClick)="photoInput.click()">
+						<div class="flex gap-2 justify-center items-center">
+							<i class="bi bi-upload"></i>
+							Upload Photo
+						</div>
+					</app-border-button>
 				</div>
 			</div>
 
@@ -95,7 +84,9 @@
 					</div></label
 				>
 
-				<app-date-range-input formControlName="dateRange"></app-date-range-input>
+				<app-date-range-input
+					formControlName="dateRange"
+				></app-date-range-input>
 			</div>
 
 			<div class="flex gap-4 items-center">

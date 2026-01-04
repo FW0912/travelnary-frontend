@@ -48,6 +48,7 @@ export class CommentsComponent extends BaseFormComponent {
 	public viewedComment = signal<GetCommentDto | null>(null);
 
 	public post = output<GetCommentDto>();
+	public reply = output<void>();
 	public delete = output<string>();
 
 	constructor(
@@ -86,6 +87,10 @@ export class CommentsComponent extends BaseFormComponent {
 				);
 			},
 		});
+	}
+
+	protected onPostReply(): void {
+		this.reply.emit();
 	}
 
 	protected viewCommentReplies(comment: GetCommentDto): void {

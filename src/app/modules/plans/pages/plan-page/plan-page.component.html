@@ -88,6 +88,7 @@
 		[planOwnerProfilePicture]="plan()!.owner.photoUrl"
 		[comments]="comments()!"
 		(post)="onPostComment($event)"
+		(reply)="onPostReply()"
 		(delete)="onDeleteComment($event)"
 	></app-comments>
 	} }

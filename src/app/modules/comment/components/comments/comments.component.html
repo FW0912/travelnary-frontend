@@ -46,6 +46,7 @@
 		[depth]="1"
 		[isViewingReplies]="false"
 		[isBeingViewed]="false"
+		(reply)="onPostReply()"
 		(viewReplies)="viewCommentReplies($event)"
 		(delete)="deleteComment($event)"
 	></app-comment-details>

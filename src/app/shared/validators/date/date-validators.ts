@@ -26,13 +26,13 @@ export class DateValidators {
 			};
 		}
 
-		if (control.value.start >= control.value.end) {
-			return {
-				dateRange: {
-					message: "End date must be greater!",
-				},
-			};
-		}
+		// if (control.value.start >= control.value.end) {
+		// 	return {
+		// 		dateRange: {
+		// 			message: "End date must be greater!",
+		// 		},
+		// 	};
+		// }
 
 		return null;
 	};

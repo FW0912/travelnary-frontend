@@ -335,6 +335,14 @@ export class LocationRecommendationPageComponent {
 
 		this.getSearchObservable().subscribe({
 			next: (x) => {
+				if (x.data === null || x.data.length === 0) {
+					this.snackbarService.openSnackBar(
+						"No locations found.",
+						ESnackbarType.INFO
+					);
+					return;
+				}
+
 				this.recommendedLocationList.set(x.data);
 			},
 		});

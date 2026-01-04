@@ -125,7 +125,7 @@ export class SettingsPopupComponent extends BaseFormComponent {
 						dob: this.fb.control<Date | null>(
 							x.data.dob ? new Date(x.data.dob) : null
 						),
-						gender: this.fb.control<string>(x.data.gender),
+						gender: this.fb.control<string | null>(x.data.gender),
 					})
 				);
 
@@ -158,6 +158,7 @@ export class SettingsPopupComponent extends BaseFormComponent {
 	private constructUpdateProfileDto(
 		profilePictureUrl: string | null
 	): UpdateProfileDto {
+		console.log(this.genderControl.value);
 		return {
 			email: this.emailControl.value,
 			fullName: this.fullNameControl.value ?? null,
