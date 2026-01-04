@@ -374,7 +374,23 @@ export class PlanPageComponent {
 	protected onPostComment(event: GetCommentDto): void {
 		this.comments.update((x) => {
 			if (x) {
-				return { ...x, comments: [...x.comments, event] };
+				return {
+					totalComments: x.totalComments + 1,
+					comments: [...x.comments, event],
+				};
+			}
+
+			return x;
+		});
+	}
+
+	protected onPostReply(): void {
+		this.comments.update((x) => {
+			if (x) {
+				return {
+					...x,
+					totalComments: x.totalComments + 1,
+				};
 			}
 
 			return x;

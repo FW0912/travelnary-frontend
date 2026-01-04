@@ -62,6 +62,7 @@ export class CommentDetailsComponent extends BaseFormComponent {
 	);
 
 	public delete = output<string>();
+	public reply = output<void>();
 	public viewReplies = output<GetCommentDto>();
 
 	constructor(
@@ -281,12 +282,18 @@ export class CommentDetailsComponent extends BaseFormComponent {
 				this.replyControl.patchValue("");
 				this.isReplyOpen.set(false);
 
+				this.reply.emit();
+
 				this.snackbarService.openSnackBar(
 					"Comment replied successfully.",
 					ESnackbarType.INFO
 				);
 			},
 		});
+	}
+
+	protected onReplyPosted(): void {
+		this.reply.emit();
 	}
 
 	protected showReplies(): void {

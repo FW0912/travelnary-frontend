@@ -1,3 +1,5 @@
 .dark :host {
 	--mat-paginator-container-background-color: var(--color-dark);
+	--mat-icon-button-disabled-icon-color: var(--color-gray-500);
+	--mat-paginator-enabled-icon-color: var(--color-white);
 }

@@ -259,6 +259,14 @@ export class AddLocationPopupComponent {
 
 	protected search(): void {
 		this.getSearchObservable().subscribe((x) => {
+			if (x.data === null || x.data.length === 0) {
+				this.snackbarService.openSnackBar(
+					"No locations found.",
+					ESnackbarType.INFO
+				);
+				return;
+			}
+
 			this.locationList.set(x.data);
 		});
 	}

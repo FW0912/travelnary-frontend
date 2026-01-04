@@ -2,7 +2,7 @@
 	<div class="flex items-center gap-4">
 		<span class="text-3xl text-primary font-medium">Day {{ day() }}</span>
 
-		@if(!readOnly()) { @if(!isSorting()) {
+		@if(!readOnly() && locationList().length !== 0) { @if(!isSorting()) {
 		<app-border-button (onClick)="enableSorting()">
 			<div class="flex items-center gap-2">
 				<i class="bi bi-sort-down-alt"></i>

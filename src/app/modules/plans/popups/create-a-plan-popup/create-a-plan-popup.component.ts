@@ -35,11 +35,12 @@ import { ErrorMessageWrapperComponent } from "../../../../shared/components/erro
 import { CurrencyService } from "../../../currency/services/currency.service";
 import { PlanService } from "../../services/plan.service";
 import { ImageService } from "../../../image/services/image.service";
-import { switchMap } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 import { ModifyPlanDto } from "../../models/modify-plan-dto";
 import { SnackbarService } from "../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../core/models/utils/others/snackbar-type.enum";
 import { Router } from "@angular/router";
+import { ApiResponse } from "../../../../core/models/api/api-response";
 
 @Component({
 	selector: "app-create-a-plan-popup",
@@ -101,7 +102,7 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 				]),
 				planDescription: fb.control<string>(""),
 				destination: fb.control<string>("", [Validators.required]),
-				photo: fb.control<File | null>(null, [Validators.required]),
+				photo: fb.control<File | null>(null),
 				dateRange: this.fb.control<{
 					start: Date | null;
 					end: Date | null;
@@ -192,36 +193,55 @@ export class CreateAPlanPopupComponent extends BaseFormComponent {
 		this.submit();
 
 		if (this.formGroup.valid) {
-			this.imageService
-				.upload(this.photoControl.value!)
-				.pipe(
-					switchMap((x) => {
-						const body: ModifyPlanDto = {
-							name: this.planNameControl.value,
-							description: this.planDescriptionControl.value,
-							destination: this.destinationControl.value,
-							photoUrl: x.data.fileUrl,
-							dateStart:
-								this.dateRangeControl.value!.start!.toISOString(),
-							dateEnd:
-								this.dateRangeControl.value!.end!.toISOString(),
-							currencyId: this.currencyTypeControl.value!.id,
-							isPrivate: !this.isPublicControl.value,
-						};
+			var observable: Observable<ApiResponse<any>>;
 
-						return this.planService.createPlan(body);
-					})
-				)
-				.subscribe({
-					next: (x) => {
-						this.ref.close();
-						this.snackbarService.openSnackBar(
-							"Plan created successfully.",
-							ESnackbarType.INFO
-						);
-						this.router.navigateByUrl(`/view-plan/${x.data.id}`);
-					},
-				});
+			if (this.photoControl.value !== null) {
+				observable = this.imageService
+					.upload(this.photoControl.value!)
+					.pipe(
+						switchMap((x) => {
+							const body: ModifyPlanDto = {
+								name: this.planNameControl.value,
+								description: this.planDescriptionControl.value,
+								destination: this.destinationControl.value,
+								photoUrl: x.data.fileUrl,
+								dateStart:
+									this.dateRangeControl.value!.start!.toISOString(),
+								dateEnd:
+									this.dateRangeControl.value!.end!.toISOString(),
+								currencyId: this.currencyTypeControl.value!.id,
+								isPrivate: !this.isPublicControl.value,
+							};
+
+							return this.planService.createPlan(body);
+						})
+					);
+			} else {
+				const body: ModifyPlanDto = {
+					name: this.planNameControl.value,
+					description: this.planDescriptionControl.value,
+					destination: this.destinationControl.value,
+					photoUrl: null,
+					dateStart:
+						this.dateRangeControl.value!.start!.toISOString(),
+					dateEnd: this.dateRangeControl.value!.end!.toISOString(),
+					currencyId: this.currencyTypeControl.value!.id,
+					isPrivate: !this.isPublicControl.value,
+				};
+
+				observable = this.planService.createPlan(body);
+			}
+
+			observable.subscribe({
+				next: (x) => {
+					this.ref.close();
+					this.snackbarService.openSnackBar(
+						"Plan created successfully.",
+						ESnackbarType.INFO
+					);
+					this.router.navigateByUrl(`/view-plan/${x.data.id}`);
+				},
+			});
 		}
 	}
 }

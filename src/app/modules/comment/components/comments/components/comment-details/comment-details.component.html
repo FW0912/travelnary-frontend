@@ -17,7 +17,7 @@
 		<div class="flex flex-col gap-2 w-full">
 			<div class="flex flex-col">
 				<span
-					class="font-medium text-sm hover:text-hover transition-colors cursor-pointer"
+					class="font-medium text-sm w-fit hover:text-hover transition-colors cursor-pointer"
 					(click)="navigateToOwnerProfile()"
 					>{{ comment()!.owner.username
 					}}<span class="text-primary">{{
@@ -173,6 +173,7 @@
 			[isViewingReplies]="isViewingReplies()"
 			[isBeingViewed]="false"
 			(delete)="deleteReply($event)"
+			(reply)="onReplyPosted()"
 			(viewReplies)="viewReplies.emit($event)"
 		></app-comment-details>
 	</div>

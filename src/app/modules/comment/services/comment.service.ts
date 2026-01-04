@@ -9,6 +9,7 @@ import { UpdateCommentDto } from "../models/update-comment-dto";
 import { UtilsService } from "../../../core/services/utils/utils.service";
 import { DetailResponse } from "../../../core/models/api/detail-response";
 import { GetCommentByPlanDto } from "../models/get-comment-by-plan-dto";
+import { AuthService } from "../../../core/services/auth/auth.service";
 
 @Injectable({
 	providedIn: "root",
@@ -16,7 +17,11 @@ import { GetCommentByPlanDto } from "../models/get-comment-by-plan-dto";
 export class CommentService {
 	private readonly baseApiUrl: string = `${environment.baseApiUrl}/Comment`;
 
-	constructor(private http: HttpClient, private utilsService: UtilsService) {}
+	constructor(
+		private http: HttpClient,
+		private utilsService: UtilsService,
+		private authService: AuthService
+	) {}
 
 	public getCommentByPlan(
 		planId: string,
@@ -38,6 +43,19 @@ export class CommentService {
 		commentId: string,
 		limit: number = 3
 	): Observable<ApiResponse<GetCommentByPlanDto>> {
+		if (this.authService.isLoggedIn()) {
+			return this.http
+				.get<ApiResponse<GetCommentByPlanDto>>(
+					`${this.baseApiUrl}/${commentId}/replies`,
+					{
+						params: {
+							limit: limit,
+						},
+					}
+				)
+				.pipe(this.utilsService.generalErrorCatch());
+		}
+
 		return this.http
 			.get<ApiResponse<GetCommentByPlanDto>>(
 				`${this.baseApiUrl}/${commentId}/replies/public`,

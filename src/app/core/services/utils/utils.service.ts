@@ -35,34 +35,64 @@ export class UtilsService {
 		ApiResponse<T>
 	> {
 		return catchError((err: HttpErrorResponse) => {
-			if (
-				isPlatformBrowser(this.platformId) &&
-				err.status !== HttpStatusCode.Unauthorized
-			) {
-				const error = err.error;
+			if (isPlatformBrowser(this.platformId)) {
+				if (err.status !== HttpStatusCode.Unauthorized) {
+					const error = err.error;
 
-				if (
-					error.errors &&
-					error.errors.length > 0 &&
-					error.errors[0]
-				) {
-					this.snackbarService.openSnackBar(
-						`${error.errors[0]}!`,
-						ESnackbarType.ERROR
-					);
-				} else if (
-					error.errors &&
-					Object.entries(error.errors).length > 0
-				) {
-					this.snackbarService.openSnackBar(
-						`${Object.entries(error.errors).at(0)![1]}!`,
-						ESnackbarType.ERROR
-					);
+					if (
+						error.errors &&
+						error.errors.length > 0 &&
+						error.errors[0]
+					) {
+						this.snackbarService.openSnackBar(
+							`${error.errors[0]}!`,
+							ESnackbarType.ERROR
+						);
+					} else if (
+						error.errors &&
+						Object.entries(error.errors).length > 0
+					) {
+						this.snackbarService.openSnackBar(
+							`${Object.entries(error.errors).at(0)![1]}!`,
+							ESnackbarType.ERROR
+						);
+					} else {
+						this.snackbarService.openSnackBar(
+							`Unknown error occured, please try again later!`,
+							ESnackbarType.ERROR
+						);
+					}
 				} else {
-					this.snackbarService.openSnackBar(
-						`Unknown error occured, please try again later!`,
-						ESnackbarType.ERROR
-					);
+					const error = err.error;
+
+					if (error.message) {
+						this.snackbarService.openSnackBar(
+							error.message,
+							ESnackbarType.ERROR
+						);
+					} else if (
+						error.errors &&
+						error.errors.length > 0 &&
+						error.errors[0]
+					) {
+						this.snackbarService.openSnackBar(
+							`${error.errors[0]}!`,
+							ESnackbarType.ERROR
+						);
+					} else if (
+						error.errors &&
+						Object.entries(error.errors).length > 0
+					) {
+						this.snackbarService.openSnackBar(
+							`${Object.entries(error.errors).at(0)![1]}!`,
+							ESnackbarType.ERROR
+						);
+					} else {
+						this.snackbarService.openSnackBar(
+							`Unknown error occured, please try again later!`,
+							ESnackbarType.ERROR
+						);
+					}
 				}
 			}
 
