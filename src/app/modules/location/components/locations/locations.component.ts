@@ -93,7 +93,6 @@ export class LocationsComponent {
 
 	protected onAddLocation(): void {
 		const dialogRef = this.dialog.open(AddLocationPopupComponent, {
-			maxWidth: "50vw",
 			data: {
 				planId: this.planId(),
 				destination: this.destination(),

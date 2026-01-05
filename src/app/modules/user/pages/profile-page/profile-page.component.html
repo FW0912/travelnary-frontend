@@ -1,6 +1,6 @@
 @if(userProfile()) {
 <div class="flex flex-col gap-4 justify-center items-center">
-	<div class="flex w-2/3 lg:w-1/2 gap-12 items-center">
+	<div class="flex max-md:flex-col w-2/3 lg:w-1/2 gap-12 items-center">
 		<app-user-image
 			[src]="userProfile()!.profileUrl"
 			class="flex justify-center w-1/4 h-auto max-h-60"
@@ -8,14 +8,22 @@
 		></app-user-image>
 
 		<div class="flex flex-col gap-4">
-			<div class="flex flex-col gap-1">
-				<span class="text-3xl text-primary font-medium">
-					@if(userProfile()!.fullName) {
-					{{ userProfile()!.fullName }}
-					} @else {
-					{{ userProfile()!.username }}
-					}
-				</span>
+			<div class="flex flex-col gap-3">
+				@if(userProfile()!.fullName && userProfile()!.fullName.length >
+				0) {
+				<div class="flex flex-col gap-1">
+					<span class="text-3xl text-primary font-medium">{{
+						userProfile()!.fullName
+					}}</span>
+					<span class="text-placeholder"
+						>@{{ userProfile()!.username }}</span
+					>
+				</div>
+				} @else {
+				<span class="text-3xl text-primary font-medium"
+					>@{{ userProfile()!.username }}</span
+				>
+				}
 
 				<div>
 					@if(userProfile()!.bioDescription) {
@@ -68,7 +76,11 @@
 	<div class="flex w-2/3 lg:w-1/2 flex-col gap-2">
 		<span class="text-xl text-primary font-medium">Created Plans</span>
 
-		<app-plan-gallery [planList]="planList()"></app-plan-gallery>
+		<app-plan-gallery
+			[planList]="planList()"
+			extraClasses="!grid-cols-1 sm:!grid-cols-2 xl:!grid-cols-3"
+			cardExtraClasses="!aspect-[7/10] sm:!aspect-[5/7]"
+		></app-plan-gallery>
 
 		<mat-paginator
 			class="mt-30"

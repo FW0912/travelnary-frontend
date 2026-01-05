@@ -31,7 +31,9 @@
 			</div>
 
 			@if(!isEditOpen()) {
-			<div class="text-sm">{{ comment()!.content }}</div>
+			<div class="text-sm break-words w-3/4">
+				{{ comment()!.content }}
+			</div>
 			} @else {
 			<div class="flex w-full gap-4">
 				<app-text-area

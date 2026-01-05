@@ -186,7 +186,6 @@ export class PlanPageComponent {
 	protected openEditPlanPopup(): void {
 		const ref = this.dialog.open(EditPlanPopupComponent, {
 			minWidth: "35%",
-			maxWidth: "50vw",
 			maxHeight: "80%",
 			data: {
 				plan: this.plan(),
@@ -228,7 +227,7 @@ export class PlanPageComponent {
 
 	protected openSharePlanPopup(): void {
 		this.dialog.open(SharePlanPopupComponent, {
-			minWidth: "35%",
+			width: "35%",
 			maxHeight: "80%",
 			data: {
 				planId: this.planId(),

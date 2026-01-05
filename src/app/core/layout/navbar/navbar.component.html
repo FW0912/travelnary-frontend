@@ -184,7 +184,7 @@
 
 		@if(isListOpen()) {
 		<div
-			class="flex flex-col items-center gap-5 bg-white text-black absolute top-full right-0 p-3 border-gray-200 shadow-md rounded-lg z-50"
+			class="flex flex-col items-center gap-5 bg-white text-black absolute top-full right-0 p-3 border-gray-200 shadow-md rounded-lg z-50 max-md:min-w-24 max-w-40"
 			#list
 			(click)="toggleList()"
 		>
@@ -201,6 +201,12 @@
 
 				<span class="truncate">{{ userData.username }}</span>
 			</button>
+			<button
+				class="flex items-center border-0 hover:bg-gray-100 cursor-pointer"
+				(click)="settings()"
+			>
+				<span>Settings</span>
+			</button>
 			}
 
 			<app-link
@@ -210,12 +216,22 @@
 			>
 
 			@if(authService.isLoggedIn()) {
-			<app-link href="/pinned-plans">Pinned Plans</app-link>
+			<app-link
+				href="/pinned-plans"
+				extraClasses="block text-center w-full"
+				>Pinned Plans</app-link
+			>
 
-			<app-link href="/your-plans">Your Plans</app-link>
+			<app-link href="/your-plans" extraClasses="block text-center w-full"
+				>Your Plans</app-link
+			>
 			} @if(!authService.isLoggedIn()) {
-			<app-link href="/login">Sign In</app-link>
-			<app-link href="/register">Sign Up</app-link>
+			<app-link href="/login" extraClasses="block text-center w-full"
+				>Sign In</app-link
+			>
+			<app-link href="/register" extraClasses="block text-center w-full"
+				>Sign Up</app-link
+			>
 			} @if(authService.isLoggedIn()) {
 			<button
 				class="flex items-center justify-between border-0 hover:text-red-300 transition-colors cursor-pointer text-error"

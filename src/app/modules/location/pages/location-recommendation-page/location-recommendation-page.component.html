@@ -70,10 +70,10 @@
 			</div>
 			} @else { @for(location of recommendedLocationList(); track
 			location.id) {
-			<div class="flex gap-4">
+			<div class="flex max-md:flex-col gap-4">
 				<app-default-image
 					[src]="location.photoUrl"
-					class="w-52 h-auto max-h-40 shrink-0"
+					class="w-3/4 md:w-52 h-auto shrink-0"
 					extraClasses="w-full h-full"
 				></app-default-image>
 

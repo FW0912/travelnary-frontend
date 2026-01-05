@@ -2,7 +2,7 @@
 <div
 	class="flex flex-col lg:flex-row w-full min-h-[calc(100vh-8.5rem)] py-5 items-center justify-center"
 >
-	<div class="flex flex-col gap-20 w-3/4">
+	<div class="flex flex-col gap-20 w-4/5 md:w-3/4">
 		<div class="flex flex-col gap-5">
 			<div class="flex items-center gap-4">
 				<span class="text-3xl font-medium text-primary"
@@ -19,7 +19,11 @@
 				>
 			</div>
 
-			<app-plan-gallery [planList]="pinnedPlanList()"></app-plan-gallery>
+			<app-plan-gallery
+				[planList]="pinnedPlanList()"
+				extraClasses="max-md:!grid-cols-2"
+				cardExtraClasses="!aspect-[3/7] md:!aspect-[4/5]"
+			></app-plan-gallery>
 		</div>
 
 		<div class="flex flex-col gap-10">
@@ -38,7 +42,11 @@
 				>
 			</div>
 
-			<app-plan-gallery [planList]="ownerPlanList()"></app-plan-gallery>
+			<app-plan-gallery
+				[planList]="ownerPlanList()"
+				extraClasses="max-md:!grid-cols-2"
+				cardExtraClasses="!aspect-[3/7] md:!aspect-[4/5]"
+			></app-plan-gallery>
 		</div>
 	</div>
 </div>

@@ -153,7 +153,6 @@ export class NavbarComponent {
 	protected settings(): void {
 		this.dialog.open(SettingsPopupComponent, {
 			minWidth: "35%",
-			maxWidth: "50vw",
 			maxHeight: "80%",
 		});
 	}

@@ -166,7 +166,6 @@ export class PlansPageComponent {
 	protected openCreatePlanPopup() {
 		this.dialog.open(CreateAPlanPopupComponent, {
 			minWidth: "35%",
-			maxWidth: "50vw",
 			maxHeight: "80%",
 		});
 	}

@@ -97,7 +97,6 @@ export class LocationDetailsSectionComponent {
 		this.isDropdownOpen.set(false);
 		const dialogRef = this.dialog.open(EditLocationPopupComponent, {
 			minWidth: "35%",
-			maxWidth: "50vw",
 			maxHeight: "80%",
 			data: {
 				location: this.location(),
