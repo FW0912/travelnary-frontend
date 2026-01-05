@@ -22,7 +22,7 @@
 					<div class="flex items-center gap-2">
 						<i class="bi bi-plus-lg"></i>
 
-						<span>Add a Custom Location</span>
+						<span>Add Custom Location</span>
 					</div>
 				</app-border-button>
 			</div>
@@ -49,15 +49,17 @@
 					<span>No locations found.</span>
 				</div>
 				} @else { @for(location of locationList(); track location.id) {
-				<div class="flex justify-between gap-10">
-					<div class="flex gap-2">
-						<div
-							class="flex shrink-0 w-8 h-8 rounded-full border border-black dark:border-white justify-center items-center"
-						>
-							<i class="bi {{ location.category.icon }}"></i>
-						</div>
+				<div class="flex gap-2 w-full md:max-w-[50vw]">
+					<div
+						class="flex shrink-0 w-8 h-8 rounded-full border border-black dark:border-white justify-center items-center"
+					>
+						<i class="bi {{ location.category.icon }}"></i>
+					</div>
 
-						<div class="flex flex-col gap-3">
+					<div class="flex flex-col gap-3 w-full">
+						<div
+							class="flex max-md:flex-col-reverse md:justify-between gap-2 md:gap-10 w-full"
+						>
 							<div class="flex flex-col gap-1">
 								<span class="!text-base line-clamp-1">{{
 									location.name
@@ -117,23 +119,23 @@
 								</div>
 							</div>
 
-							<div class="flex items-center gap-2">
-								<app-button (onClick)="onAdd(location)"
-									>Add</app-button
-								>
-								<app-border-button
-									(onClick)="onCheckReviews(location)"
-									>Check Reviews</app-border-button
-								>
-							</div>
+							<app-default-image
+								[src]="location.photoUrl"
+								class="w-48 h-auto shrink-0"
+								extraClasses="w-full h-full"
+							></app-default-image>
+						</div>
+
+						<div class="flex items-center gap-2">
+							<app-button (onClick)="onAdd(location)"
+								>Add</app-button
+							>
+							<app-border-button
+								(onClick)="onCheckReviews(location)"
+								>Check Reviews</app-border-button
+							>
 						</div>
 					</div>
-
-					<app-default-image
-						[src]="location.photoUrl"
-						class="w-48 h-auto max-h-32 shrink-0"
-						extraClasses="w-full h-full"
-					></app-default-image>
 				</div>
 				} }
 			</div>

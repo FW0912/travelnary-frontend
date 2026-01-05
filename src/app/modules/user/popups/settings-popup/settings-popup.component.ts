@@ -16,6 +16,7 @@ import {
 	MatDialogContent,
 	MatDialogActions,
 	MatDialogRef,
+	MatDialog,
 } from "@angular/material/dialog";
 import { TextInputComponent } from "../../../../shared/components/inputs/text-input/text-input.component";
 import { AuthService } from "../../../../core/services/auth/auth.service";
@@ -33,6 +34,7 @@ import { ImageService } from "../../../image/services/image.service";
 import { Observable, switchMap } from "rxjs";
 import { ApiResponse } from "../../../../core/models/api/api-response";
 import { UserProfile } from "../../../../core/models/domain/user/user-profile";
+import { ChangePasswordPopupComponent } from "../change-password-popup/change-password-popup.component";
 
 @Component({
 	selector: "app-settings-popup",
@@ -62,6 +64,7 @@ export class SettingsPopupComponent extends BaseFormComponent {
 		private authService: AuthService,
 		private imageService: ImageService,
 		private snackbarService: SnackbarService,
+		private dialog: MatDialog,
 		private ref: MatDialogRef<SettingsPopupComponent>
 	) {
 		super();
@@ -131,6 +134,13 @@ export class SettingsPopupComponent extends BaseFormComponent {
 
 				this.isDataFetched.set(true);
 			},
+		});
+	}
+
+	protected openChangePasswordPopup(): void {
+		this.dialog.open(ChangePasswordPopupComponent, {
+			minWidth: "35%",
+			maxHeight: "80%",
 		});
 	}
 

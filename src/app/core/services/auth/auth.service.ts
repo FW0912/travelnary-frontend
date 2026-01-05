@@ -25,6 +25,7 @@ import { UserProfile } from "../../models/domain/user/user-profile";
 import { Router } from "@angular/router";
 import { SKIP_REFRESH_TOKEN } from "../../interceptors/refresh-token/refresh-token.interceptor";
 import { UpdateProfileDto } from "../../auth/models/update-profile-dto";
+import { ChangePasswordDto } from "../../auth/models/change-password-dto";
 
 @Injectable({
 	providedIn: "root",
@@ -77,6 +78,7 @@ export class AuthService {
 	}
 
 	private resetSession(): void {
+		this.isLoggedIn.set(false);
 		this.localStorageService.removeItem(AuthService.accessTokenKey);
 		this.localStorageService.removeItem(
 			AuthService.accessTokenExpirationKey
@@ -185,7 +187,7 @@ export class AuthService {
 			email: email,
 			password: password,
 			fullName: fullName,
-			gender: "Male",
+			gender: null,
 			bioDescription: "",
 			dob: null,
 			profileUrl: null,
@@ -254,9 +256,21 @@ export class AuthService {
 	public updateProfile(
 		dto: UpdateProfileDto
 	): Observable<ApiResponse<UserProfile>> {
-		return this.http.post<ApiResponse<UserProfile>>(
-			`${this.baseApiUrl}/update-profile`,
-			dto
-		);
+		return this.http
+			.post<ApiResponse<UserProfile>>(
+				`${this.baseApiUrl}/update-profile`,
+				dto
+			)
+			.pipe(this.utilsService.generalErrorCatch());
+	}
+	public changePassword(
+		dto: ChangePasswordDto
+	): Observable<ApiResponse<UserProfile>> {
+		return this.http
+			.put<ApiResponse<UserProfile>>(
+				`${this.baseApiUrl}/change-password`,
+				dto
+			)
+			.pipe(this.utilsService.generalErrorCatch());
 	}
 }

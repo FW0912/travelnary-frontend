@@ -1,8 +1,9 @@
 <div class="flex w-full bg-white dark:bg-dark-bg rounded-xl shadow-md p-5">
-	<div class="flex justify-between w-full gap-20">
+	<div
+		class="flex max-md:flex-col-reverse justify-between w-full gap-3 md:gap-20"
+	>
 		<app-location-details [location]="location()"></app-location-details>
 
-		<!-- <div class="w-48 h-28 bg-placeholder rounded-md shrink-0"></div> -->
 		<app-default-image
 			[src]="location().photoUrl"
 			class="w-48 h-28 shrink-0"

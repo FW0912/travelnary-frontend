@@ -146,7 +146,6 @@ export class AddLocationPopupComponent {
 	protected openAddCustomLocationPopup(): void {
 		const dialogRef = this.dialog.open(AddCustomLocationPopupComponent, {
 			minWidth: "35%",
-			maxWidth: "50vw",
 			maxHeight: "80%",
 			data: {
 				planId: this.planId,

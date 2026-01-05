@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { Plan } from "../../../../../../core/models/domain/plan/plan";
 import { PlanGalleryCardComponent } from "./plan-gallery-card/plan-gallery-card.component";
 import { BasePlanDto } from "../../../../models/base-plan-dto";
+import { BaseSharedComponent } from "../../../../../../shared/components/base-shared/base-shared.component";
 
 @Component({
 	selector: "app-plan-gallery",
@@ -10,6 +11,7 @@ import { BasePlanDto } from "../../../../models/base-plan-dto";
 	styleUrl: "./plan-gallery.component.css",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlanGalleryComponent {
+export class PlanGalleryComponent extends BaseSharedComponent {
 	public planList = input.required<Array<BasePlanDto>>();
+	public cardExtraClasses = input<string>();
 }
