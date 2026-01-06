@@ -118,7 +118,7 @@ export class PlansPageComponent {
 			DateEnd: this.planFilterData?.endDateFilter?.toISOString() ?? null,
 			Days: this.planFilterData?.daysFilter ?? null,
 			OrderBy: this.planFilterType
-				? this.PLAN_FILTER_TYPE_LIST.indexOf(this.planFilterType!)
+				? this.PLAN_FILTER_TYPE_LIST.indexOf(this.planFilterType!) + 1
 				: 1,
 		};
 

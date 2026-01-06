@@ -3,12 +3,15 @@ import {
 	Component,
 	DestroyRef,
 	effect,
+	Inject,
+	PLATFORM_ID,
+	Sanitizer,
 	signal,
 } from "@angular/core";
 import { BorderButtonComponent } from "../../../../shared/components/buttons/border-button/border-button.component";
 import { LocationsComponent } from "../../../location/components/locations/locations.component";
 import { CommentsComponent } from "../../../comment/components/comments/comments.component";
-import { CommonModule } from "@angular/common";
+import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { SharePlanPopupComponent } from "../../popups/share-plan-popup/share-plan-popup.component";
 import { Comment } from "../../../../core/models/domain/comment/comment";
 import { Location } from "../../../../core/models/domain/location/location";
@@ -27,13 +30,38 @@ import { LocationService } from "../../../location/services/location.service";
 import { GetLocationByPlanDto } from "../../../location/models/get-location-by-plan-dto";
 import { GetLocationByIdDto } from "../../../location/models/get-location-by-id-dto";
 import { GetLocationDto } from "../../../location/models/get-location-dto";
-import { catchError, EMPTY, iif, map, Observable, of, switchMap } from "rxjs";
+import {
+	catchError,
+	debounceTime,
+	defer,
+	delay,
+	EMPTY,
+	filter,
+	iif,
+	map,
+	merge,
+	Observable,
+	of,
+	race,
+	retry,
+	retryWhen,
+	Subject,
+	switchMap,
+	take,
+	tap,
+	timeout,
+	timer,
+} from "rxjs";
 import { PlanDetailsComponent } from "./components/plan-details/plan-details.component";
 import { UpdateLocationSortOrderDto } from "../../../location/models/update-location-sort-order-dto";
 import { GetCommentDto } from "../../../comment/models/get-comment-dto";
 import { CommentService } from "../../../comment/services/comment.service";
 import { GetCommentByPlanDto } from "../../../comment/models/get-comment-by-plan-dto";
 import { ApiResponse } from "../../../../core/models/api/api-response";
+import { environment } from "../../../../../environments/environment";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
+import { SafeUrlPipe } from "../../../../shared/pipes/safe-url/safe-url.pipe";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 
 @Component({
 	selector: "app-plan-page",
@@ -43,6 +71,7 @@ import { ApiResponse } from "../../../../core/models/api/api-response";
 		LocationsComponent,
 		CommentsComponent,
 		CommonModule,
+		SafeUrlPipe,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./plan-page.component.html",
@@ -52,12 +81,20 @@ export class PlanPageComponent {
 	private planId = signal<string>("");
 	protected shareToken = signal<string | null>(null);
 	protected plan = signal<GetPlanByIdDto | null>(null);
+	protected showMap = signal<boolean>(true);
+	protected mapsUrl = signal<string | null>(null);
+	private lastMapChange = signal<number | null>(null);
 	protected estimatedCost = signal<number>(0);
 	protected locationList = signal<Array<GetLocationByPlanDto>>(new Array());
 	protected comments = signal<GetCommentByPlanDto | null>(null);
+	protected showedLocationIdOnMap = signal<string | null>(null);
+
+	private mapChangeRequest$ = new Subject<GetLocationDto | null>();
+	private mapChange$ = new Subject<string>();
 
 	constructor(
 		private route: ActivatedRoute,
+		private breakpointObserver: BreakpointObserver,
 		private destroyRef: DestroyRef,
 		private router: Router,
 		private snackbarService: SnackbarService,
@@ -65,7 +102,8 @@ export class PlanPageComponent {
 		private planService: PlanService,
 		private locationService: LocationService,
 		private commentService: CommentService,
-		protected authService: AuthService
+		protected authService: AuthService,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {
 		route.paramMap.pipe(takeUntilDestroyed()).subscribe((x) => {
 			if (x.get("id") === null || x.get("id")!.length === 0) {
@@ -82,6 +120,39 @@ export class PlanPageComponent {
 
 		route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((x) => {
 			this.shareToken.set(x.get("share"));
+		});
+
+		if (isPlatformBrowser(this.platformId)) {
+			this.breakpointObserver
+				.observe([
+					Breakpoints.Medium,
+					Breakpoints.Small,
+					Breakpoints.XSmall,
+				])
+				.pipe(takeUntilDestroyed())
+				.subscribe((x) => this.showMap.set(!x.matches));
+		}
+
+		this.mapChangeRequest$
+			.pipe(debounceTime(800), takeUntilDestroyed())
+			.subscribe((location) => this.commitShowLocationOnMap(location));
+
+		this.mapChange$.pipe(takeUntilDestroyed()).subscribe((url) => {
+			const now = Date.now();
+			// const diff = now - (this.lastMapChange() ?? 0);
+
+			// if (this.lastMapChange() && diff < 2000) {
+			// 	snackbarService.openSnackBar(
+			// 		`You can show a location on maps again in ${Math.ceil(
+			// 			diff / 1000
+			// 		)} seconds.`,
+			// 		ESnackbarType.INFO
+			// 	);
+			// 	return;
+			// }
+
+			this.lastMapChange.set(now);
+			this.mapsUrl.set(url);
 		});
 	}
 
@@ -128,6 +199,11 @@ export class PlanPageComponent {
 			.pipe(
 				switchMap((x) => {
 					this.plan.set(x.data);
+					this.mapChange$.next(
+						`https://www.google.com/maps?q=${
+							this.plan()!.destination
+						}&z=16&output=embed`
+					);
 
 					return this.locationService.getLocationByPlan(
 						this.planId()
@@ -368,6 +444,44 @@ export class PlanPageComponent {
 				return y;
 			})
 		);
+	}
+
+	protected retryMap(): void {
+		const url = this.mapsUrl();
+		this.mapsUrl.set(null);
+		timer(0).subscribe(() => this.mapsUrl.set(url));
+	}
+
+	protected commitShowLocationOnMap(location: GetLocationDto | null): void {
+		if (
+			location &&
+			location.location &&
+			location.location.latitude &&
+			location.location.longitude
+		) {
+			this.mapChange$.next(`
+					https://www.google.com/maps?q=${location.location.latitude},${location.location.longitude}&z=16&output=embed`);
+		} else {
+			this.mapChange$.next(
+				`
+						https://www.google.com/maps?q=${this.plan()!.destination}&z=16&output=embed`
+			);
+		}
+	}
+
+	protected onShowLocationOnMap(location: GetLocationDto | null): void {
+		if (
+			location &&
+			location.location &&
+			location.location.latitude &&
+			location.location.longitude
+		) {
+			this.showedLocationIdOnMap.set(location.id);
+		} else {
+			this.showedLocationIdOnMap.set(null);
+		}
+
+		this.mapChangeRequest$.next(location);
 	}
 
 	protected onPostComment(event: GetCommentDto): void {

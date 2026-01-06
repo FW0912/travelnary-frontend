@@ -47,11 +47,13 @@ export class LocationsComponent {
 	public locationList = input.required<Array<GetLocationDto>>();
 	public readOnly = input.required<boolean>();
 	public simple = input<boolean>(false);
+	public showedLocationIdOnMap = input<string | null>(null);
 	public editorToken = input<string | null>(null);
 	public isSorting = signal<boolean>(false);
 
 	public sortedLocationList = signal<Array<GetLocationDto>>(new Array());
 
+	public showLocationMap = output<GetLocationDto | null>();
 	public onAdd = output<void>();
 	public onEdit = output<void>();
 	public onSort = output<{
@@ -64,6 +66,10 @@ export class LocationsComponent {
 	}>();
 
 	constructor(private dialog: MatDialog, private destroyRef: DestroyRef) {}
+
+	protected showLocationOnMap(location: GetLocationDto | null): void {
+		this.showLocationMap.emit(location);
+	}
 
 	protected enableSorting(): void {
 		this.sortedLocationList.set(this.locationList());
