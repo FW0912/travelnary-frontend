@@ -32,7 +32,9 @@
 			[readOnly]="readOnly()"
 			[simple]="simple()"
 			[isLast]="isLast"
+			[showedLocationIdOnMap]="showedLocationIdOnMap()"
 			[editorToken]="editorToken()"
+			(showLocationMap)="showLocationOnMap($event)"
 			(onEdit)="onEditLocation()"
 			(onDelete)="onDeleteLocation($event)"
 		></app-location-details-section>

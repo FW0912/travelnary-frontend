@@ -1,0 +1,28 @@
+<app-base-popup title="Show Location">
+	<mat-dialog-content class="!overflow-visible !p-0 !py-2">
+		@if(mapsUrl()) {
+		<div class="flex w-full h-[50vh] relative">
+			<iframe
+				class="w-full self-stretch rounded-md z-0"
+				frameborder="0"
+				style="border: 0"
+				referrerpolicy="no-referrer-when-downgrade"
+				[src]="mapsUrl()! | safeUrl"
+				allowfullscreen
+			>
+			</iframe>
+			<button
+				class="flex items-center gap-2 absolute top-3 right-2 bg-white hover:bg-gray-200 transition-colors p-1 shadow-sm text-primary text-xs z-10 cursor-pointer"
+				(click)="retryMap()"
+			>
+				<i class="bi bi-arrow-clockwise"></i>
+				<span>Retry</span>
+			</button>
+		</div>
+		}
+	</mat-dialog-content>
+
+	<mat-dialog-actions class="!p-0" align="end">
+		<app-button (onClick)="close()">Done</app-button>
+	</mat-dialog-actions>
+</app-base-popup>

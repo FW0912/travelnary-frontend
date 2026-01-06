@@ -4,8 +4,10 @@ import {
 	DestroyRef,
 	effect,
 	ElementRef,
+	Inject,
 	input,
 	output,
+	PLATFORM_ID,
 	signal,
 	ViewChild,
 } from "@angular/core";
@@ -24,6 +26,10 @@ import { LocationService } from "../../../../services/location.service";
 import { SnackbarService } from "../../../../../../core/services/snackbar/snackbar.service";
 import { ESnackbarType } from "../../../../../../core/models/utils/others/snackbar-type.enum";
 import { DefaultImageComponent } from "../../../../../../shared/components/images/default-image/default-image.component";
+import { ButtonComponent } from "../../../../../../shared/components/buttons/button/button.component";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { isPlatformBrowser } from "@angular/common";
+import { LocationMapPopupComponent } from "../../../../popups/location-map-popup/location-map-popup.component";
 
 @Component({
 	selector: "app-location-details-section",
@@ -31,6 +37,7 @@ import { DefaultImageComponent } from "../../../../../../shared/components/image
 		LocationDetailsComponent,
 		BorderButtonComponent,
 		DefaultImageComponent,
+		ButtonComponent,
 	],
 	templateUrl: "./location-details-section.component.html",
 	styleUrl: "./location-details-section.component.css",
@@ -45,10 +52,14 @@ export class LocationDetailsSectionComponent {
 	public readOnly = input.required<boolean>();
 	public simple = input<boolean>(false);
 	public isLast = input<boolean>(false);
+	public showedLocationIdOnMap = input<string | null>(null);
 	public editorToken = input<string | null>(null);
 
 	protected isDropdownOpen = signal<boolean>(false);
+	protected shouldOpenMapPopup = signal<boolean>(false);
+	protected isCurrentLocationBeingShownOnMap = signal<boolean>(false);
 
+	public showLocationMap = output<GetLocationDto | null>();
 	public onEdit = output<void>();
 	public onDelete = output<{
 		day: number;
@@ -57,10 +68,12 @@ export class LocationDetailsSectionComponent {
 
 	constructor(
 		private eventService: EventService,
+		private breakpointObserver: BreakpointObserver,
 		private dialog: MatDialog,
 		private destroyRef: DestroyRef,
 		private locationService: LocationService,
-		private snackbarService: SnackbarService
+		private snackbarService: SnackbarService,
+		@Inject(PLATFORM_ID) private platformId: Object
 	) {
 		eventService
 			.listen<MouseEvent>(EventName.DOCUMENT_CLICK)
@@ -76,6 +89,29 @@ export class LocationDetailsSectionComponent {
 					this.isDropdownOpen.set(false);
 				}
 			});
+
+		if (isPlatformBrowser(this.platformId)) {
+			this.breakpointObserver
+				.observe([
+					Breakpoints.Medium,
+					Breakpoints.Small,
+					Breakpoints.XSmall,
+				])
+				.pipe(takeUntilDestroyed())
+				.subscribe((x) => this.shouldOpenMapPopup.set(x.matches));
+		}
+
+		effect(() => {
+			const showedLocationIdOnMap = this.showedLocationIdOnMap();
+
+			if (this.location()) {
+				if (showedLocationIdOnMap === this.location().id) {
+					this.isCurrentLocationBeingShownOnMap.set(true);
+				} else {
+					this.isCurrentLocationBeingShownOnMap.set(false);
+				}
+			}
+		});
 	}
 
 	protected toggleOptionsDropdown(): void {
@@ -140,5 +176,44 @@ export class LocationDetailsSectionComponent {
 					});
 			}
 		});
+	}
+
+	protected openMapPopup(): void {
+		this.isCurrentLocationBeingShownOnMap.set(true);
+
+		const dialogRef = this.dialog.open(LocationMapPopupComponent, {
+			minWidth: "50%",
+			maxHeight: "80%",
+			data: {
+				url: `
+					https://www.google.com/maps?q=${this.location().location.latitude},${
+					this.location().location.longitude
+				}&z=16&output=embed`,
+			},
+		});
+
+		dialogRef
+			.afterClosed()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe(() => this.isCurrentLocationBeingShownOnMap.set(false));
+	}
+
+	protected showOnMap(): void {
+		if (this.shouldOpenMapPopup()) {
+			this.openMapPopup();
+			return;
+		}
+
+		this.showLocationMap.emit(this.location());
+		this.isCurrentLocationBeingShownOnMap.set(true);
+	}
+
+	protected unshowOnMap(): void {
+		if (this.shouldOpenMapPopup()) {
+			return;
+		}
+
+		this.showLocationMap.emit(null);
+		this.isCurrentLocationBeingShownOnMap.set(false);
 	}
 }
